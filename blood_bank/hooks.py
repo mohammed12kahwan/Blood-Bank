@@ -247,3 +247,80 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+# === BLOOD BANK WORKSPACE UI ASSETS ===
+
+_bb_css = globals().get("app_include_css", [])
+if isinstance(_bb_css, str):
+    _bb_css = [_bb_css]
+
+app_include_css = list(dict.fromkeys(
+    _bb_css + [
+        "/assets/blood_bank/css/blood_bank_workspace.css?v=3"
+    ]
+))
+
+
+_bb_js = globals().get("app_include_js", [])
+if isinstance(_bb_js, str):
+    _bb_js = [_bb_js]
+
+app_include_js = list(dict.fromkeys(
+    _bb_js + [
+        "/assets/blood_bank/js/blood_bank_workspace.js?v=3"
+    ]
+))
+
+# === BLOOD DONOR FORM UI ASSETS ===
+
+_bb_form_css = globals().get("app_include_css", [])
+if isinstance(_bb_form_css, str):
+    _bb_form_css = [_bb_form_css]
+
+app_include_css = list(dict.fromkeys(
+    _bb_form_css + [
+        "/assets/blood_bank/css/blood_donor_form.css?v=6",
+        "/assets/blood_bank/css/blood_unit_disposition_form.css?v=1",
+        "/assets/blood_bank/css/blood_transfusion_form.css?v=1",
+        "/assets/blood_bank/css/blood_handover_form.css?v=1",
+        "/assets/blood_bank/css/blood_issue_form.css?v=1",
+        "/assets/blood_bank/css/blood_crossmatch_form.css?v=1",
+        "/assets/blood_bank/css/blood_reservation_form.css?v=1",
+        "/assets/blood_bank/css/blood_request_form.css?v=1",
+        "/assets/blood_bank/css/blood_storage_form.css?v=1",
+        "/assets/blood_bank/css/blood_component_form.css?v=1",
+        "/assets/blood_bank/css/blood_component_quality_check_form.css?v=1",
+        "/assets/blood_bank/css/blood_screening_form.css?v=1",
+        "/assets/blood_bank/css/blood_unit_form.css?v=1",
+        "/assets/blood_bank/css/blood_processing_form.css?v=1",
+        "/assets/blood_bank/css/blood_donation_form.css?v=4",
+    ]
+))
+
+# === BLOOD BANK NAVIGATION ASSETS ===
+
+_bb_nav_js = globals().get("app_include_js", [])
+if isinstance(_bb_nav_js, str):
+    _bb_nav_js = [_bb_nav_js]
+
+app_include_js = list(dict.fromkeys(
+    _bb_nav_js + [
+        "/assets/blood_bank/js/blood_bank_navigation.js?v=2",
+    ]
+))
+
+_bb_nav_css = globals().get("app_include_css", [])
+if isinstance(_bb_nav_css, str):
+    _bb_nav_css = [_bb_nav_css]
+
+app_include_css = list(dict.fromkeys(
+    _bb_nav_css + [
+        "/assets/blood_bank/css/blood_bank_navigation.css?v=2",
+    ]
+))
+
+
+app_include_js = list(dict.fromkeys(globals().get("app_include_js", []) + ["/assets/blood_bank/js/blood_donor_embedded_forms.js?v=1", "/assets/blood_bank/js/blood_bank_workspace_shortcut.js?v=1"]))
+
+_bb_workspace_css = globals().get("app_include_css", [])
+_bb_workspace_css = _bb_workspace_css if isinstance(_bb_workspace_css, list) else [_bb_workspace_css]
+app_include_css = list(dict.fromkeys(_bb_workspace_css + ["/assets/blood_bank/css/blood_bank_workspace_shortcut.css?v=1"]))

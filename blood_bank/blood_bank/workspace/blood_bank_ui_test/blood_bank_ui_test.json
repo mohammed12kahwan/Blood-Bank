@@ -1,0 +1,36 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"cf4f80d3b1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">\u0639\u0645\u0644 \u0645\u0648\u0638\u0641 \u0628\u0646\u0643 \u0627\u0644\u062f\u0645</span>\",\"col\":12}},{\"id\":\"ee122487cd\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\u0639\u0645\u0644 \u0645\u0648\u0638\u0641 \u0628\u0646\u0643 \u0627\u0644\u062f\u0645\",\"col\":3}}]",
+ "creation": "2026-10-05 23:29:36.731665",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "heart",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Blood Bank UI Test",
+ "links": [],
+ "modified": "2026-10-06 23:35:30.614442",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Bank UI Test",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 0.0,
+ "shortcuts": [
+  {
+   "color": "Red",
+   "doc_view": "",
+   "icon": "heart",
+   "label": "\u0639\u0645\u0644 \u0645\u0648\u0638\u0641 \u0628\u0646\u0643 \u0627\u0644\u062f\u0645",
+   "link_to": "blood-bank-staff-operations",
+   "type": "Page"
+  }
+ ],
+ "title": "Blood Bank UI Test"
+}

@@ -1,0 +1,332 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "orange",
+ "creation": "2026-10-05 20:56:37.321984",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "column_break_identification_2",
+  "unit_status",
+  "column_break_identification_3",
+  "source_section",
+  "blood_donation",
+  "donor",
+  "donor_name",
+  "column_break_source_2",
+  "donation_date",
+  "collection_start",
+  "column_break_source_3",
+  "collection_end",
+  "collection_staff",
+  "blood_information_section",
+  "abo_group",
+  "rh_factor",
+  "column_break_blood_2",
+  "blood_group",
+  "blood_group_verified",
+  "unit_information_section",
+  "unit_type",
+  "bag_number",
+  "column_break_unit_2",
+  "volume",
+  "volume_unit",
+  "column_break_unit_3",
+  "collection_device",
+  "collection_location",
+  "quarantine_section",
+  "quarantine_date",
+  "column_break_quarantine_2",
+  "quarantine_reason",
+  "expiry_section",
+  "expiry_date",
+  "column_break_expiry_2",
+  "expiry_note",
+  "remarks_section",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "default": "BU-.YYYY.-.#####",
+   "description": "Unique Blood Unit number / رقم فريد لوحدة الدم",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Unit ID / رقم وحدة الدم",
+   "options": "BU-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Created",
+   "fieldname": "unit_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Unit Status / حالة الوحدة",
+   "options": "Created\nQuarantine\nAccepted\nRejected\nProcessing\nAvailable\nReserved\nIssued\nReturned\nExpired\nDiscarded\nTransfused",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_section",
+   "fieldtype": "Section Break",
+   "label": "Source Donation / مصدر التبرع"
+  },
+  {
+   "fieldname": "blood_donation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Donation / عملية التبرع",
+   "options": "Blood Donation",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "blood_donation.donor",
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Donor / المتبرع",
+   "options": "Blood Donor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Donor Name / اسم المتبرع",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "blood_donation.donation_date",
+   "fieldname": "donation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Donation Date / تاريخ التبرع",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "blood_donation.collection_start",
+   "fieldname": "collection_start",
+   "fieldtype": "Datetime",
+   "label": "Collection Start / بداية السحب",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "blood_donation.collection_end",
+   "fieldname": "collection_end",
+   "fieldtype": "Datetime",
+   "label": "Collection End / نهاية السحب",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "blood_donation.collection_staff",
+   "fieldname": "collection_staff",
+   "fieldtype": "Link",
+   "label": "Collection Staff / موظف سحب الدم",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_information_section",
+   "fieldtype": "Section Break",
+   "label": "Blood Information / معلومات الدم"
+  },
+  {
+   "fieldname": "abo_group",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "ABO Group / فصيلة ABO",
+   "options": "A\nB\nAB\nO",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rh_factor",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Rh Factor / عامل Rh",
+   "options": "Positive\nNegative",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / فصيلة الدم الكاملة",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "blood_group_verified",
+   "fieldtype": "Check",
+   "label": "Blood Group Verified / تم التحقق من الفصيلة",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unit_information_section",
+   "fieldtype": "Section Break",
+   "label": "Unit Information / معلومات الوحدة"
+  },
+  {
+   "default": "Whole Blood",
+   "fieldname": "unit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Unit Type / نوع الوحدة",
+   "options": "Whole Blood\nApheresis\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / رقم كيس الدم",
+   "read_only": 1
+  },
+  {
+   "fieldname": "volume",
+   "fieldtype": "Float",
+   "label": "Volume / الحجم",
+   "precision": "2"
+  },
+  {
+   "default": "mL",
+   "fieldname": "volume_unit",
+   "fieldtype": "Select",
+   "label": "Volume Unit / وحدة الحجم",
+   "options": "mL\nL"
+  },
+  {
+   "fieldname": "collection_device",
+   "fieldtype": "Data",
+   "label": "Collection Device / جهاز الجمع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "collection_location",
+   "fieldtype": "Data",
+   "label": "Collection Location / مكان السحب",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quarantine_section",
+   "fieldtype": "Section Break",
+   "label": "Quarantine / الحجر"
+  },
+  {
+   "fieldname": "quarantine_date",
+   "fieldtype": "Datetime",
+   "label": "Quarantine Date / تاريخ دخول الحجر",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quarantine_reason",
+   "fieldtype": "Small Text",
+   "label": "Quarantine Note / ملاحظة الحجر"
+  },
+  {
+   "fieldname": "expiry_section",
+   "fieldtype": "Section Break",
+   "label": "Expiry / الصلاحية"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date / تاريخ انتهاء الصلاحية"
+  },
+  {
+   "fieldname": "expiry_note",
+   "fieldtype": "Small Text",
+   "label": "Expiry Note / ملاحظة الصلاحية"
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / ملاحظات"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / ملاحظات"
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_source_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_source_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_blood_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_unit_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_unit_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_quarantine_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_expiry_2",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "package",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:02:53.482376",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Unit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "donor,donor_name,blood_group,bag_number",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

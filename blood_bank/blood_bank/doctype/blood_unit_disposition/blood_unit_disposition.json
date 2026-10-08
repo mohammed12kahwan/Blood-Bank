@@ -1,0 +1,207 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "gray",
+ "creation": "2026-10-05 22:00:47.313171",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "disposition_status",
+  "column_break_identification_2",
+  "disposition_date",
+  "blood_unit",
+  "column_break_identification_3",
+  "blood_group",
+  "bag_number",
+  "rejection_section",
+  "rejection_reason",
+  "column_break_rejection_2",
+  "rejected_at",
+  "column_break_rejection_3",
+  "rejected_by",
+  "discard_section",
+  "discard_reason",
+  "column_break_discard_2",
+  "discarded_at",
+  "column_break_discard_3",
+  "discarded_by",
+  "remarks_section",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Disposition ID / \u0631\u0642\u0645 \u0627\u0644\u0625\u062c\u0631\u0627\u0621",
+   "options": "DIS-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "disposition_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Disposition Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0625\u062c\u0631\u0627\u0621",
+   "options": "Draft\nRejected\nDiscarded",
+   "reqd": 1
+  },
+  {
+   "fieldname": "disposition_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Disposition Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u062c\u0631\u0627\u0621",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rejection_section",
+   "fieldtype": "Section Break",
+   "label": "Rejection / \u0627\u0644\u0631\u0641\u0636"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason / \u0633\u0628\u0628 \u0627\u0644\u0631\u0641\u0636"
+  },
+  {
+   "fieldname": "rejected_at",
+   "fieldtype": "Datetime",
+   "label": "Rejected At / \u0648\u0642\u062a \u0627\u0644\u0631\u0641\u0636",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rejected_by",
+   "fieldtype": "Link",
+   "label": "Rejected By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0631\u0641\u0636",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "discard_section",
+   "fieldtype": "Section Break",
+   "label": "Discard / \u0627\u0644\u0625\u062a\u0644\u0627\u0641"
+  },
+  {
+   "fieldname": "discard_reason",
+   "fieldtype": "Small Text",
+   "label": "Discard Reason / \u0633\u0628\u0628 \u0627\u0644\u0625\u062a\u0644\u0627\u0641"
+  },
+  {
+   "fieldname": "discarded_at",
+   "fieldtype": "Datetime",
+   "label": "Discarded At / \u0648\u0642\u062a \u0627\u0644\u0625\u062a\u0644\u0627\u0641",
+   "read_only": 1
+  },
+  {
+   "fieldname": "discarded_by",
+   "fieldtype": "Link",
+   "label": "Discarded By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0625\u062a\u0644\u0627\u0641",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rejection_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rejection_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_discard_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_discard_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "trash",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:26:04.811805",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Unit Disposition",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_unit,blood_group,bag_number,disposition_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

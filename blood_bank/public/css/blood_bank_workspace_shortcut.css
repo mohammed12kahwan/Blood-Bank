@@ -1,0 +1,49 @@
+.bb-blood-bank-shortcut {
+    position: relative !important;
+    border: 1px solid #b91c1c !important;
+    background: #fff1f2 !important;
+    border-radius: 9px !important;
+    box-shadow: 0 2px 7px rgba(127, 29, 29, .12) !important;
+    min-height: 70px !important;
+}
+
+.bb-blood-bank-shortcut:hover {
+    background: #ffe4e6 !important;
+}
+
+.bb-blood-bank-shortcut .widget-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    color: #991b1b !important;
+    font-weight: 700 !important;
+}
+
+.bb-shortcut-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: #fee2e2;
+    font-size: 17px;
+}
+
+.bb-shortcut-alert {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 1px 4px rgba(127, 29, 29, .25);
+}

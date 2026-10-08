@@ -1,0 +1,346 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "red",
+ "creation": "2026-10-05 22:45:23.997865",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "issue_status",
+  "column_break_identification_2",
+  "issue_date",
+  "blood_reservation",
+  "column_break_identification_3",
+  "request_section",
+  "blood_request",
+  "patient",
+  "column_break_request_2",
+  "patient_name",
+  "column_break_request_3",
+  "candidate_section",
+  "blood_storage",
+  "blood_component",
+  "column_break_candidate_2",
+  "blood_unit",
+  "blood_group",
+  "column_break_candidate_3",
+  "component_type",
+  "bag_number",
+  "verification_section",
+  "verification_result",
+  "verification_started_at",
+  "column_break_verification_2",
+  "verification_started_by",
+  "failure_reason",
+  "column_break_verification_3",
+  "issue_section",
+  "issued_at",
+  "column_break_issue_2",
+  "issued_by",
+  "column_break_issue_3",
+  "remarks_section",
+  "remarks",
+  "return_reason",
+  "column_break_remarks_2",
+  "return_evaluation",
+  "return_disposition_reason",
+  "column_break_remarks_3",
+  "returned_at",
+  "returned_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Issue ID / \u0631\u0642\u0645 \u0627\u0644\u0635\u0631\u0641",
+   "options": "ISS-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "issue_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Issue Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0635\u0631\u0641",
+   "options": "Draft\nFinal Verification\nIssued\nFailed\nStop Issue\nReturned\nReturn Evaluation\nEligible\nNot Eligible",
+   "reqd": 1
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Issue Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0635\u0631\u0641",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_reservation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Reservation / \u0627\u0644\u062d\u062c\u0632",
+   "options": "Blood Reservation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "request_section",
+   "fieldtype": "Section Break",
+   "label": "Blood Request / \u0637\u0644\u0628 \u0627\u0644\u062f\u0645"
+  },
+  {
+   "fieldname": "blood_request",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Request / \u0637\u0644\u0628 \u0627\u0644\u062f\u0645",
+   "options": "Blood Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Patient / \u0627\u0644\u0645\u0631\u064a\u0636",
+   "options": "Patient",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient_name",
+   "fieldtype": "Data",
+   "label": "Patient Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u064a\u0636",
+   "read_only": 1
+  },
+  {
+   "fieldname": "candidate_section",
+   "fieldtype": "Section Break",
+   "label": "Issued Blood / \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0635\u0631\u0648\u0641"
+  },
+  {
+   "fieldname": "blood_storage",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Storage / \u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Storage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Component",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verification_section",
+   "fieldtype": "Section Break",
+   "label": "Final Verification / \u0627\u0644\u062a\u062d\u0642\u0642 \u0627\u0644\u0646\u0647\u0627\u0626\u064a"
+  },
+  {
+   "fieldname": "verification_result",
+   "fieldtype": "Select",
+   "label": "Verification Result / \u0646\u062a\u064a\u062c\u0629 \u0627\u0644\u062a\u062d\u0642\u0642",
+   "options": "\nPassed\nFailed"
+  },
+  {
+   "fieldname": "verification_started_at",
+   "fieldtype": "Datetime",
+   "label": "Verification Started At / \u0628\u062f\u0621 \u0627\u0644\u062a\u062d\u0642\u0642",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verification_started_by",
+   "fieldtype": "Link",
+   "label": "Verification Started By / \u0645\u0646\u0641\u0630 \u0627\u0644\u062a\u062d\u0642\u0642",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Failure Reason / \u0633\u0628\u0628 \u0627\u0644\u0641\u0634\u0644"
+  },
+  {
+   "fieldname": "issue_section",
+   "fieldtype": "Section Break",
+   "label": "Issue Completion / \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0635\u0631\u0641"
+  },
+  {
+   "fieldname": "issued_at",
+   "fieldtype": "Datetime",
+   "label": "Issued At / \u0648\u0642\u062a \u0627\u0644\u0635\u0631\u0641",
+   "read_only": 1
+  },
+  {
+   "fieldname": "issued_by",
+   "fieldtype": "Link",
+   "label": "Issued By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0635\u0631\u0641",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "return_reason",
+   "fieldtype": "Small Text",
+   "label": "Return Reason / \u0633\u0628\u0628 \u0627\u0644\u0625\u0631\u062c\u0627\u0639"
+  },
+  {
+   "fieldname": "return_evaluation",
+   "fieldtype": "Select",
+   "label": "Return Evaluation / \u062a\u0642\u064a\u064a\u0645 \u0627\u0644\u0625\u0631\u062c\u0627\u0639",
+   "options": "Eligible\nNot Eligible"
+  },
+  {
+   "fieldname": "return_disposition_reason",
+   "fieldtype": "Small Text",
+   "label": "Return Disposition Reason / \u0633\u0628\u0628 \u0639\u062f\u0645 \u0627\u0644\u0623\u0647\u0644\u064a\u0629"
+  },
+  {
+   "fieldname": "returned_at",
+   "fieldtype": "Datetime",
+   "label": "Returned At / \u0648\u0642\u062a \u0627\u0644\u0625\u0631\u062c\u0627\u0639",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "returned_by",
+   "fieldtype": "Link",
+   "label": "Returned By / \u0628\u0648\u0627\u0633\u0637\u0629",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_request_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_request_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_candidate_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_candidate_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_verification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_verification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_issue_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_issue_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_remarks_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_remarks_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "send",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:20:37.616151",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Issue",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_reservation,blood_request,patient_name,blood_storage,blood_component,blood_unit,blood_group,component_type,bag_number,issue_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

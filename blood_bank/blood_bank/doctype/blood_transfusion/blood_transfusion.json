@@ -1,0 +1,395 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "pink",
+ "creation": "2026-10-05 21:55:30.212697",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "transfusion_status",
+  "column_break_identification_2",
+  "transfusion_date",
+  "column_break_identification_3",
+  "blood_handover",
+  "handover_section",
+  "blood_issue",
+  "blood_reservation",
+  "blood_request",
+  "column_break_handover_2",
+  "patient",
+  "patient_name",
+  "receiver_name",
+  "column_break_handover_3",
+  "receiver_identifier",
+  "receiving_location",
+  "component_section",
+  "blood_storage",
+  "blood_component",
+  "blood_unit",
+  "column_break_component_2",
+  "blood_group",
+  "component_type",
+  "bag_number",
+  "column_break_component_3",
+  "transfusion_section",
+  "transfusion_result",
+  "transfusion_started_at",
+  "transfusion_started_by",
+  "column_break_transfusion_2",
+  "transfused_at",
+  "transfused_by",
+  "stop_reason",
+  "column_break_transfusion_3",
+  "stopped_at",
+  "stopped_by",
+  "assessment_section",
+  "assessment_started_at",
+  "assessment_started_by",
+  "column_break_assessment_2",
+  "post_transfusion_outcome",
+  "outcome_reason",
+  "column_break_assessment_3",
+  "outcome_recorded_at",
+  "outcome_recorded_by",
+  "remarks_section",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Transfusion ID / \u0631\u0642\u0645 \u0646\u0642\u0644 \u0627\u0644\u062f\u0645",
+   "options": "TRN-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "transfusion_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Transfusion Status / \u062d\u0627\u0644\u0629 \u0646\u0642\u0644 \u0627\u0644\u062f\u0645",
+   "options": "Draft\nTransfusion\nTransfused\nStopped\nAssessment\nReturned\nDiscarded\nOther Approved Outcome",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transfusion_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Transfusion Date / \u062a\u0627\u0631\u064a\u062e \u0646\u0642\u0644 \u0627\u0644\u062f\u0645",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_handover",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Handover / \u062a\u0633\u0644\u064a\u0645 \u0627\u0644\u062f\u0645",
+   "options": "Blood Handover",
+   "reqd": 1
+  },
+  {
+   "fieldname": "handover_section",
+   "fieldtype": "Section Break",
+   "label": "Handover Reference / \u0645\u0631\u062c\u0639 \u0627\u0644\u062a\u0633\u0644\u064a\u0645"
+  },
+  {
+   "fieldname": "blood_issue",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Issue / \u0635\u0631\u0641 \u0627\u0644\u062f\u0645",
+   "options": "Blood Issue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_reservation",
+   "fieldtype": "Link",
+   "label": "Blood Reservation / \u0627\u0644\u062d\u062c\u0632",
+   "options": "Blood Reservation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_request",
+   "fieldtype": "Link",
+   "label": "Blood Request / \u0637\u0644\u0628 \u0627\u0644\u062f\u0645",
+   "options": "Blood Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Patient / \u0627\u0644\u0645\u0631\u064a\u0636",
+   "options": "Patient",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient_name",
+   "fieldtype": "Data",
+   "label": "Patient Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u064a\u0636",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receiver_name",
+   "fieldtype": "Data",
+   "label": "Receiver Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u0644\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receiver_identifier",
+   "fieldtype": "Data",
+   "label": "Receiver Identifier / \u0645\u0639\u0631\u0641 \u0627\u0644\u0645\u0633\u062a\u0644\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receiving_location",
+   "fieldtype": "Data",
+   "label": "Receiving Location / \u062c\u0647\u0629 \u0627\u0644\u0627\u0633\u062a\u0644\u0627\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_section",
+   "fieldtype": "Section Break",
+   "label": "Transfused Blood / \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0646\u0642\u0648\u0644"
+  },
+  {
+   "fieldname": "blood_storage",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Storage / \u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Storage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Component",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfusion_section",
+   "fieldtype": "Section Break",
+   "label": "Transfusion / \u0646\u0642\u0644 \u0627\u0644\u062f\u0645"
+  },
+  {
+   "fieldname": "transfusion_result",
+   "fieldtype": "Select",
+   "label": "Transfusion Result / \u0646\u062a\u064a\u062c\u0629 \u0627\u0644\u0646\u0642\u0644",
+   "options": "\nCompleted\nStopped"
+  },
+  {
+   "fieldname": "transfusion_started_at",
+   "fieldtype": "Datetime",
+   "label": "Transfusion Started At / \u0628\u062f\u0621 \u0627\u0644\u0646\u0642\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfusion_started_by",
+   "fieldtype": "Link",
+   "label": "Transfusion Started By / \u0645\u0646\u0641\u0630 \u0628\u062f\u0621 \u0627\u0644\u0646\u0642\u0644",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfused_at",
+   "fieldtype": "Datetime",
+   "label": "Transfused At / \u0648\u0642\u062a \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0646\u0642\u0644",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfused_by",
+   "fieldtype": "Link",
+   "label": "Transfused By / \u0645\u0646\u0641\u0630 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u0646\u0642\u0644",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stop_reason",
+   "fieldtype": "Small Text",
+   "label": "Stop Reason / \u0633\u0628\u0628 \u0625\u064a\u0642\u0627\u0641 \u0627\u0644\u0646\u0642\u0644"
+  },
+  {
+   "fieldname": "stopped_at",
+   "fieldtype": "Datetime",
+   "label": "Stopped At / \u0648\u0642\u062a \u0627\u0644\u0625\u064a\u0642\u0627\u0641",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stopped_by",
+   "fieldtype": "Link",
+   "label": "Stopped By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0625\u064a\u0642\u0627\u0641",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "assessment_section",
+   "fieldtype": "Section Break",
+   "label": "Assessment / \u0627\u0644\u062a\u0642\u064a\u064a\u0645"
+  },
+  {
+   "fieldname": "assessment_started_at",
+   "fieldtype": "Datetime",
+   "label": "Assessment Started At / \u0628\u062f\u0621 \u0627\u0644\u062a\u0642\u064a\u064a\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "assessment_started_by",
+   "fieldtype": "Link",
+   "label": "Assessment Started By / \u0645\u0646\u0641\u0630 \u0628\u062f\u0621 \u0627\u0644\u062a\u0642\u064a\u064a\u0645",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "post_transfusion_outcome",
+   "fieldtype": "Select",
+   "label": "Post-Transfusion Outcome / \u0627\u0644\u0646\u062a\u064a\u062c\u0629 \u0628\u0639\u062f \u0627\u0644\u062a\u0648\u0642\u0641",
+   "options": "\nReturned\nDiscarded\nOther Approved Outcome"
+  },
+  {
+   "fieldname": "outcome_reason",
+   "fieldtype": "Small Text",
+   "label": "Outcome Reason / \u0633\u0628\u0628 \u0627\u0644\u0646\u062a\u064a\u062c\u0629"
+  },
+  {
+   "fieldname": "outcome_recorded_at",
+   "fieldtype": "Datetime",
+   "label": "Outcome Recorded At / \u0648\u0642\u062a \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u0646\u062a\u064a\u062c\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outcome_recorded_by",
+   "fieldtype": "Link",
+   "label": "Outcome Recorded By / \u0645\u0646\u0641\u0630 \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u0646\u062a\u064a\u062c\u0629",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_handover_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_handover_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_component_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_component_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_transfusion_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_transfusion_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_assessment_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_assessment_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "activity",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:24:20.623319",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Transfusion",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_handover,blood_issue,blood_request,patient_name,blood_storage,blood_component,blood_unit,transfusion_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

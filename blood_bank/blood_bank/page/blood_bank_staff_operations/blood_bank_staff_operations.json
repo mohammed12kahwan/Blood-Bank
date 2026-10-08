@@ -1,0 +1,8 @@
+{
+  "doctype": "Page",
+  "name": "blood-bank-staff-operations",
+  "title": "عمل موظف بنك الدم",
+  "module": "Blood Bank",
+  "standard": "Yes",
+  "page_name": "blood-bank-staff-operations"
+}

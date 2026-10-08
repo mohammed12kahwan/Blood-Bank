@@ -1,0 +1,314 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "purple",
+ "creation": "2026-10-05 22:20:04.694628",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "column_break_identification_2",
+  "qc_status",
+  "column_break_identification_3",
+  "component_section",
+  "blood_component",
+  "blood_processing",
+  "blood_screening",
+  "column_break_component_2",
+  "blood_unit",
+  "donor",
+  "donor_name",
+  "column_break_component_3",
+  "blood_group",
+  "bag_number",
+  "component_type",
+  "component_number",
+  "component_volume",
+  "volume_unit",
+  "inspection_section",
+  "inspection_date",
+  "inspected_by",
+  "visual_condition",
+  "column_break_inspection_2",
+  "label_condition",
+  "container_condition",
+  "overall_result",
+  "column_break_inspection_3",
+  "failure_reason",
+  "remarks_section",
+  "remarks",
+  "column_break_remarks_2",
+  "discard_reason",
+  "column_break_remarks_3",
+  "discarded_at",
+  "discarded_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "QC ID / \u0631\u0642\u0645 \u0641\u062d\u0635 \u0627\u0644\u062c\u0648\u062f\u0629",
+   "options": "QC-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "qc_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "QC Status / \u062d\u0627\u0644\u0629 \u0641\u062d\u0635 \u0627\u0644\u062c\u0648\u062f\u0629",
+   "options": "Draft\nInspection\nPassed\nFailed\nRejected\nDiscarded",
+   "reqd": 1
+  },
+  {
+   "fieldname": "component_section",
+   "fieldtype": "Section Break",
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645"
+  },
+  {
+   "fieldname": "blood_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Component",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_processing",
+   "fieldtype": "Link",
+   "label": "Blood Processing / \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Processing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_screening",
+   "fieldtype": "Link",
+   "label": "Blood Screening / \u0641\u062d\u0635 \u0627\u0644\u062f\u0645",
+   "options": "Blood Screening",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "options": "Blood Donor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "options": "Packed Red Cells\nFresh Frozen Plasma\nPlatelets\nCryoprecipitate\nOther",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Number / \u0631\u0642\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_volume",
+   "fieldtype": "Float",
+   "label": "Component Volume / \u062d\u062c\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "volume_unit",
+   "fieldtype": "Select",
+   "label": "Volume Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u062c\u0645",
+   "options": "mL\nL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Quality Inspection / \u0641\u062d\u0635 \u0627\u0644\u062c\u0648\u062f\u0629"
+  },
+  {
+   "fieldname": "inspection_date",
+   "fieldtype": "Date",
+   "label": "Inspection Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0641\u062d\u0635",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspected_by",
+   "fieldtype": "Link",
+   "label": "Inspected By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0641\u062d\u0635",
+   "options": "User"
+  },
+  {
+   "default": "Not Checked",
+   "fieldname": "visual_condition",
+   "fieldtype": "Select",
+   "label": "Visual Condition / \u0627\u0644\u062d\u0627\u0644\u0629 \u0627\u0644\u0628\u0635\u0631\u064a\u0629",
+   "options": "Acceptable\nUnacceptable\nNot Checked"
+  },
+  {
+   "default": "Not Checked",
+   "fieldname": "label_condition",
+   "fieldtype": "Select",
+   "label": "Label Check / \u0641\u062d\u0635 \u0627\u0644\u0645\u0644\u0635\u0642",
+   "options": "Passed\nFailed\nNot Checked"
+  },
+  {
+   "default": "Not Checked",
+   "fieldname": "container_condition",
+   "fieldtype": "Select",
+   "label": "Container Check / \u0641\u062d\u0635 \u0627\u0644\u062d\u0627\u0648\u064a\u0629",
+   "options": "Passed\nFailed\nNot Checked"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "overall_result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Overall Result / \u0627\u0644\u0646\u062a\u064a\u062c\u0629 \u0627\u0644\u0639\u0627\u0645\u0629",
+   "options": "Pending\nPassed\nFailed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "label": "Failure Reason / \u0633\u0628\u0628 \u0627\u0644\u0641\u0634\u0644",
+   "mandatory_depends_on": "eval:doc.overall_result == \"Failed\""
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "discard_reason",
+   "fieldtype": "Small Text",
+   "label": "Discard Reason / \u0633\u0628\u0628 \u0627\u0644\u0625\u062a\u0644\u0627\u0641"
+  },
+  {
+   "fieldname": "discarded_at",
+   "fieldtype": "Datetime",
+   "label": "Discarded At / \u0648\u0642\u062a \u0627\u0644\u0625\u062a\u0644\u0627\u0641",
+   "read_only": 1
+  },
+  {
+   "fieldname": "discarded_by",
+   "fieldtype": "Link",
+   "label": "Discarded By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0625\u062a\u0644\u0627\u0641",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_component_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_component_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_inspection_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_inspection_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_remarks_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_remarks_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "check-circle",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:07:07.548375",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Component Quality Check",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_component,blood_group,bag_number,component_type,component_number",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

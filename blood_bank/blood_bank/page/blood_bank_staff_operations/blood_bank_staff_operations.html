@@ -1,0 +1,243 @@
+<div class="bb-staff-page" dir="rtl">
+
+    <div class="bb-staff-header">
+        <div class="bb-brand-icon">🩸</div>
+        <div class="bb-header-text">
+            <div class="bb-staff-title">عمل موظف بنك الدم</div>
+            <div class="bb-staff-subtitle">لوحة التشغيل ومتابعة سير العمل</div>
+        </div>
+        <div class="bb-system-status">
+            <span class="bb-status-dot"></span>
+            <span>نظام بنك الدم</span>
+        </div>
+    </div>
+
+    <div class="bb-window-shell">
+
+        <div class="bb-window-title">
+            <span>نوافذ بنك الدم</span>
+            <small>15 عملية حسب سير العمل</small>
+        </div>
+
+        <div class="bb-window-bar">
+
+            <button class="bb-window bb-01" data-route="blood-donor" title="المتبرع">
+                <span class="bb-icon">👤</span>
+                <span class="bb-number">01</span>
+                <span class="bb-label">المتبرع</span>
+            </button>
+
+            <button class="bb-window bb-02" data-route="blood-donation" title="التبرع بالدم">
+                <span class="bb-icon">🩸</span>
+                <span class="bb-number">02</span>
+                <span class="bb-label">التبرع</span>
+            </button>
+
+            <button class="bb-window bb-03" data-route="blood-processing" title="معالجة الدم">
+                <span class="bb-icon">⚙️</span>
+                <span class="bb-number">03</span>
+                <span class="bb-label">المعالجة</span>
+            </button>
+
+            <button class="bb-window bb-04" data-route="blood-unit" title="وحدة الدم">
+                <span class="bb-icon">🧫</span>
+                <span class="bb-number">04</span>
+                <span class="bb-label">وحدة الدم</span>
+            </button>
+
+            <button class="bb-window bb-05" data-route="blood-screening" title="فحص الدم">
+                <span class="bb-icon">🔬</span>
+                <span class="bb-number">05</span>
+                <span class="bb-label">الفحص</span>
+            </button>
+
+            <button class="bb-window bb-06" data-route="blood-component-quality-check" title="فحص جودة المكوّن">
+                <span class="bb-icon">✅</span>
+                <span class="bb-number">06</span>
+                <span class="bb-label">الجودة</span>
+            </button>
+
+            <button class="bb-window bb-07" data-route="blood-component" title="مكوّن الدم">
+                <span class="bb-icon">🧪</span>
+                <span class="bb-number">07</span>
+                <span class="bb-label">المكوّن</span>
+            </button>
+
+            <button class="bb-window bb-08" data-route="blood-storage" title="تخزين الدم">
+                <span class="bb-icon">❄️</span>
+                <span class="bb-number">08</span>
+                <span class="bb-label">التخزين</span>
+            </button>
+
+            <button class="bb-window bb-09" data-route="blood-request" title="طلب الدم">
+                <span class="bb-icon">📋</span>
+                <span class="bb-number">09</span>
+                <span class="bb-label">الطلب</span>
+            </button>
+
+            <button class="bb-window bb-10" data-route="blood-reservation" title="حجز الدم">
+                <span class="bb-icon">🔒</span>
+                <span class="bb-number">10</span>
+                <span class="bb-label">الحجز</span>
+            </button>
+
+            <button class="bb-window bb-11" data-route="blood-crossmatch" title="مطابقة الدم">
+                <span class="bb-icon">🔄</span>
+                <span class="bb-number">11</span>
+                <span class="bb-label">المطابقة</span>
+            </button>
+
+            <button class="bb-window bb-12" data-route="blood-issue" title="صرف الدم">
+                <span class="bb-icon">📦</span>
+                <span class="bb-number">12</span>
+                <span class="bb-label">الصرف</span>
+            </button>
+
+            <button class="bb-window bb-13" data-route="blood-handover" title="تسليم الدم">
+                <span class="bb-icon">🤝</span>
+                <span class="bb-number">13</span>
+                <span class="bb-label">التسليم</span>
+            </button>
+
+            <button class="bb-window bb-14" data-route="blood-transfusion" title="نقل الدم">
+                <span class="bb-icon">💉</span>
+                <span class="bb-number">14</span>
+                <span class="bb-label">نقل الدم</span>
+            </button>
+
+            <button class="bb-window bb-15" data-route="blood-unit-disposition" title="مصير وحدة الدم">
+                <span class="bb-icon">🗑️</span>
+                <span class="bb-number">15</span>
+                <span class="bb-label">مصير الوحدة</span>
+            </button>
+
+        </div>
+    </div>
+
+    <div class="bb-dashboard">
+
+        <div class="bb-dashboard-head">
+            <div>
+                <div class="bb-dashboard-title">تقرير بنك الدم</div>
+                <div class="bb-dashboard-subtitle">ملخص السجلات الموجودة في النظام</div>
+            </div>
+            <div class="bb-dashboard-time" id="bb-dashboard-time">--</div>
+        </div>
+
+        <div class="bb-report-grid">
+
+            <div class="bb-report-card blue">
+                <div class="bb-report-icon">👤</div>
+                <div class="bb-report-info">
+                    <small>المتبرعون</small>
+                    <strong id="bb-count-donors">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card red">
+                <div class="bb-report-icon">🩸</div>
+                <div class="bb-report-info">
+                    <small>التبرعات</small>
+                    <strong id="bb-count-donations">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card purple">
+                <div class="bb-report-icon">🧫</div>
+                <div class="bb-report-info">
+                    <small>وحدات الدم</small>
+                    <strong id="bb-count-units">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card cyan">
+                <div class="bb-report-icon">📋</div>
+                <div class="bb-report-info">
+                    <small>طلبات الدم</small>
+                    <strong id="bb-count-requests">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card amber">
+                <div class="bb-report-icon">🔒</div>
+                <div class="bb-report-info">
+                    <small>الحجوزات</small>
+                    <strong id="bb-count-reservations">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card green">
+                <div class="bb-report-icon">📦</div>
+                <div class="bb-report-info">
+                    <small>عمليات الصرف</small>
+                    <strong id="bb-count-issues">0</strong>
+                </div>
+            </div>
+
+            <div class="bb-report-card teal">
+                <div class="bb-report-icon">💉</div>
+                <div class="bb-report-info">
+                    <small>نقل الدم</small>
+                    <strong id="bb-count-transfusions">0</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bb-alert-panel">
+
+            <div class="bb-alert-title">
+                <span>⚠️</span>
+                تنبيهات تشغيلية مهمة
+            </div>
+
+            <div class="bb-alert-grid">
+
+                <div class="bb-alert warning">
+                    <span class="bb-alert-icon">⚠️</span>
+                    <div>
+                        <b>قبل صرف أي وحدة</b>
+                        <p>تأكد من اكتمال الطلب والمطابقة وجميع الفحوصات المطلوبة.</p>
+                    </div>
+                </div>
+
+                <div class="bb-alert danger">
+                    <span class="bb-alert-icon">🩸</span>
+                    <div>
+                        <b>سلامة وحدة الدم</b>
+                        <p>لا يتم استخدام الوحدة قبل التأكد من حالتها وصلاحيتها التخزينية.</p>
+                    </div>
+                </div>
+
+                <div class="bb-alert info">
+                    <span class="bb-alert-icon">📋</span>
+                    <div>
+                        <b>تسلسل العمل</b>
+                        <p>اتبع نوافذ بنك الدم بالترتيب المعتمد ولا تتجاوز خطوات سير العمل.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bb-staff-workspace" style="display:none;">
+
+        <div class="bb-staff-current">
+            <span class="bb-current-icon">▣</span>
+            <span class="bb-staff-current-title"></span>
+        </div>
+
+        <div class="bb-staff-frame-wrap">
+            <iframe
+                id="bb-staff-frame"
+                title="Blood Bank Window"
+                loading="eager"
+                frameborder="0">
+            </iframe>
+        </div>
+
+    </div>
+
+</div>

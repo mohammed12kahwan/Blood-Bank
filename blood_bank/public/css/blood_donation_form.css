@@ -1,0 +1,226 @@
+/* ============================================================
+   BLOOD DONATION — COMPACT COLORED GROUP CARDS
+   ============================================================ */
+
+.form-layout .form-section {
+    width: 100% !important;
+    margin: 0 0 7px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
+    border: 1px solid transparent !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+
+.form-layout .form-section .section-head {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 5px 9px !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 20px !important;
+    font-weight: 700 !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .section-body {
+    padding: 5px 6px 2px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .form-column {
+    width: 33.333333% !important;
+    flex: 0 0 33.333333% !important;
+    max-width: 33.333333% !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .frappe-control {
+    width: 100% !important;
+    margin: 0 0 3px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .control-label {
+    font-size: 9.5px !important;
+    line-height: 13px !important;
+    margin: 0 0 1px 0 !important;
+    font-weight: 600 !important;
+}
+
+.form-layout .form-section input.form-control,
+.form-layout .form-section select.form-control,
+.form-layout .form-section .form-control {
+    width: 100% !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    border-radius: 5px !important;
+    font-size: 10px !important;
+    line-height: 18px !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section textarea.form-control,
+.form-layout .form-section textarea {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    border-radius: 5px !important;
+    resize: vertical !important;
+}
+
+.form-layout .form-section .form-group,
+.form-layout .form-section .control-input,
+.form-layout .form-section .control-input-wrapper {
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* ============================================================
+   1 — IDENTIFICATION
+   أزرق
+   ============================================================ */
+
+.form-layout .form-section.bbd-identification-card {
+    background-color: #f3f7ff !important;
+    border-color: #bfd3f5 !important;
+}
+
+.form-layout .form-section.bbd-identification-card .section-head {
+    background-color: #e4edff !important;
+    color: #1e40af !important;
+    border-inline-start: 4px solid #3b82f6 !important;
+}
+
+.form-layout .form-section.bbd-identification-card .section-body {
+    background-color: #f3f7ff !important;
+}
+
+/* ============================================================
+   2 — DONOR
+   سماوي
+   ============================================================ */
+
+.form-layout .form-section.bbd-donor-card {
+    background-color: #f2faff !important;
+    border-color: #b9dff2 !important;
+}
+
+.form-layout .form-section.bbd-donor-card .section-head {
+    background-color: #e0f3ff !important;
+    color: #075985 !important;
+    border-inline-start: 4px solid #0ea5e9 !important;
+}
+
+.form-layout .form-section.bbd-donor-card .section-body {
+    background-color: #f2faff !important;
+}
+
+/* ============================================================
+   3 — SCHEDULE
+   أخضر
+   ============================================================ */
+
+.form-layout .form-section.bbd-schedule-card {
+    background-color: #f3fbf5 !important;
+    border-color: #bfe4c8 !important;
+}
+
+.form-layout .form-section.bbd-schedule-card .section-head {
+    background-color: #e2f6e7 !important;
+    color: #166534 !important;
+    border-inline-start: 4px solid #22c55e !important;
+}
+
+.form-layout .form-section.bbd-schedule-card .section-body {
+    background-color: #f3fbf5 !important;
+}
+
+/* ============================================================
+   4 — COLLECTION
+   أصفر/برتقالي
+   ============================================================ */
+
+.form-layout .form-section.bbd-collection-card {
+    background-color: #fffbf2 !important;
+    border-color: #efd59a !important;
+}
+
+.form-layout .form-section.bbd-collection-card .section-head {
+    background-color: #fff1d2 !important;
+    color: #92400e !important;
+    border-inline-start: 4px solid #f59e0b !important;
+}
+
+.form-layout .form-section.bbd-collection-card .section-body {
+    background-color: #fffbf2 !important;
+}
+
+/* ============================================================
+   5 — BLOOD BAG
+   أحمر
+   ============================================================ */
+
+.form-layout .form-section.bbd-bag-card {
+    background-color: #fff6f6 !important;
+    border-color: #edc3c3 !important;
+}
+
+.form-layout .form-section.bbd-bag-card .section-head {
+    background-color: #ffe6e6 !important;
+    color: #991b1b !important;
+    border-inline-start: 4px solid #ef4444 !important;
+}
+
+.form-layout .form-section.bbd-bag-card .section-body {
+    background-color: #fff6f6 !important;
+}
+
+/* ============================================================
+   6 — QUARANTINE
+   بنفسجي
+   ============================================================ */
+
+.form-layout .form-section.bbd-quarantine-card {
+    background-color: #faf7ff !important;
+    border-color: #d9c9f5 !important;
+}
+
+.form-layout .form-section.bbd-quarantine-card .section-head {
+    background-color: #f0e8ff !important;
+    color: #5b21b6 !important;
+    border-inline-start: 4px solid #8b5cf6 !important;
+}
+
+.form-layout .form-section.bbd-quarantine-card .section-body {
+    background-color: #faf7ff !important;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 800px) {
+    .form-layout .form-section .form-column {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+
+@media (max-width: 550px) {
+    .form-layout .form-section .form-column {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}

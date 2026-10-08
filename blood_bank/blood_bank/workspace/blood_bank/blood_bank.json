@@ -1,0 +1,328 @@
+{
+ "charts": [],
+ "content": "[{\"id\": \"bb-card-1\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udc64 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Blood Donor\", \"col\": 3}}, {\"id\": \"bb-card-2\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83e\ude78 \u0627\u0644\u062a\u0628\u0631\u0639 \u0628\u0627\u0644\u062f\u0645 | Blood Donation\", \"col\": 3}}, {\"id\": \"bb-card-3\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83e\uddea \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645 | Blood Processing\", \"col\": 3}}, {\"id\": \"bb-card-4\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83e\uddeb \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Blood Unit\", \"col\": 3}}, {\"id\": \"bb-card-5\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udd2c \u0641\u062d\u0635 \u0627\u0644\u062f\u0645 | Blood Screening\", \"col\": 3}}, {\"id\": \"bb-card-6\", \"type\": \"card\", \"data\": {\"card_name\": \"\u2705 \u0641\u062d\u0635 \u062c\u0648\u062f\u0629 \u0627\u0644\u0645\u0643\u0648\u0646\u0627\u062a | Quality Check\", \"col\": 3}}, {\"id\": \"bb-card-7\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83e\uddec \u0645\u0643\u0648\u0646\u0627\u062a \u0627\u0644\u062f\u0645 | Blood Component\", \"col\": 3}}, {\"id\": \"bb-card-8\", \"type\": \"card\", \"data\": {\"card_name\": \"\u2744\ufe0f \u062a\u062e\u0632\u064a\u0646 \u0627\u0644\u062f\u0645 | Blood Storage\", \"col\": 3}}, {\"id\": \"bb-card-9\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udcc4 \u0637\u0644\u0628 \u0627\u0644\u062f\u0645 | Blood Request\", \"col\": 3}}, {\"id\": \"bb-card-10\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udcc5 \u062d\u062c\u0632 \u0627\u0644\u062f\u0645 | Blood Reservation\", \"col\": 3}}, {\"id\": \"bb-card-11\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udd04 \u0645\u0637\u0627\u0628\u0642\u0629 \u0627\u0644\u062f\u0645 | Blood Crossmatch\", \"col\": 3}}, {\"id\": \"bb-card-12\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udce4 \u0635\u0631\u0641 \u0627\u0644\u062f\u0645 | Blood Issue\", \"col\": 3}}, {\"id\": \"bb-card-13\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83e\udd1d \u062a\u0633\u0644\u064a\u0645 \u0627\u0644\u062f\u0645 | Blood Handover\", \"col\": 3}}, {\"id\": \"bb-card-14\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\udc89 \u0646\u0642\u0644 \u0627\u0644\u062f\u0645 | Blood Transfusion\", \"col\": 3}}, {\"id\": \"bb-card-15\", \"type\": \"card\", \"data\": {\"card_name\": \"\ud83d\uddd1\ufe0f \u0627\u0644\u062a\u0635\u0631\u0641 \u0641\u064a \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Unit Disposition\", \"col\": 3}}]",
+ "creation": "2026-10-05 22:44:33.090173",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "heart",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Blood Bank",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udc64 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Blood Donor",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udc64 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Blood Donor",
+   "link_count": 0,
+   "link_to": "Blood Donor",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83e\ude78 \u0627\u0644\u062a\u0628\u0631\u0639 \u0628\u0627\u0644\u062f\u0645 | Blood Donation",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83e\ude78 \u0627\u0644\u062a\u0628\u0631\u0639 \u0628\u0627\u0644\u062f\u0645 | Blood Donation",
+   "link_count": 0,
+   "link_to": "Blood Donation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83e\uddea \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645 | Blood Processing",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83e\uddea \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645 | Blood Processing",
+   "link_count": 0,
+   "link_to": "Blood Processing",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83e\uddeb \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Blood Unit",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83e\uddeb \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Blood Unit",
+   "link_count": 0,
+   "link_to": "Blood Unit",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udd2c \u0641\u062d\u0635 \u0627\u0644\u062f\u0645 | Blood Screening",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udd2c \u0641\u062d\u0635 \u0627\u0644\u062f\u0645 | Blood Screening",
+   "link_count": 0,
+   "link_to": "Blood Screening",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\u2705 \u0641\u062d\u0635 \u062c\u0648\u062f\u0629 \u0627\u0644\u0645\u0643\u0648\u0646\u0627\u062a | Quality Check",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\u2705 \u0641\u062d\u0635 \u062c\u0648\u062f\u0629 \u0627\u0644\u0645\u0643\u0648\u0646\u0627\u062a | Quality Check",
+   "link_count": 0,
+   "link_to": "Blood Component Quality Check",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83e\uddec \u0645\u0643\u0648\u0646\u0627\u062a \u0627\u0644\u062f\u0645 | Blood Component",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83e\uddec \u0645\u0643\u0648\u0646\u0627\u062a \u0627\u0644\u062f\u0645 | Blood Component",
+   "link_count": 0,
+   "link_to": "Blood Component",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\u2744\ufe0f \u062a\u062e\u0632\u064a\u0646 \u0627\u0644\u062f\u0645 | Blood Storage",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\u2744\ufe0f \u062a\u062e\u0632\u064a\u0646 \u0627\u0644\u062f\u0645 | Blood Storage",
+   "link_count": 0,
+   "link_to": "Blood Storage",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udcc4 \u0637\u0644\u0628 \u0627\u0644\u062f\u0645 | Blood Request",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udcc4 \u0637\u0644\u0628 \u0627\u0644\u062f\u0645 | Blood Request",
+   "link_count": 0,
+   "link_to": "Blood Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udcc5 \u062d\u062c\u0632 \u0627\u0644\u062f\u0645 | Blood Reservation",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udcc5 \u062d\u062c\u0632 \u0627\u0644\u062f\u0645 | Blood Reservation",
+   "link_count": 0,
+   "link_to": "Blood Reservation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udd04 \u0645\u0637\u0627\u0628\u0642\u0629 \u0627\u0644\u062f\u0645 | Blood Crossmatch",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udd04 \u0645\u0637\u0627\u0628\u0642\u0629 \u0627\u0644\u062f\u0645 | Blood Crossmatch",
+   "link_count": 0,
+   "link_to": "Blood Crossmatch",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udce4 \u0635\u0631\u0641 \u0627\u0644\u062f\u0645 | Blood Issue",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udce4 \u0635\u0631\u0641 \u0627\u0644\u062f\u0645 | Blood Issue",
+   "link_count": 0,
+   "link_to": "Blood Issue",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83e\udd1d \u062a\u0633\u0644\u064a\u0645 \u0627\u0644\u062f\u0645 | Blood Handover",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83e\udd1d \u062a\u0633\u0644\u064a\u0645 \u0627\u0644\u062f\u0645 | Blood Handover",
+   "link_count": 0,
+   "link_to": "Blood Handover",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\udc89 \u0646\u0642\u0644 \u0627\u0644\u062f\u0645 | Blood Transfusion",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\udc89 \u0646\u0642\u0644 \u0627\u0644\u062f\u0645 | Blood Transfusion",
+   "link_count": 0,
+   "link_to": "Blood Transfusion",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "\ud83d\uddd1\ufe0f \u0627\u0644\u062a\u0635\u0631\u0641 \u0641\u064a \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Unit Disposition",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "icon": "",
+   "is_query_report": 0,
+   "label": "\ud83d\uddd1\ufe0f \u0627\u0644\u062a\u0635\u0631\u0641 \u0641\u064a \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645 | Unit Disposition",
+   "link_count": 0,
+   "link_to": "Blood Unit Disposition",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-05 23:24:24.982884",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Bank",
+ "number_cards": [],
+ "owner": "Administrator",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 20.0,
+ "shortcuts": [],
+ "title": "Blood Bank"
+}

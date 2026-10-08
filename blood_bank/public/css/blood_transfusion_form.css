@@ -1,0 +1,101 @@
+/* ============================================================
+   BLOOD TRANSFUSION — COMPACT 3-COLUMN FORM
+   ============================================================ */
+
+.form-layout .form-section {
+    width: 100% !important;
+    margin: 0 0 7px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+    overflow: visible !important;
+    border: 1px solid transparent !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+
+.form-layout .form-section .section-head {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 5px 9px !important;
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 20px !important;
+    font-weight: 700 !important;
+}
+
+.form-layout .form-section .section-body {
+    padding: 5px 6px 2px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .form-column {
+    width: 33.333333% !important;
+    flex: 0 0 33.333333% !important;
+    max-width: 33.333333% !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .frappe-control {
+    width: 100% !important;
+    margin: 0 0 3px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section .control-label {
+    font-size: 9.5px !important;
+    line-height: 13px !important;
+    margin: 0 0 1px 0 !important;
+    font-weight: 600 !important;
+}
+
+.form-layout .form-section input.form-control,
+.form-layout .form-section select.form-control,
+.form-layout .form-section .form-control {
+    width: 100% !important;
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    border-radius: 5px !important;
+    font-size: 10px !important;
+    line-height: 18px !important;
+    box-sizing: border-box !important;
+}
+
+.form-layout .form-section textarea.form-control,
+.form-layout .form-section textarea {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    border-radius: 5px !important;
+    resize: vertical !important;
+}
+
+.form-layout .form-section .form-group,
+.form-layout .form-section .control-input,
+.form-layout .form-section .control-input-wrapper {
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+@media (max-width: 800px) {
+    .form-layout .form-section .form-column {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+
+@media (max-width: 550px) {
+    .form-layout .form-section .form-column {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}

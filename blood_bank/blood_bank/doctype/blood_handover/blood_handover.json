@@ -1,0 +1,283 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "red",
+ "creation": "2026-10-05 21:52:51.554623",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "handover_status",
+  "column_break_identification_2",
+  "handover_date",
+  "blood_issue",
+  "column_break_identification_3",
+  "issue_section",
+  "blood_reservation",
+  "blood_request",
+  "column_break_issue_2",
+  "patient",
+  "patient_name",
+  "column_break_issue_3",
+  "blood_storage",
+  "blood_component",
+  "blood_unit",
+  "blood_group",
+  "component_type",
+  "bag_number",
+  "handover_section",
+  "receiver_name",
+  "receiver_identifier",
+  "column_break_handover_2",
+  "receiving_location",
+  "handover_started_at",
+  "column_break_handover_3",
+  "handover_started_by",
+  "handover_completed_at",
+  "handover_completed_by",
+  "remarks_section",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Handover ID / \u0631\u0642\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "options": "HAN-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "handover_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Handover Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "options": "Draft\nHandover\nHanded Over",
+   "reqd": 1
+  },
+  {
+   "fieldname": "handover_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Handover Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_issue",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Issue / \u0635\u0631\u0641 \u0627\u0644\u062f\u0645",
+   "options": "Blood Issue",
+   "reqd": 1
+  },
+  {
+   "fieldname": "issue_section",
+   "fieldtype": "Section Break",
+   "label": "Issued Blood / \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0635\u0631\u0648\u0641"
+  },
+  {
+   "fieldname": "blood_reservation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Reservation / \u0627\u0644\u062d\u062c\u0632",
+   "options": "Blood Reservation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_request",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Request / \u0637\u0644\u0628 \u0627\u0644\u062f\u0645",
+   "options": "Blood Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Patient / \u0627\u0644\u0645\u0631\u064a\u0636",
+   "options": "Patient",
+   "read_only": 1
+  },
+  {
+   "fieldname": "patient_name",
+   "fieldtype": "Data",
+   "label": "Patient Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u064a\u0636",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_storage",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Storage / \u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Storage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Component",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "handover_section",
+   "fieldtype": "Section Break",
+   "label": "Handover Details / \u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u062a\u0633\u0644\u064a\u0645"
+  },
+  {
+   "fieldname": "receiver_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Receiver Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u0644\u0645"
+  },
+  {
+   "fieldname": "receiver_identifier",
+   "fieldtype": "Data",
+   "label": "Receiver Identifier / \u0645\u0639\u0631\u0641 \u0627\u0644\u0645\u0633\u062a\u0644\u0645"
+  },
+  {
+   "fieldname": "receiving_location",
+   "fieldtype": "Data",
+   "label": "Receiving Location / \u062c\u0647\u0629 \u0623\u0648 \u0645\u0648\u0642\u0639 \u0627\u0644\u0627\u0633\u062a\u0644\u0627\u0645"
+  },
+  {
+   "fieldname": "handover_started_at",
+   "fieldtype": "Datetime",
+   "label": "Handover Started At / \u0628\u062f\u0621 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "handover_started_by",
+   "fieldtype": "Link",
+   "label": "Handover Started By / \u0645\u0646\u0641\u0630 \u0628\u062f\u0621 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "handover_completed_at",
+   "fieldtype": "Datetime",
+   "label": "Handover Completed At / \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "handover_completed_by",
+   "fieldtype": "Link",
+   "label": "Handover Completed By / \u0645\u0646\u0641\u0630 \u0625\u062a\u0645\u0627\u0645 \u0627\u0644\u062a\u0633\u0644\u064a\u0645",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_issue_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_issue_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_handover_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_handover_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "package",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:22:23.972911",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Handover",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_issue,blood_request,patient_name,blood_storage,blood_component,blood_unit,receiver_name,handover_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

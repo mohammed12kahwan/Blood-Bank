@@ -1,0 +1,280 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "green",
+ "creation": "2026-10-05 20:51:40.598326",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "column_break_identification_2",
+  "donation_status",
+  "column_break_identification_3",
+  "donor_section",
+  "donor",
+  "column_break_donor_2",
+  "donor_name",
+  "column_break_donor_3",
+  "schedule_section",
+  "donation_date",
+  "column_break_schedule_2",
+  "donation_time",
+  "column_break_schedule_3",
+  "donation_type",
+  "collection_section",
+  "collection_start",
+  "collection_end",
+  "column_break_collection_2",
+  "volume_collected",
+  "collection_unit",
+  "column_break_collection_3",
+  "collection_staff",
+  "collection_location",
+  "bag_section",
+  "bag_number",
+  "column_break_bag_2",
+  "collection_device",
+  "column_break_bag_3",
+  "remarks",
+  "quarantine_section",
+  "quarantine_date",
+  "column_break_quarantine_2",
+  "quarantine_reason",
+  "column_break_quarantine_3"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": ""
+  },
+  {
+   "default": "DONN-.YYYY.-.#####",
+   "description": "Automatically generated donation number / يتم إنشاء رقم التبرع تلقائيًا",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Donation ID / رقم التبرع",
+   "options": "DONN-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "donation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Donation Status / حالة التبرع",
+   "options": "Draft\nScheduled\nChecked In\nBleeding\nCollected\nQuarantine\nCancelled\nAborted",
+   "reqd": 1
+  },
+  {
+   "fieldname": "donor_section",
+   "fieldtype": "Section Break",
+   "label": "Donor Information / معلومات المتبرع"
+  },
+  {
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Donor / المتبرع",
+   "options": "Blood Donor",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "donor.full_name",
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Donor Name / اسم المتبرع",
+   "read_only": 1
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Donation Schedule / موعد التبرع"
+  },
+  {
+   "fieldname": "donation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Donation Date / تاريخ التبرع",
+   "reqd": 1
+  },
+  {
+   "fieldname": "donation_time",
+   "fieldtype": "Time",
+   "label": "Donation Time / وقت التبرع"
+  },
+  {
+   "fieldname": "donation_type",
+   "fieldtype": "Select",
+   "label": "Donation Type / نوع التبرع",
+   "options": "Whole Blood\nApheresis\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "collection_section",
+   "fieldtype": "Section Break",
+   "label": "Collection Information / معلومات سحب الدم"
+  },
+  {
+   "fieldname": "collection_start",
+   "fieldtype": "Datetime",
+   "label": "Collection Start / بداية السحب"
+  },
+  {
+   "fieldname": "collection_end",
+   "fieldtype": "Datetime",
+   "label": "Collection End / نهاية السحب"
+  },
+  {
+   "fieldname": "volume_collected",
+   "fieldtype": "Float",
+   "label": "Volume Collected / حجم الدم المسحوب",
+   "precision": "2"
+  },
+  {
+   "fieldname": "collection_unit",
+   "fieldtype": "Select",
+   "label": "Collection Unit / وحدة القياس",
+   "options": "mL\nL"
+  },
+  {
+   "fieldname": "collection_staff",
+   "fieldtype": "Link",
+   "label": "Collection Staff / موظف سحب الدم",
+   "options": "User"
+  },
+  {
+   "fieldname": "collection_location",
+   "fieldtype": "Data",
+   "label": "Collection Location / مكان السحب"
+  },
+  {
+   "fieldname": "bag_section",
+   "fieldtype": "Section Break",
+   "label": "Blood Bag Information / معلومات كيس الدم"
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag / Collection Number / رقم الكيس أو السحب"
+  },
+  {
+   "fieldname": "collection_device",
+   "fieldtype": "Data",
+   "label": "Collection Device / جهاز أو وسيلة الجمع"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / ملاحظات"
+  },
+  {
+   "fieldname": "quarantine_section",
+   "fieldtype": "Section Break",
+   "label": "Quarantine / الحجر"
+  },
+  {
+   "fieldname": "quarantine_date",
+   "fieldtype": "Datetime",
+   "label": "Quarantine Date / تاريخ الحجر",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quarantine_reason",
+   "fieldtype": "Small Text",
+   "label": "Quarantine Note / ملاحظة الحجر"
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_donor_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_donor_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_schedule_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_schedule_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_collection_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_collection_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bag_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bag_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_quarantine_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_quarantine_3",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "droplet",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 18:12:34.972765",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Donation",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "donor,donor_name,bag_number",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "donor_name",
+ "track_changes": 1
+}

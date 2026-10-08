@@ -1,0 +1,137 @@
+/* ============================================================
+   BLOOD DONOR — GROUP BACKGROUNDS
+   الألوان فقط — لا تغيير في الحقول أو سير العمل
+   ============================================================ */
+
+/* Identity */
+.form-layout .form-section:has([data-fieldname="bb_identity_section"]),
+.form-layout .form-section:has([data-fieldname="bb_identity_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_identity_section"]) .form-column {
+    background-color: #e8f0ff !important;
+    border-color: #a9c4f7 !important;
+}
+
+/* Personal */
+.form-layout .form-section:has([data-fieldname="bb_personal_section"]),
+.form-layout .form-section:has([data-fieldname="bb_personal_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_personal_section"]) .form-column {
+    background-color: #e4f6ff !important;
+    border-color: #9bd5ee !important;
+}
+
+/* Address */
+.form-layout .form-section:has([data-fieldname="bb_address_section"]),
+.form-layout .form-section:has([data-fieldname="bb_address_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_address_section"]) .form-column {
+    background-color: #e3f7f8 !important;
+    border-color: #9edfe4 !important;
+}
+
+/* Eligibility */
+.form-layout .form-section:has([data-fieldname="bb_eligibility_section"]),
+.form-layout .form-section:has([data-fieldname="bb_eligibility_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_eligibility_section"]) .form-column {
+    background-color: #e6f8ea !important;
+    border-color: #a7dbb3 !important;
+}
+
+/* Deferral */
+.form-layout .form-section:has([data-fieldname="bb_deferral_section"]),
+.form-layout .form-section:has([data-fieldname="bb_deferral_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_deferral_section"]) .form-column {
+    background-color: #fff5dc !important;
+    border-color: #eacb83 !important;
+}
+
+/* Blood Group */
+.form-layout .form-section:has([data-fieldname="bb_blood_section"]),
+.form-layout .form-section:has([data-fieldname="bb_blood_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_blood_section"]) .form-column {
+    background-color: #ffecec !important;
+    border-color: #edaaaa !important;
+}
+
+/* Donation History */
+.form-layout .form-section:has([data-fieldname="bb_history_section"]),
+.form-layout .form-section:has([data-fieldname="bb_history_section"]) .section-body,
+.form-layout .form-section:has([data-fieldname="bb_history_section"]) .form-column {
+    background-color: #f4edff !important;
+    border-color: #cdb7ed !important;
+}
+
+/* رؤوس المجموعات */
+.form-layout .form-section:has([data-fieldname="bb_identity_section"]) .section-head {
+    background-color: #d5e4ff !important;
+    color: #1e3a8a !important;
+    border-inline-start: 4px solid #2563eb !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_personal_section"]) .section-head {
+    background-color: #d2efff !important;
+    color: #075985 !important;
+    border-inline-start: 4px solid #0284c7 !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_address_section"]) .section-head {
+    background-color: #d0eff1 !important;
+    color: #155e75 !important;
+    border-inline-start: 4px solid #0891b2 !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_eligibility_section"]) .section-head {
+    background-color: #d3f0d9 !important;
+    color: #166534 !important;
+    border-inline-start: 4px solid #16a34a !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_deferral_section"]) .section-head {
+    background-color: #ffe8b3 !important;
+    color: #92400e !important;
+    border-inline-start: 4px solid #d97706 !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_blood_section"]) .section-head {
+    background-color: #ffdada !important;
+    color: #991b1b !important;
+    border-inline-start: 4px solid #dc2626 !important;
+}
+
+.form-layout .form-section:has([data-fieldname="bb_history_section"]) .section-head {
+    background-color: #e6d9ff !important;
+    color: #5b21b6 !important;
+    border-inline-start: 4px solid #7c3aed !important;
+}
+
+/* ضمان ظهور لون جسم البطاقة */
+.form-layout .form-section:has([data-fieldname^="bb_"]) .section-body,
+.form-layout .form-section:has([data-fieldname^="bb_"]) .form-column,
+.form-layout .form-section:has([data-fieldname^="bb_"]) .frappe-control {
+    opacity: 1 !important;
+}
+
+/* الحفاظ على الحجم الصغير الحالي */
+.form-layout .form-section .section-head {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 5px 9px !important;
+    font-size: 11px !important;
+}
+
+.form-layout .form-section .frappe-control {
+    margin-bottom: 3px !important;
+}
+
+.form-layout .form-section input.form-control,
+.form-layout .form-section select.form-control,
+.form-layout .form-section .form-control {
+    height: 25px !important;
+    min-height: 25px !important;
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+}
+
+.form-layout .form-section textarea.form-control,
+.form-layout .form-section textarea {
+    height: 40px !important;
+    min-height: 40px !important;
+}

@@ -1,0 +1,352 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "teal",
+ "creation": "2026-10-05 22:31:06.680656",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "naming_series",
+  "column_break_identification_2",
+  "storage_status",
+  "column_break_identification_3",
+  "source_section",
+  "blood_component",
+  "quality_check",
+  "blood_processing",
+  "blood_screening",
+  "column_break_source_2",
+  "blood_unit",
+  "donor",
+  "donor_name",
+  "column_break_source_3",
+  "blood_group",
+  "bag_number",
+  "component_type",
+  "component_number",
+  "component_volume",
+  "volume_unit",
+  "storage_section",
+  "storage_location",
+  "storage_date",
+  "stored_at",
+  "column_break_storage_2",
+  "stored_by",
+  "temperature",
+  "temperature_unit",
+  "column_break_storage_3",
+  "storage_reference",
+  "availability_section",
+  "available_date",
+  "column_break_availability_2",
+  "available_at",
+  "column_break_availability_3",
+  "available_by",
+  "remarks_section",
+  "remarks",
+  "discard_reason",
+  "column_break_remarks_2",
+  "discarded_at",
+  "discarded_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Storage ID / \u0631\u0642\u0645 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "options": "STO-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Draft",
+   "fieldname": "storage_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Storage Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "no_copy": 1,
+   "options": "Draft\nStorage\nAvailable\nReserved\nIssued\nExpired\nDiscarded",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_section",
+   "fieldtype": "Section Break",
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645"
+  },
+  {
+   "fieldname": "blood_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "options": "Blood Component",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quality_check",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Quality Check / \u0641\u062d\u0635 \u0627\u0644\u062c\u0648\u062f\u0629",
+   "options": "Blood Component Quality Check",
+   "reqd": 1
+  },
+  {
+   "fieldname": "blood_processing",
+   "fieldtype": "Link",
+   "label": "Blood Processing / \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Processing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_screening",
+   "fieldtype": "Link",
+   "label": "Blood Screening / \u0641\u062d\u0635 \u0627\u0644\u062f\u0645",
+   "options": "Blood Screening",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "options": "Blood Donor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor_name",
+   "fieldtype": "Data",
+   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "options": "Packed Red Cells\nFresh Frozen Plasma\nPlatelets\nCryoprecipitate\nOther",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Number / \u0631\u0642\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "component_volume",
+   "fieldtype": "Float",
+   "label": "Component Volume / \u062d\u062c\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "read_only": 1
+  },
+  {
+   "fieldname": "volume_unit",
+   "fieldtype": "Select",
+   "label": "Volume Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u062c\u0645",
+   "options": "mL\nL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "storage_section",
+   "fieldtype": "Section Break",
+   "label": "Storage / \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+  },
+  {
+   "fieldname": "storage_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Storage Location / \u0645\u0648\u0642\u0639 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "storage_date",
+   "fieldtype": "Date",
+   "label": "Storage Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stored_at",
+   "fieldtype": "Datetime",
+   "label": "Stored At / \u0648\u0642\u062a \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+  },
+  {
+   "fieldname": "stored_by",
+   "fieldtype": "Link",
+   "label": "Stored By / \u0645\u0646\u0641\u0630 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "options": "User"
+  },
+  {
+   "fieldname": "temperature",
+   "fieldtype": "Float",
+   "label": "Storage Temperature / \u062f\u0631\u062c\u0629 \u062d\u0631\u0627\u0631\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "precision": "2"
+  },
+  {
+   "default": "\u00b0C",
+   "fieldname": "temperature_unit",
+   "fieldtype": "Select",
+   "label": "Temperature Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u0631\u0627\u0631\u0629",
+   "options": "\u00b0C\n\u00b0F"
+  },
+  {
+   "fieldname": "storage_reference",
+   "fieldtype": "Data",
+   "label": "Storage Reference / \u0645\u0631\u062c\u0639 \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+  },
+  {
+   "fieldname": "availability_section",
+   "fieldtype": "Section Break",
+   "label": "Availability / \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+  },
+  {
+   "fieldname": "available_date",
+   "fieldtype": "Date",
+   "label": "Available Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+  },
+  {
+   "fieldname": "available_at",
+   "fieldtype": "Datetime",
+   "label": "Available At / \u0648\u0642\u062a \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+  },
+  {
+   "fieldname": "available_by",
+   "fieldtype": "Link",
+   "label": "Available By / \u0645\u0639\u062a\u0645\u062f \u0627\u0644\u0625\u062a\u0627\u062d\u0629",
+   "options": "User"
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+  },
+  {
+   "fieldname": "discard_reason",
+   "fieldtype": "Small Text",
+   "label": "Discard Reason / \u0633\u0628\u0628 \u0627\u0644\u062a\u062e\u0644\u0635"
+  },
+  {
+   "fieldname": "discarded_at",
+   "fieldtype": "Datetime",
+   "label": "Discarded At / \u0648\u0642\u062a \u0627\u0644\u062a\u062e\u0644\u0635",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "discarded_by",
+   "fieldtype": "Link",
+   "label": "Discarded By / \u0628\u0648\u0627\u0633\u0637\u0629",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_identification_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_identification_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_source_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_source_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_storage_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_storage_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_availability_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_availability_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_remarks_2",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "archive",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-06 19:11:40.511767",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Storage",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Blood Bank Staff",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_component,quality_check,blood_group,bag_number,storage_location",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

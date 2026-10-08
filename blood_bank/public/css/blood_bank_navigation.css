@@ -1,0 +1,194 @@
+.bb-navigation-root {
+    width: 100%;
+    margin: 0 0 8px 0;
+    padding: 0;
+    direction: rtl;
+    font-family: inherit;
+}
+
+.bb-navigation-main,
+.bb-navigation-windows {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    box-sizing: border-box;
+}
+
+.bb-navigation-main {
+    min-height: 48px;
+    padding: 7px 10px;
+    background: #dbe7f5;
+    border: 1px solid #9fb6cf;
+    border-radius: 9px 9px 0 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,.08);
+}
+
+.bb-navigation-windows {
+    min-height: 42px;
+    padding: 6px 10px;
+    margin-top: 2px;
+    background: #cbd9e8;
+    border: 1px solid #8fa7bf;
+    border-radius: 0 0 9px 9px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.06);
+}
+
+.bb-nav-main-btn,
+.bb-nav-windows-btn {
+    border: 1px solid transparent !important;
+    border-radius: 7px !important;
+    min-height: 32px !important;
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all .15s ease !important;
+    white-space: nowrap !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12) !important;
+}
+
+.bb-nav-main-btn:hover,
+.bb-nav-windows-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,.16) !important;
+}
+
+.bb-nav-main-btn:disabled {
+    opacity: .45 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.bb-btn-new {
+    background: #d8f0df !important;
+    color: #176b2f !important;
+    border-color: #5da86f !important;
+}
+
+.bb-btn-prev {
+    background: #dce8f8 !important;
+    color: #24548a !important;
+    border-color: #7295bd !important;
+}
+
+.bb-btn-next {
+    background: #dce8f8 !important;
+    color: #24548a !important;
+    border-color: #7295bd !important;
+}
+
+.bb-btn-bank {
+    background: #f7dada !important;
+    color: #8f2525 !important;
+    border-color: #c87575 !important;
+}
+
+.bb-btn-home {
+    background: #e8ddf7 !important;
+    color: #61368e !important;
+    border-color: #9c82bd !important;
+}
+
+.bb-nav-windows-btn {
+    min-width: 210px;
+    background: #d4edf1 !important;
+    color: #155e6d !important;
+    border-color: #5aabb8 !important;
+}
+
+.bb-nav-windows-btn b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    margin-right: 6px;
+    padding: 0 5px;
+    border-radius: 11px;
+    background: #8abfca;
+    color: #0d4651;
+    font-size: 11px;
+}
+
+.bb-nav-dialog .bb-nav-dialog-title {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 700;
+    border-radius: 7px;
+    background: #e1edf4;
+    color: #164e63;
+    border: 1px solid #a3c3d1;
+}
+
+.bb-nav-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    gap: 9px;
+}
+
+.bb-nav-window-btn {
+    min-height: 72px;
+    padding: 8px 6px;
+    border: 1px solid #b9c7d5;
+    border-radius: 8px;
+    background: #f6f9fc;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all .15s ease;
+}
+
+.bb-nav-window-btn:hover {
+    transform: translateY(-2px);
+    background: #e7f1f8;
+    border-color: #6f99b4;
+    box-shadow: 0 3px 7px rgba(0,0,0,.12);
+}
+
+.bb-nav-window-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.bb-nav-window-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    color: #24465a;
+}
+
+@media (max-width: 900px) {
+    .bb-navigation-main {
+        flex-wrap: wrap;
+    }
+
+    .bb-nav-main-btn {
+        flex: 0 1 auto;
+    }
+
+    .bb-nav-grid {
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .bb-nav-main-btn {
+        font-size: 11px !important;
+        padding: 5px 8px !important;
+    }
+
+    .bb-navigation-main,
+    .bb-navigation-windows {
+        gap: 5px;
+    }
+
+    .bb-nav-grid {
+        grid-template-columns: repeat(2, minmax(110px, 1fr));
+    }
+}
