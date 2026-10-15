@@ -411,3 +411,62 @@
         grid-template-columns: repeat(2, minmax(120px, 1fr));
     }
 }
+
+/* BB-FRAPPE-RESPONSIVE-UNIFIED-V1 */
+.bb-staff-page,
+.bb-staff-page * {
+    box-sizing: border-box;
+}
+.bb-staff-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+.bb-staff-page .control-label,
+.bb-staff-page .form-group > label,
+.bb-staff-page .frappe-control label {
+    visibility: visible !important;
+    opacity: 1 !important;
+    white-space: normal !important;
+    line-height: 1.4;
+}
+.bb-staff-page .form-control,
+.bb-staff-page input,
+.bb-staff-page select,
+.bb-staff-page textarea {
+    max-width: 100%;
+    min-width: 0;
+}
+.bb-staff-page .bb-staff-header {
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+.bb-staff-page .bb-report-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+.bb-staff-page button,
+.bb-staff-page .btn {
+    max-width: 100%;
+    white-space: normal;
+}
+@media (max-width: 900px) {
+    .bb-staff-page [class*="grid"],
+    .bb-staff-page [class*="cards"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .bb-staff-page [class*="row"] {
+        min-width: 0;
+    }
+}
+@media (max-width: 600px) {
+    .bb-staff-page [class*="grid"],
+    .bb-staff-page [class*="cards"] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .bb-staff-page .bb-staff-header {
+        align-items: flex-start;
+    }
+}

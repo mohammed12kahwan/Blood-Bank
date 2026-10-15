@@ -5,6 +5,73 @@ from frappe.model.document import Document
 
 class BloodComponent(Document):
 
+    # BB_SERVER_REQUIRED_COMPONENT_AUTOFILL
+    def before_insert(self):
+        import frappe
+
+        if not self.preparation_date:
+            self.preparation_date = frappe.utils.today()
+
+        if (
+            not self.component_number
+            or str(self.component_number).startswith("PENDING-COMP-")
+        ):
+            from frappe.model.naming import make_autoname
+            self.component_number = make_autoname("CMP-.YYYY.-.#####")
+
+        # استعادة وحدة الدم من الفحص عند الحاجة.
+        if self.blood_screening and not self.blood_unit:
+            screening = frappe.db.get_value(
+                "Blood Screening",
+                self.blood_screening,
+                ["screening_status", "overall_result", "blood_unit"],
+                as_dict=True,
+            )
+            if not screening:
+                frappe.throw("سجل فحص الدم المرتبط غير موجود.")
+            if (
+                screening.screening_status != "Accepted"
+                or screening.overall_result != "Passed"
+            ):
+                frappe.throw("إنشاء المكوّن يتطلب فحصًا مقبولًا ونتيجته Passed.")
+            self.blood_unit = screening.blood_unit
+
+        # الأولوية للرابط الصريح المخزّن في وحدة الدم.
+        if self.blood_unit and not self.blood_processing:
+            unit = frappe.get_doc("Blood Unit", self.blood_unit)
+            if unit.meta.get_field("blood_processing") and unit.blood_processing:
+                self.blood_processing = unit.blood_processing
+
+        # إذا لم يوجد رابط صريح، نبحث عن سجل معالجة وحيد مطابق.
+        if self.blood_unit and not self.blood_processing:
+            filters = {
+                "blood_unit": self.blood_unit,
+                "processing_status": "Component Separation",
+            }
+            if self.blood_screening:
+                filters["blood_screening"] = self.blood_screening
+
+            matches = frappe.get_all(
+                "Blood Processing",
+                filters=filters,
+                fields=["name"],
+                limit_page_length=2,
+            )
+
+            if len(matches) == 1:
+                self.blood_processing = matches[0].name
+            elif len(matches) > 1:
+                frappe.throw(
+                    "توجد سجلات معالجة متعددة مطابقة. "
+                    "لم يتم اختيار سجل عشوائي."
+                )
+
+        if not self.blood_processing:
+            frappe.throw(
+                "تعذر جلب معالجة الدم تلقائيًا. "
+                "تحقق من ربط وحدة الدم بسجل معالجة في حالة Component Separation."
+            )
+
     def validate(self):
 
         self.load_source_information()

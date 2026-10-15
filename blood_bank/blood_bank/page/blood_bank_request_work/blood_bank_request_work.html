@@ -1,0 +1,176 @@
+<div id="bb-rw-root" class="bb-rw-root form-layout" dir="rtl">
+
+  <header class="bb-rw-header">
+    <div class="bb-rw-brand-mark" aria-hidden="true">🩸</div>
+    <div class="bb-rw-brand-copy">
+      <h2>نظام بنك الدم</h2>
+      <p>متابعة الطلبات والحجز والمطابقة والصرف والتسليم ونقل الدم ومصير الوحدة</p>
+    </div>
+  </header>
+
+  <nav class="bb-rw-toolbar" aria-label="أدوات العمل">
+    <div class="bb-rw-toolbar-actions">
+      <button type="button" id="bb-rw-save"
+              class="btn btn-primary bb-rw-btn bb-rw-btn-save">
+        💾 حفظ
+      </button>
+      <div id="bb-rw-workflow-actions" class="bb-rw-workflow-actions">
+        احفظ السجل أو اختر سجلًا موجودًا لعرض إجراءات سير العمل.
+      </div>
+    </div>
+
+    <div class="bb-rw-toolbar-main">
+      <button type="button" id="bb-rw-new"
+              class="btn btn-default bb-rw-btn">＋ سجل جديد</button>
+      <button type="button" id="bb-rw-refresh"
+              class="btn btn-default bb-rw-btn">↻ تحديث البيانات</button>
+      <button type="button" id="bb-rw-prev"
+              class="btn btn-default bb-rw-btn">◀ السابق</button>
+      <button type="button" id="bb-rw-next"
+              class="btn btn-default bb-rw-btn">التالي ▶</button>
+    </div>
+
+    <div class="bb-rw-toolbar-navigation" bb-bb-global-navigation" aria-label="التنقل بين صفحات وتقارير بنك الدم" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px;">
+        <button type="button" class="btn btn-default bb-rw-btn bb-bb-nav-button" data-bb-target="workspace">⌂ قائمة عمل بنك الدم</button>
+        <button type="button" class="btn btn-default bb-rw-btn bb-bb-nav-button" data-bb-target="donation_report">🩸 قائمة مكونات الدم</button>
+        <button type="button" class="btn btn-default bb-rw-btn bb-bb-nav-button" data-bb-target="request_report">📋 قائمة طلبات الدم</button>
+        <button type="button" class="btn btn-default bb-rw-btn bb-bb-nav-button" data-bb-target="component_work">🧪 قوائم بنك الدم</button>
+        <button type="button" class="btn btn-default bb-rw-btn bb-bb-nav-button" data-bb-target="request_work">🩸 متابعة طلبات الدم</button>
+    </div>
+  </nav>
+
+  <section class="form-section bb-rw-panel bb-rw-source-panel">
+    <div class="section-head bb-rw-panel-head">
+      <span>الطلب المحدد</span>
+      <span class="bb-rw-english-label">SELECTED BLOOD REQUEST</span>
+    </div>
+
+    <div class="bb-rw-summary-grid">
+      <div class="bb-rw-summary-item">
+        <label>رقم الطلب</label>
+        <div id="bb-rw-request-id"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+
+      <div class="bb-rw-summary-item">
+        <label>المريض</label>
+        <div id="bb-rw-patient"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+
+      <div class="bb-rw-summary-item">
+        <label>حالة الطلب</label>
+        <div id="bb-rw-request-status"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+
+      <div class="bb-rw-summary-item">
+        <label>تاريخ الطلب</label>
+        <div id="bb-rw-request-date"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+
+      <div class="bb-rw-summary-item">
+        <label>فصيلة الدم المطلوبة</label>
+        <div id="bb-rw-request-blood-group"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+
+      <div class="bb-rw-summary-item">
+        <label>المكوّن والكمية</label>
+        <div id="bb-rw-request-component"
+             class="form-control bb-rw-summary-value">—</div>
+      </div>
+    </div>
+
+    <div class="row bb-rw-request-picker-row">
+      <div class="col-md-8">
+        <div id="bb-rw-request-picker"></div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <label class="control-label">&nbsp;</label>
+          <button type="button" id="bb-rw-open-request"
+                  class="btn btn-default bb-rw-btn">
+            فتح الطلب المحدد
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bb-rw-source-message"
+         class="alert alert-info bb-rw-message">
+      افتح تقرير طلبات الدم واختر خلية من صف الطلب لبدء المتابعة.
+    </div>
+  </section>
+
+  <section class="bb-rw-workspace">
+    <div class="bb-rw-workspace-heading">
+      <div>
+        <h3>مراحل العمل</h3>
+        <p>اختر المرحلة والسجل المطلوب، وتابع الإجراءات حسب حالة المستند.</p>
+      </div>
+      <span class="bb-rw-workspace-code">REQUEST WORKFLOW · 01–07</span>
+    </div>
+
+    <ul id="bb-rw-stage-tabs"
+        class="nav nav-tabs bb-rw-tabs"
+        role="tablist"></ul>
+
+    <!-- BB-RW-CONSOLIDATED-WORKFLOW-V1 -->
+    <div
+      id="bb-rw-combined-stage-tabs"
+      class="bb-rw-combined-stage-tabs"
+      role="tablist"
+      aria-label="الصرف والتسليم ونقل الدم ومصير الوحدة"
+      hidden></div>
+
+    <section class="form-section bb-rw-panel bb-rw-stage-panel">
+      <div class="bb-rw-stage-bar">
+        <div class="bb-rw-stage-heading">
+          <div class="bb-rw-stage-kicker">المرحلة النشطة</div>
+          <div id="bb-rw-stage-title" class="bb-rw-stage-title">
+            بيانات المرحلة
+          </div>
+          <p class="text-muted bb-rw-stage-description">
+            بيانات السجل المرتبط بطلب الدم المحدد.
+          </p>
+        </div>
+
+        <div class="bb-rw-stage-status-box">
+          <label>السجل والحالة الحالية</label>
+          <div id="bb-rw-stage-status"
+               class="form-control bb-rw-summary-value">—</div>
+        </div>
+      </div>
+
+      <div class="bb-rw-fields-area">
+        <div id="bb-rw-stage-message"
+             class="alert alert-info bb-rw-message"></div>
+
+        <div class="row bb-rw-content-row">
+          <div class="col-md-9 bb-rw-editor-column">
+            <div class="form-section bb-rw-panel bb-rw-editor-panel">
+              <div class="section-head bb-rw-subsection-head">
+                بيانات السجل
+              </div>
+              <div id="bb-rw-unsaved-message"></div>
+              <div id="bb-rw-stage-fields"></div>
+              <div id="bb-rw-save-message"
+                   class="text-muted small"></div>
+            </div>
+          </div>
+
+          <div class="col-md-3 bb-rw-record-column">
+            <div class="form-section bb-rw-panel bb-rw-record-panel">
+              <div class="section-head bb-rw-subsection-head">
+                السجلات المرتبطة
+              </div>
+              <div id="bb-rw-records" class="bb-rw-record-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</div>

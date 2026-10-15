@@ -1,12 +1,144 @@
 frappe.ui.form.on("Blood Component", {
     refresh(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 250);
+        setTimeout(() => auto_fill_blood_processing(frm), 900);
         apply_blood_component_colors(frm);
         setTimeout(() => apply_blood_component_colors(frm), 150);
         setTimeout(() => apply_blood_component_colors(frm), 600);
     },
 
     onload_post_render(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 350);
+        setTimeout(() => auto_fill_blood_processing(frm), 1000);
         setTimeout(() => apply_blood_component_colors(frm), 150);
+    }
+});
+
+
+// BB_AUTO_FILL_BLOOD_PROCESSING
+async function auto_fill_blood_processing(frm) {
+    if (!frm || !frm.is_new() || frm.doc.blood_processing) return;
+
+    const screening = frm.doc.blood_screening;
+    const unit = frm.doc.blood_unit;
+    const donor = frm.doc.donor;
+    const bag = frm.doc.bag_number;
+
+    if (!screening && !unit && !(donor && bag)) return;
+
+    const token = [screening || "", unit || "", donor || "", bag || ""].join("|");
+    if (
+        frm.__bb_processing_lookup_running === token ||
+        frm.__bb_processing_lookup_done === token
+    ) return;
+
+    frm.__bb_processing_lookup_running = token;
+
+    try {
+        const find_processing = (filters) =>
+            frappe.db.get_list("Blood Processing", {
+                filters: {
+                    ...filters,
+                    processing_status: "Component Separation"
+                },
+                fields: ["name"],
+                limit: 2
+            });
+
+        let rows = [];
+
+        // Prefer an exact match to the accepted screening.
+        if (screening) {
+            rows = await find_processing({ blood_screening: screening });
+        }
+
+        // If no direct screening link exists, match the same blood unit.
+        if ((!rows || rows.length === 0) && unit) {
+            rows = await find_processing({ blood_unit: unit });
+        }
+
+        // Last fallback: only accept a unique donor + bag match.
+        if ((!rows || rows.length === 0) && donor && bag) {
+            rows = await find_processing({
+                donor: donor,
+                bag_number: bag
+            });
+        }
+
+        if (rows && rows.length === 1 && !frm.doc.blood_processing) {
+            await frm.set_value("blood_processing", rows[0].name);
+            frm.__bb_processing_lookup_done = token;
+            frappe.show_alert({
+                message: "تم تعبئة معالجة الدم تلقائيًا: " + rows[0].name,
+                indicator: "green"
+            });
+        } else if (rows && rows.length > 1) {
+            frm.__bb_processing_lookup_done = token;
+            frappe.msgprint(
+                "وجد النظام أكثر من سجل معالجة مطابق. " +
+                "لم تتم تعبئة الحقل تلقائيًا لتجنب ربط المكوّن بسجل خاطئ."
+            );
+        }
+    } catch (e) {
+        console.error("Blood Processing auto-fill failed:", e);
+    } finally {
+        frm.__bb_processing_lookup_running = null;
+    }
+}
+
+/* BB_AUTO_FILL_ON_LINK_CHANGE */
+frappe.ui.form.on("Blood Component", {
+    blood_screening(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 350);
+    },
+    blood_unit(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 350);
+    },
+    donor(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 350);
+    },
+    bag_number(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 350);
+    }
+});
+
+/* BB_CLIENT_REQUIRED_COMPONENT_AUTOFILL */
+frappe.ui.form.on("Blood Component", {
+    async validate(frm) {
+        if (!frm.doc.preparation_date) {
+            await frm.set_value(
+                "preparation_date",
+                frappe.datetime.get_today()
+            );
+        }
+
+        // قيمة مؤقتة لا تُحفظ كما هي؛ الخادم يستبدلها برقم مولّد.
+        if (!frm.doc.component_number && frm.is_new()) {
+            await frm.set_value(
+                "component_number",
+                "PENDING-COMP-" + Date.now()
+            );
+        }
+
+        if (!frm.doc.blood_processing) {
+            await auto_fill_blood_processing(frm);
+        }
+
+        if (!frm.doc.blood_processing) {
+            frappe.validated = false;
+            frappe.msgprint(
+                "لم يُعثر على معالجة مطابقة لوحدة الدم. "
+                + "لن يُحفظ المكوّن قبل تحديد المعالجة الصحيحة."
+            );
+        }
+    },
+
+    blood_unit(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 200);
+    },
+
+    blood_screening(frm) {
+        setTimeout(() => auto_fill_blood_processing(frm), 200);
     }
 });
 

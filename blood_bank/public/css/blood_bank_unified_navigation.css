@@ -1,0 +1,52 @@
+/* BB_UNIFIED_NAVIGATION_ASSETS_V1 */
+.bb-unified-navigation {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 8px;
+    padding: 7px;
+    direction: rtl;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #dfe3e8);
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.bb-unified-navigation .bb-unified-nav-button {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: 5px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.bb-unified-navigation .bb-unified-nav-active {
+    border-color: var(--primary, #a61b29);
+    box-shadow: inset 0 -2px 0 var(--primary, #a61b29);
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    .bb-unified-navigation {
+        gap: 5px;
+        padding: 6px;
+    }
+
+    .bb-unified-navigation .bb-unified-nav-button {
+        flex: 1 1 21%;
+    }
+}
+
+@media (max-width: 600px) {
+    .bb-unified-navigation .bb-unified-nav-button {
+        flex: 1 1 calc(50% - 5px);
+    }
+}

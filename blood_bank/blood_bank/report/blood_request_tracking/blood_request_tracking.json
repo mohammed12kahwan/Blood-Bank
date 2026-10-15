@@ -1,0 +1,12 @@
+{
+  "doctype": "Report",
+  "name": "Blood Request Tracking",
+  "report_name": "Blood Request Tracking",
+  "ref_doctype": "Blood Request",
+  "report_type": "Script Report",
+  "is_standard": "Yes",
+  "module": "Blood Bank",
+  "letter_head": null,
+  "add_total_row": 0,
+  "disabled": 0
+}

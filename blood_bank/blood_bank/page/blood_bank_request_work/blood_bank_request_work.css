@@ -1,0 +1,1587 @@
+/*
+ * Blood Bank Component Work
+ * Unified visual language, RTL layout and visible autocomplete menus.
+ * Workflow logic remains in blood_bank_component_work.js.
+ */
+
+#bb-rw-root {
+    --bb-rw-red: #a61b29;
+    --bb-rw-red-dark: #821522;
+    --bb-rw-border: var(--border-color, #e2e7ec);
+    --bb-rw-soft: var(--subtle-fg, #f6f7f9);
+    direction: rtl;
+    color: var(--text-color, #263238);
+    padding: 0 0 28px;
+    font-family: inherit;
+}
+
+#bb-rw-root,
+#bb-rw-root .form-section,
+#bb-rw-root .form-group,
+#bb-rw-root .row,
+#bb-rw-root [class*="col-"],
+#bb-rw-root .frappe-control,
+#bb-rw-root .control-input,
+#bb-rw-root .control-input-wrapper,
+#bb-rw-root .link-field,
+#bb-rw-root .awesomplete {
+    overflow: visible !important;
+}
+
+#bb-rw-root .bb-rw-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    margin: 8px 0 16px;
+    padding: 20px 22px;
+    border: 1px solid var(--bb-rw-border);
+    border-right: 5px solid var(--bb-rw-red);
+    border-radius: 10px;
+    background: linear-gradient(110deg, #fff 0%, #fff7f7 100%);
+}
+
+#bb-rw-root .bb-rw-brand-mark {
+    display: flex;
+    flex: 0 0 54px;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 13px;
+    background: #fbe9eb;
+    font-size: 29px;
+}
+
+#bb-rw-root .bb-rw-brand-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#bb-rw-root .bb-rw-eyebrow,
+#bb-rw-root .bb-rw-stage-kicker,
+#bb-rw-root .bb-rw-english-label {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+}
+
+#bb-rw-root .bb-rw-header h2 {
+    margin: 4px 0 5px;
+    color: var(--heading-color, #273444);
+    font-size: 22px;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+#bb-rw-root .bb-rw-header p {
+    margin: 0;
+    color: var(--text-muted, #74808b);
+    font-size: 13px;
+}
+
+#bb-rw-root .bb-rw-header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 95px;
+    padding: 10px 12px;
+    border-right: 1px solid var(--bb-rw-border);
+    color: var(--text-muted, #74808b);
+    font-size: 11px;
+}
+
+#bb-rw-root .bb-rw-meta-number {
+    color: var(--bb-rw-red);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+#bb-rw-root .bb-rw-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid var(--bb-rw-border);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+}
+
+#bb-rw-root .bb-rw-toolbar-main,
+#bb-rw-root .bb-rw-toolbar-navigation {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+#bb-rw-root .bb-rw-btn {
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#bb-rw-root .bb-rw-btn-save {
+    border-color: var(--bb-rw-red);
+    background: var(--bb-rw-red);
+    color: #fff;
+}
+
+#bb-rw-root .bb-rw-btn-save:hover,
+#bb-rw-root .bb-rw-btn-save:focus {
+    border-color: var(--bb-rw-red-dark);
+    background: var(--bb-rw-red-dark);
+    color: #fff;
+}
+
+#bb-rw-root .bb-rw-panel {
+    position: relative;
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    border: 1px solid var(--bb-rw-border);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+    box-shadow: 0 1px 2px rgba(28, 39, 49, .035);
+}
+
+#bb-rw-root .bb-rw-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 15px;
+    padding: 0 0 11px;
+    border-bottom: 1px solid var(--bb-rw-border);
+    color: var(--heading-color, #303b46);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+#bb-rw-root .bb-rw-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+#bb-rw-root .bb-rw-summary-item {
+    min-width: 0;
+}
+
+#bb-rw-root .bb-rw-summary-item label,
+#bb-rw-root .bb-rw-stage-status-box label {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--text-muted, #687684);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#bb-rw-root .bb-rw-summary-value {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    height: auto;
+    padding: 8px 10px;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--bb-rw-border);
+    background: var(--control-bg, #f8f9fa);
+    color: var(--text-color, #263238);
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: none;
+}
+
+#bb-rw-root .bb-rw-message {
+    margin: 14px 0 0;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+#bb-rw-root .bb-rw-workspace {
+    margin-top: 20px;
+}
+
+#bb-rw-root .bb-rw-workspace-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 13px;
+}
+
+#bb-rw-root .bb-rw-workspace-heading h3 {
+    margin: 0 0 4px;
+    color: var(--heading-color, #273444);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+#bb-rw-root .bb-rw-workspace-heading p {
+    margin: 0;
+    color: var(--text-muted, #74808b);
+    font-size: 12px;
+}
+
+#bb-rw-root .bb-rw-workspace-code {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    white-space: nowrap;
+}
+
+#bb-rw-root .bb-rw-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-bottom: 2px solid var(--bb-rw-red);
+    direction: rtl;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+#bb-rw-root .bb-rw-tabs > li {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 145px;
+    margin: 0;
+}
+
+#bb-rw-root .bb-rw-tabs > li > a {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3px 7px;
+    min-height: 54px;
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--bb-rw-border);
+    border-bottom: 0;
+    border-radius: 7px 7px 0 0;
+    background: #f5f7f9;
+    color: var(--text-color, #3e4a56);
+    font-size: 12px;
+    font-weight: 650;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#bb-rw-root .bb-rw-tabs > li + li > a {
+    border-right: 0;
+}
+
+#bb-rw-root .bb-rw-tabs > li.active > a,
+#bb-rw-root .bb-rw-tabs > li.active > a:hover,
+#bb-rw-root .bb-rw-tabs > li.active > a:focus {
+    border-color: var(--bb-rw-red);
+    background: #fff;
+    color: var(--bb-rw-red);
+    box-shadow: inset 0 3px 0 var(--bb-rw-red);
+}
+
+#bb-rw-root .bb-rw-tabs > li.disabled > a {
+    color: var(--text-muted, #89939c);
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+#bb-rw-root .bb-rw-tab-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+}
+
+#bb-rw-root .bb-rw-tabs small {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+#bb-rw-root .bb-rw-stage-panel {
+    margin-top: 0;
+    border-top: 0;
+    border-radius: 0 0 9px 9px;
+    padding: 0;
+}
+
+#bb-rw-root .bb-rw-stage-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(210px, .43fr);
+    align-items: center;
+    gap: 18px;
+    padding: 18px;
+    border-bottom: 1px solid var(--bb-rw-border);
+    background: #fcfcfd;
+}
+
+#bb-rw-root .bb-rw-stage-title {
+    margin-top: 4px;
+    color: var(--heading-color, #283644);
+    font-size: 18px;
+    font-weight: 750;
+}
+
+#bb-rw-root #bb-rw-stage-description {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#bb-rw-root .bb-rw-fields-area {
+    padding: 18px;
+}
+
+#bb-rw-root .bb-rw-subsection-head {
+    margin: 0 0 15px;
+    color: var(--heading-color, #303b46);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+#bb-rw-root .form-group {
+    margin-bottom: 15px;
+}
+
+#bb-rw-root .form-group > label {
+    margin-bottom: 6px;
+    color: var(--text-color, #3e4a56);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#bb-rw-root .form-control {
+    min-height: 34px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+#bb-rw-root .bb-rw-actions-panel {
+    margin-top: 16px;
+}
+
+#bb-rw-root .bb-rw-actions-hint {
+    margin: -5px 0 13px;
+    font-size: 12px;
+}
+
+#bb-rw-root .bb-rw-workflow-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 24px;
+    font-size: 12px;
+}
+
+#bb-rw-root .bb-rw-workflow-actions .btn {
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+#bb-rw-root .awesomplete,
+#bb-rw-root .awesomplete > ul,
+#bb-rw-root .link-field .awesomplete > ul,
+#bb-rw-root .dropdown-menu,
+#bb-rw-root .control-input-wrapper .awesomplete > ul {
+    z-index: 10050 !important;
+}
+
+#bb-rw-root .awesomplete > ul,
+#bb-rw-root .dropdown-menu {
+    max-height: 260px;
+    overflow-y: auto !important;
+    box-shadow: 0 5px 18px rgba(25, 35, 45, .16);
+}
+
+@media (max-width: 900px) {
+    #bb-rw-root .bb-rw-toolbar {
+        align-items: stretch;
+    }
+
+    #bb-rw-root .bb-rw-toolbar-main,
+    #bb-rw-root .bb-rw-toolbar-navigation {
+        width: 100%;
+    }
+
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #bb-rw-root .bb-rw-stage-bar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    #bb-rw-root .bb-rw-header {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    #bb-rw-root .bb-rw-brand-mark {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
+        font-size: 23px;
+    }
+
+    #bb-rw-root .bb-rw-header h2 {
+        font-size: 18px;
+    }
+
+    #bb-rw-root .bb-rw-header-meta {
+        display: none;
+    }
+
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #bb-rw-root .bb-rw-panel {
+        padding: 12px;
+    }
+
+    #bb-rw-root .bb-rw-tabs > li {
+        min-width: 138px;
+    }
+
+    #bb-rw-root .bb-rw-workspace-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* Compact header and workflow actions beside Save, upper-left. */
+#bb-rw-root .bb-rw-header {
+    min-height: 0;
+    margin: 3px 0 10px;
+    padding: 9px 14px;
+    gap: 10px;
+    border-right-width: 4px;
+    border-radius: 7px;
+    background: var(--card-bg, #fff);
+}
+
+#bb-rw-root .bb-rw-brand-mark {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 21px;
+}
+
+#bb-rw-root .bb-rw-brand-copy h2,
+#bb-rw-root .bb-rw-header h2 {
+    margin: 0 0 2px;
+    font-size: 17px;
+    line-height: 1.3;
+}
+
+#bb-rw-root .bb-rw-header p {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+#bb-rw-root .bb-rw-toolbar {
+    direction: ltr;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-bottom: 13px;
+    padding: 8px 10px;
+    border-radius: 7px;
+}
+
+#bb-rw-root .bb-rw-toolbar-actions {
+    order: 0;
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 0;
+    direction: ltr;
+}
+
+#bb-rw-root .bb-rw-toolbar-actions #bb-rw-save {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+#bb-rw-root .bb-rw-toolbar-actions #bb-rw-workflow-actions {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 430px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    direction: rtl;
+    color: var(--text-color, #263238);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+#bb-rw-root .bb-rw-toolbar-actions #bb-rw-workflow-actions .btn {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    white-space: nowrap;
+}
+
+#bb-rw-root .bb-rw-toolbar-main {
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 6px;
+    direction: rtl;
+}
+
+#bb-rw-root .bb-rw-toolbar-navigation {
+    order: 2;
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 6px;
+    direction: rtl;
+}
+
+#bb-rw-root .bb-rw-toolbar .bb-rw-btn {
+    min-height: 31px;
+    padding: 5px 9px;
+    font-size: 11px;
+}
+
+#bb-rw-root .bb-rw-workspace {
+    margin-top: 12px;
+}
+
+#bb-rw-root .bb-rw-workspace-heading {
+    margin-bottom: 9px;
+}
+
+#bb-rw-root .bb-rw-tabs > li > a {
+    min-height: 47px;
+    padding: 7px 9px;
+}
+
+#bb-rw-root .bb-rw-stage-bar {
+    padding: 13px 16px;
+}
+
+@media (max-width: 900px) {
+    #bb-rw-root .bb-rw-toolbar {
+        align-items: flex-start;
+    }
+
+    #bb-rw-root .bb-rw-toolbar-actions {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #bb-rw-root .bb-rw-toolbar-actions #bb-rw-workflow-actions {
+        max-width: calc(100% - 80px);
+    }
+
+    #bb-rw-root .bb-rw-toolbar-main,
+    #bb-rw-root .bb-rw-toolbar-navigation {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+
+/* Request workflow layout additions; keep the shared Component Work theme. */
+#bb-rw-root .bb-rw-request-picker-row {
+    margin-top: 12px;
+}
+
+#bb-rw-root .bb-rw-content-row {
+    display: flex;
+    flex-wrap: wrap;
+    direction: rtl;
+    align-items: flex-start;
+}
+
+#bb-rw-root .bb-rw-editor-column,
+#bb-rw-root .bb-rw-record-column {
+    float: none;
+}
+
+#bb-rw-root .bb-rw-editor-panel,
+#bb-rw-root .bb-rw-record-panel {
+    margin-bottom: 12px;
+}
+
+#bb-rw-root .bb-rw-field-section {
+    margin-bottom: 15px;
+    padding: 14px;
+    box-shadow: none;
+}
+
+#bb-rw-root .bb-rw-field-section > .section-head,
+#bb-rw-root .bb-rw-subsection-head {
+    margin-bottom: 13px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--bb-rw-border);
+    color: var(--heading-color, #303b46);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+#bb-rw-root .bb-rw-record-list {
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+#bb-rw-root .bb-rw-record-btn {
+    display: block;
+    width: 100%;
+    margin: 0 0 7px;
+    padding: 8px 10px;
+    text-align: right;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    border-radius: 6px;
+    font-size: 11px;
+}
+
+#bb-rw-root .bb-rw-record-btn.active {
+    border-color: var(--bb-rw-red);
+    background: #fff4f5;
+    color: var(--bb-rw-red);
+}
+
+#bb-rw-root .bb-rw-record-btn .bb-rw-record-status {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+}
+
+#bb-rw-root .bb-rw-status {
+    color: var(--text-muted, #74808b);
+    font-size: 11px;
+    font-weight: normal;
+}
+
+#bb-rw-root .bb-rw-empty {
+    padding: 12px 8px;
+    color: var(--text-muted, #74808b);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+#bb-rw-root .bb-rw-stage-message:empty,
+#bb-rw-root .bb-rw-save-message:empty {
+    display: none;
+}
+
+#bb-rw-root #bb-rw-open-request {
+    min-height: 34px;
+}
+
+@media (max-width: 767px) {
+    #bb-rw-root .bb-rw-content-row {
+        display: block;
+    }
+
+    #bb-rw-root .bb-rw-editor-column,
+    #bb-rw-root .bb-rw-record-column {
+        width: 100%;
+    }
+
+    #bb-rw-root .bb-rw-record-list {
+        max-height: 240px;
+    }
+
+    #bb-rw-root .bb-rw-tabs > li {
+        min-width: 150px;
+    }
+}
+
+/* BB-RW-COMPACT-LAYOUT-V1
+   Compact Frappe-style request workflow. Workflow logic is unchanged.
+*/
+
+#bb-rw-root {
+    padding-bottom: 8px !important;
+}
+
+#bb-rw-root .bb-rw-header {
+    gap: 8px !important;
+    margin: 2px 0 6px !important;
+    padding: 6px 10px !important;
+    border-right-width: 3px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+
+#bb-rw-root .bb-rw-brand-mark {
+    flex-basis: 32px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 6px !important;
+    font-size: 18px !important;
+}
+
+#bb-rw-root .bb-rw-header h2 {
+    margin: 0 0 1px !important;
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-header p {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+}
+
+#bb-rw-root .bb-rw-header-meta {
+    min-width: 65px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
+}
+
+#bb-rw-root .bb-rw-meta-number {
+    font-size: 17px !important;
+}
+
+#bb-rw-root .bb-rw-toolbar {
+    align-items: center;
+    gap: 6px !important;
+    margin: 0 0 6px !important;
+    padding: 5px 7px !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+}
+
+#bb-rw-root .bb-rw-toolbar-actions,
+#bb-rw-root .bb-rw-toolbar-main,
+#bb-rw-root .bb-rw-toolbar-navigation {
+    gap: 5px !important;
+}
+
+#bb-rw-root .bb-rw-btn,
+#bb-rw-root .bb-rw-toolbar .btn {
+    min-height: 27px !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-workflow-actions {
+    gap: 5px !important;
+    min-height: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+#bb-rw-root .bb-rw-toolbar-navigation {
+    margin: 3px 0 !important;
+}
+
+#bb-rw-root .bb-rw-toolbar-navigation .btn {
+    min-height: 26px !important;
+    padding: 3px 7px !important;
+    font-size: 10px !important;
+}
+
+#bb-rw-root .bb-rw-source-panel {
+    margin: 0 0 7px !important;
+    padding: 5px 8px !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+}
+
+#bb-rw-root .bb-rw-source-panel .bb-rw-panel-head {
+    gap: 5px !important;
+    margin: 0 0 5px !important;
+    padding: 0 0 4px !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-source-panel .bb-rw-english-label {
+    display: none !important;
+}
+
+#bb-rw-root .bb-rw-summary-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 5px 7px !important;
+}
+
+#bb-rw-root .bb-rw-summary-item {
+    min-width: 0;
+    margin: 0 !important;
+}
+
+#bb-rw-root .bb-rw-summary-item label,
+#bb-rw-root .bb-rw-stage-status-box label {
+    margin: 0 0 2px !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-summary-value {
+    min-width: 0;
+    min-height: 23px !important;
+    padding: 3px 5px !important;
+    border-radius: 3px !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+}
+
+#bb-rw-root .bb-rw-request-picker-row {
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+}
+
+#bb-rw-root .bb-rw-request-picker-row .form-group,
+#bb-rw-root .bb-rw-request-picker-row .frappe-control {
+    margin-bottom: 0 !important;
+}
+
+#bb-rw-root .bb-rw-request-picker-row .control-label {
+    margin-bottom: 2px !important;
+}
+
+#bb-rw-root .bb-rw-workspace {
+    margin-top: 6px !important;
+}
+
+#bb-rw-root .bb-rw-workspace-heading {
+    gap: 7px !important;
+    margin: 0 0 6px !important;
+}
+
+#bb-rw-root .bb-rw-workspace-heading h3 {
+    margin: 0 0 2px !important;
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-workspace-heading p {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+#bb-rw-root .bb-rw-workspace-code {
+    font-size: 9px !important;
+}
+
+#bb-rw-root .bb-rw-tabs {
+    margin: 0 !important;
+}
+
+#bb-rw-root .bb-rw-tabs > li > a {
+    gap: 3px 5px !important;
+    min-height: 39px !important;
+    padding: 5px 7px !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root .bb-rw-tab-number {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10px !important;
+}
+
+#bb-rw-root .bb-rw-tabs small {
+    font-size: 9px !important;
+}
+
+#bb-rw-root .bb-rw-stage-panel {
+    margin-bottom: 7px !important;
+    border-radius: 0 0 5px 5px !important;
+}
+
+#bb-rw-root .bb-rw-stage-bar {
+    gap: 8px !important;
+    padding: 7px 9px !important;
+}
+
+#bb-rw-root .bb-rw-stage-kicker {
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+}
+
+#bb-rw-root .bb-rw-stage-title {
+    margin-top: 2px !important;
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-rw-root #bb-rw-stage-description {
+    margin: 2px 0 0 !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+#bb-rw-root .bb-rw-fields-area {
+    padding: 7px 9px !important;
+}
+
+#bb-rw-root .bb-rw-message {
+    margin: 4px 0 !important;
+    padding: 5px 7px !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+
+#bb-rw-root .bb-rw-editor-panel,
+#bb-rw-root .bb-rw-record-panel {
+    margin: 0 0 7px !important;
+    padding: 7px 8px !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+}
+
+#bb-rw-root .bb-rw-subsection-head {
+    margin: 0 0 7px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+}
+
+#bb-rw-root .bb-rw-fields-area .form-group {
+    margin-bottom: 8px !important;
+}
+
+#bb-rw-root .bb-rw-fields-area .frappe-control {
+    margin-bottom: 0 !important;
+}
+
+#bb-rw-root .bb-rw-fields-area .control-label {
+    margin-bottom: 3px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+
+#bb-rw-root .bb-rw-fields-area .form-control {
+    min-height: 29px;
+    padding: 4px 7px;
+    font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 767px) {
+    #bb-rw-root .bb-rw-header {
+        padding: 6px 8px !important;
+    }
+
+    #bb-rw-root .bb-rw-toolbar {
+        align-items: stretch;
+    }
+
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #bb-rw-root .bb-rw-stage-bar {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 6px !important;
+        padding: 7px !important;
+    }
+
+    #bb-rw-root .bb-rw-fields-area {
+        padding: 6px !important;
+    }
+
+    #bb-rw-root .bb-rw-editor-panel,
+    #bb-rw-root .bb-rw-record-panel {
+        padding: 6px !important;
+    }
+
+    #bb-rw-root .bb-rw-tabs > li {
+        min-width: 125px;
+    }
+}
+
+/* BB-FRAPPE-RESPONSIVE-UNIFIED-V1 */
+#bb-rw-root,
+#bb-rw-root * {
+    box-sizing: border-box;
+}
+#bb-rw-root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#bb-rw-root .frappe-control,
+#bb-rw-root .form-group,
+#bb-rw-root .bb-rw-panel,
+#bb-rw-root .bb-rw-editor-column,
+#bb-rw-root .bb-rw-record-column {
+    min-width: 0;
+    max-width: 100%;
+}
+#bb-rw-root .frappe-control .control-label,
+#bb-rw-root .form-group > label,
+#bb-rw-root .bb-rw-editor-panel .control-label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+#bb-rw-root .bb-rw-summary-item label,
+#bb-rw-root .bb-rw-stage-status-box label {
+    display: block !important;
+    visibility: visible !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+#bb-rw-root .form-control,
+#bb-rw-root input,
+#bb-rw-root select,
+#bb-rw-root textarea {
+    max-width: 100%;
+}
+#bb-rw-root .bb-rw-toolbar,
+#bb-rw-root .bb-rw-toolbar-main,
+#bb-rw-root .bb-rw-toolbar-actions,
+#bb-rw-root .bb-rw-toolbar-navigation,
+#bb-rw-root .bb-rw-workflow-actions {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+#bb-rw-root .bb-rw-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    overflow-y: visible;
+}
+#bb-rw-root .bb-rw-tabs > li {
+    flex: 1 1 21%;
+    min-width: 130px;
+    max-width: 100%;
+}
+#bb-rw-root .bb-rw-tabs > li > a {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 1000px) {
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    #bb-rw-root .bb-rw-stage-bar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+    #bb-rw-root .bb-rw-editor-column,
+    #bb-rw-root .bb-rw-record-column {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+    #bb-rw-root .bb-rw-tabs > li {
+        flex: 1 1 28%;
+    }
+}
+@media (max-width: 600px) {
+    #bb-rw-root .bb-rw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #bb-rw-root .bb-rw-tabs > li {
+        flex: 1 1 42%;
+        min-width: 125px;
+    }
+    #bb-rw-root .bb-rw-header,
+    #bb-rw-root .bb-rw-toolbar,
+    #bb-rw-root .bb-rw-panel {
+        max-width: 100%;
+    }
+}
+
+/* BB-RW-CONSOLIDATED-WORKFLOW-V1
+   One primary tab with four internal substages.
+*/
+#bb-rw-root .bb-rw-combined-stage-tabs[hidden] {
+    display: none !important;
+}
+#bb-rw-root .bb-rw-combined-stage-tabs:not([hidden]) {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: stretch;
+    gap: 6px;
+    margin: 0;
+    padding: 7px;
+    border: 1px solid var(--bb-rw-border, #e2e7ec);
+    border-bottom: 0;
+    background: var(--card-bg, #fff);
+    direction: rtl;
+}
+#bb-rw-root .bb-rw-combined-stage-tab {
+    display: flex;
+    flex: 1 1 180px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    min-height: 40px;
+    margin: 0;
+    padding: 6px 9px;
+    text-align: right;
+    white-space: normal;
+}
+#bb-rw-root .bb-rw-combined-stage-tab-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+#bb-rw-root .bb-rw-combined-stage-tab-label {
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+#bb-rw-root .bb-rw-combined-stage-tab-doctype {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+#bb-rw-root .bb-rw-combined-stage-tab.active {
+    border-color: var(--primary, #a61b29);
+    background: var(--subtle-accent, #f9eef0);
+    box-shadow: inset -3px 0 0 var(--primary, #a61b29);
+}
+#bb-rw-root #bb-rw-stage-tabs > li > a {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 767px) {
+    #bb-rw-root .bb-rw-combined-stage-tabs:not([hidden]) {
+        gap: 5px;
+        padding: 5px;
+    }
+    #bb-rw-root .bb-rw-combined-stage-tab {
+        flex: 1 1 140px;
+        min-height: 36px;
+        padding: 5px 7px;
+    }
+}
+
+/* BB-RW-THREE-COLUMN-FIELDS-RELATED-STRIP-V1
+   Three-column editor on desktop, responsive on narrow screens.
+   Related records occupy a separate compact horizontal row.
+*/
+
+/* Each DocField control becomes an independent grid item. */
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: start;
+    gap: 9px 12px !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    min-width: 0;
+}
+
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row::before,
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row::after {
+    display: none !important;
+    content: none !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row > .bb-rw-field-column {
+    display: contents !important;
+    float: none !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields .frappe-control,
+#bb-rw-root #bb-rw-stage-fields .form-group {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-bottom: 0 !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields .control-label {
+    display: block !important;
+    visibility: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    line-height: 1.4 !important;
+    margin-bottom: 3px !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields input,
+#bb-rw-root #bb-rw-stage-fields select,
+#bb-rw-root #bb-rw-stage-fields textarea,
+#bb-rw-root #bb-rw-stage-fields .form-control {
+    width: 100%;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section {
+    min-width: 0;
+    margin-bottom: 8px !important;
+    padding: 9px 10px !important;
+}
+
+/* Editor and linked-records sections get their own full-width rows. */
+#bb-rw-root .bb-rw-content-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
+#bb-rw-root .bb-rw-content-row > .bb-rw-editor-column,
+#bb-rw-root .bb-rw-content-row > .bb-rw-record-column {
+    display: block !important;
+    float: none !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* Compact horizontal strip for related records. */
+#bb-rw-root .bb-rw-record-panel {
+    display: grid !important;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    margin: 0 !important;
+    padding: 5px 8px !important;
+    border-radius: 5px !important;
+    box-shadow: none !important;
+}
+
+#bb-rw-root .bb-rw-record-panel .bb-rw-subsection-head {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    white-space: nowrap;
+}
+
+#bb-rw-root .bb-rw-record-list {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: center;
+    gap: 4px !important;
+    min-width: 0;
+}
+
+#bb-rw-root .bb-rw-record-list .bb-rw-record-btn {
+    display: inline-flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 25px;
+    margin: 0 !important;
+    padding: 3px 7px !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1050px) {
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px 10px !important;
+    }
+}
+
+@media (max-width: 650px) {
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    #bb-rw-root .bb-rw-record-panel {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 5px;
+        padding: 6px !important;
+    }
+
+    #bb-rw-root .bb-rw-record-panel .bb-rw-subsection-head {
+        white-space: normal;
+    }
+
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section {
+        padding: 7px !important;
+    }
+}
+
+/* BB-RW-EQUAL-FIELDS-V1
+   Equal-width controls and consistent field alignment per section.
+*/
+
+/* Three equal columns on desktop. */
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-flow: row;
+    align-items: stretch !important;
+    gap: 10px 12px !important;
+    width: 100%;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row::before,
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Bootstrap columns become transparent to the equal-width grid. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section > .row > .bb-rw-field-column {
+    display: contents !important;
+}
+
+/* Each field occupies the full width of its grid cell. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .frappe-control {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .form-group {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin-bottom: 0 !important;
+}
+
+/* Consistent label alignment and spacing. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .control-label {
+    display: block !important;
+    visibility: visible !important;
+    width: 100%;
+    min-height: 2.7em;
+    margin: 0 0 4px !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
+/* Standard single-line controls share a consistent height. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section input.form-control:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section select.form-control,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .link-field input,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .input-with-feedback {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    box-sizing: border-box !important;
+}
+
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .control-input-wrapper,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .control-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Preserve larger dimensions for multiline text fields. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section textarea.form-control {
+    height: auto !important;
+    min-height: 68px !important;
+    resize: vertical;
+}
+
+/* Keep descriptions aligned without forcing text to be clipped. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .help-box,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section .help-message {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Tablet: two equal columns. */
+@media (max-width: 1050px) {
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 9px 10px !important;
+    }
+}
+
+/* Narrow screens: one column. */
+@media (max-width: 650px) {
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section > .row {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 9px !important;
+    }
+
+    #bb-rw-root #bb-rw-stage-fields
+    .bb-rw-field-section .control-label {
+        min-height: 0;
+    }
+}
+
+/* BB-RW-COMPACT-FIELDS-TYPOGRAPHY-V1
+   Compact vertical rhythm and smaller, readable form typography.
+*/
+
+/* Reduce gaps between sections. */
+#bb-rw-root #bb-rw-stage-fields .bb-rw-field-section {
+    padding: 9px 11px !important;
+    margin-bottom: 8px !important;
+}
+
+/* Smaller section titles and less space beneath them. */
+#bb-rw-root #bb-rw-stage-fields .bb-rw-subsection-head {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    margin: 0 0 6px !important;
+    padding: 0 0 5px !important;
+}
+
+/* Reduce vertical and horizontal gaps between field columns. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-section > .row {
+    column-gap: 9px !important;
+    row-gap: 5px !important;
+}
+
+/* Reduce spacing between consecutive controls. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .frappe-control,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .form-group {
+    margin-top: 0 !important;
+    margin-bottom: 5px !important;
+}
+
+/* Smaller field labels, with readable line spacing. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .control-label {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    line-height: 1.3 !important;
+    margin: 0 0 3px !important;
+    min-height: 0 !important;
+    white-space: normal !important;
+}
+
+/* Slightly shorter inputs and smaller input text. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column input.form-control:not([type="checkbox"]):not([type="radio"]),
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column select.form-control,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .link-field input,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .awesomplete input {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 4px 7px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    box-sizing: border-box !important;
+}
+
+/* Keep text areas compact without making them impractically short. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column textarea.form-control {
+    min-height: 52px !important;
+    padding: 5px 7px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+
+/* Smaller helper and description text. */
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .help-box,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .help small,
+#bb-rw-root #bb-rw-stage-fields
+.bb-rw-field-column .description {
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+    margin-top: 2px !important;
+}
+
+/* Preserve comfortable spacing on narrow screens. */
+@media (max-width: 650px) {
+    #bb-rw-root #bb-rw-stage-fields .bb-rw-field-section {
+        padding: 8px !important;
+        margin-bottom: 7px !important;
+    }
+
+    #bb-rw-root #bb-rw-stage-fields
+    .bb-rw-field-column .control-label {
+        font-size: 11px !important;
+    }
+}

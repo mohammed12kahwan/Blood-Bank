@@ -319,8 +319,32 @@ app_include_css = list(dict.fromkeys(
 ))
 
 
-app_include_js = list(dict.fromkeys(globals().get("app_include_js", []) + ["/assets/blood_bank/js/blood_donor_embedded_forms.js?v=1", "/assets/blood_bank/js/blood_bank_workspace_shortcut.js?v=1"]))
+app_include_js = list(dict.fromkeys(globals().get("app_include_js", []) + ["/assets/blood_bank/js/blood_donor_embedded_forms.js?v=1", "/assets/blood_bank/js/blood_bank_workspace_shortcut.js?v=5"]))
 
 _bb_workspace_css = globals().get("app_include_css", [])
 _bb_workspace_css = _bb_workspace_css if isinstance(_bb_workspace_css, list) else [_bb_workspace_css]
-app_include_css = list(dict.fromkeys(_bb_workspace_css + ["/assets/blood_bank/css/blood_bank_workspace_shortcut.css?v=1"]))
+app_include_css = list(dict.fromkeys(_bb_workspace_css + ["/assets/blood_bank/css/blood_bank_workspace_shortcut.css?v=5"]))
+
+
+# BB_UNIFIED_NAVIGATION_ASSETS_V1
+_bb_unified_nav_js = globals().get("app_include_js", [])
+if isinstance(_bb_unified_nav_js, str):
+    _bb_unified_nav_js = [_bb_unified_nav_js]
+else:
+    _bb_unified_nav_js = list(_bb_unified_nav_js or [])
+app_include_js = list(dict.fromkeys(
+    _bb_unified_nav_js + [
+        "/assets/blood_bank/js/blood_bank_unified_navigation.js?v=1"
+    ]
+))
+
+_bb_unified_nav_css = globals().get("app_include_css", [])
+if isinstance(_bb_unified_nav_css, str):
+    _bb_unified_nav_css = [_bb_unified_nav_css]
+else:
+    _bb_unified_nav_css = list(_bb_unified_nav_css or [])
+app_include_css = list(dict.fromkeys(
+    _bb_unified_nav_css + [
+        "/assets/blood_bank/css/blood_bank_unified_navigation.css?v=1"
+    ]
+))

@@ -13,6 +13,7 @@
   "processing_status",
   "source_section",
   "blood_screening",
+  "blood_donation",
   "blood_unit",
   "column_break_source_2",
   "donor",
@@ -20,6 +21,11 @@
   "column_break_source_3",
   "blood_group",
   "bag_number",
+  "donation_type",
+  "collection_start",
+  "collection_end",
+  "volume_collected",
+  "collection_unit",
   "processing_section",
   "processing_date",
   "processing_started_at",
@@ -40,12 +46,12 @@
   {
    "fieldname": "identification_section",
    "fieldtype": "Section Break",
-   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+   "label": "Identification / التعريف"
   },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Processing ID / \u0631\u0642\u0645 \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing ID / رقم المعالجة",
    "options": "PROC-.YYYY.-.#####",
    "reqd": 1
   },
@@ -54,28 +60,37 @@
    "fieldname": "processing_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Processing Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing Status / حالة المعالجة",
    "options": "Draft\nProcessing\nComponent Separation",
    "reqd": 1
   },
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "Accepted Screening / \u0627\u0644\u0641\u062d\u0635 \u0627\u0644\u0645\u0642\u0628\u0648\u0644"
+   "label": "Accepted Screening / الفحص المقبول"
   },
   {
    "fieldname": "blood_screening",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Blood Screening / \u0641\u062d\u0635 \u0627\u0644\u062f\u0645",
+   "label": "Blood Screening / فحص الدم",
    "options": "Blood Screening",
-   "reqd": 1
+   "reqd": 0
+  },
+  {
+   "fieldname": "blood_donation",
+   "fieldtype": "Link",
+   "label": "Source Blood Donation / التبرع المصدر",
+   "options": "Blood Donation",
+   "read_only": 1,
+   "reqd": 0,
+   "description": "Source donation linked to this processing record."
   },
   {
    "fieldname": "blood_unit",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Unit / وحدة الدم",
    "options": "Blood Unit",
    "read_only": 1
   },
@@ -83,51 +98,81 @@
    "fieldname": "donor",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor / المتبرع",
    "options": "Blood Donor",
    "read_only": 1
   },
   {
    "fieldname": "donor_name",
    "fieldtype": "Data",
-   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor Name / اسم المتبرع",
    "read_only": 1
   },
   {
    "fieldname": "blood_group",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Group / فصيلة الدم",
    "read_only": 1
   },
   {
    "fieldname": "bag_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Bag Number / \u0631\u0642\u0645 \u0643\u064a\u0633 \u0627\u0644\u062f\u0645",
+   "label": "Bag Number / رقم كيس الدم",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donation_type",
+   "label": "Donation Type / نوع التبرع",
+   "fieldtype": "Data",
+   "read_only": 1
+  },
+  {
+   "fieldname": "collection_start",
+   "label": "Collection Start / بداية السحب",
+   "fieldtype": "Datetime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "collection_end",
+   "label": "Collection End / نهاية السحب",
+   "fieldtype": "Datetime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "volume_collected",
+   "label": "Volume Collected / الحجم المسحوب",
+   "fieldtype": "Float",
+   "read_only": 1
+  },
+  {
+   "fieldname": "collection_unit",
+   "label": "Collection Unit / وحدة الحجم",
+   "fieldtype": "Data",
    "read_only": 1
   },
   {
    "fieldname": "processing_section",
    "fieldtype": "Section Break",
-   "label": "Processing / \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629"
+   "label": "Processing / المعالجة"
   },
   {
    "fieldname": "processing_date",
    "fieldtype": "Date",
-   "label": "Processing Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing Date / تاريخ المعالجة",
    "reqd": 1
   },
   {
    "fieldname": "processing_started_at",
    "fieldtype": "Datetime",
-   "label": "Processing Started At / \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing Started At / بداية المعالجة",
    "read_only": 1
   },
   {
    "fieldname": "processing_started_by",
    "fieldtype": "Link",
-   "label": "Processing Started By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing Started By / منفذ المعالجة",
    "options": "User",
    "read_only": 1
   },
@@ -135,42 +180,42 @@
    "default": "Whole Blood Processing",
    "fieldname": "processing_type",
    "fieldtype": "Select",
-   "label": "Processing Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+   "label": "Processing Type / نوع المعالجة",
    "options": "Whole Blood Processing\nApheresis Processing\nOther"
   },
   {
    "fieldname": "separation_section",
    "fieldtype": "Section Break",
-   "label": "Component Separation / \u0641\u0635\u0644 \u0627\u0644\u0645\u0643\u0648\u0646\u0627\u062a"
+   "label": "Component Separation / فصل المكونات"
   },
   {
    "fieldname": "separation_method",
    "fieldtype": "Select",
-   "label": "Separation Method / \u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u0641\u0635\u0644",
+   "label": "Separation Method / طريقة الفصل",
    "options": "Manual\nAutomated\nOther"
   },
   {
    "fieldname": "separation_started_at",
    "fieldtype": "Datetime",
-   "label": "Separation Started At / \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0641\u0635\u0644",
+   "label": "Separation Started At / بداية الفصل",
    "read_only": 1
   },
   {
    "fieldname": "separation_started_by",
    "fieldtype": "Link",
-   "label": "Separation Started By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0641\u0635\u0644",
+   "label": "Separation Started By / منفذ الفصل",
    "options": "User",
    "read_only": 1
   },
   {
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / الملاحظات"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / ملاحظات"
   },
   {
    "fieldname": "column_break_identification_2",

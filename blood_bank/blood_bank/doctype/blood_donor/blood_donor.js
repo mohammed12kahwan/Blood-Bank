@@ -1,4 +1,18 @@
 frappe.ui.form.on("Blood Donor", {
+    blood_group_verified(frm) {
+        if (frm.doc.blood_group_verified) {
+            frm.set_value(
+                "blood_group_verification_date",
+                frappe.datetime.get_today()
+            );
+        } else {
+            frm.set_value(
+                "blood_group_verification_date",
+                null
+            );
+        }
+    },
+
     refresh(frm) {
         apply_blood_donor_colors(frm);
 

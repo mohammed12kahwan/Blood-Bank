@@ -42,12 +42,12 @@
   {
    "fieldname": "identification_section",
    "fieldtype": "Section Break",
-   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+   "label": "Identification / التعريف"
   },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Screening ID / \u0631\u0642\u0645 \u0627\u0644\u0641\u062d\u0635",
+   "label": "Screening ID / رقم الفحص",
    "options": "SCR-.YYYY.-.#####",
    "reqd": 1
   },
@@ -56,20 +56,20 @@
    "fieldname": "screening_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Screening Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0641\u062d\u0635",
+   "label": "Screening Status / حالة الفحص",
    "options": "Draft\nScreening\nResults Review\nAccepted\nRejected",
    "reqd": 1
   },
   {
    "fieldname": "blood_unit_section",
    "fieldtype": "Section Break",
-   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645"
+   "label": "Blood Unit / وحدة الدم"
   },
   {
    "fieldname": "blood_unit",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Unit / وحدة الدم",
    "options": "Blood Unit",
    "reqd": 1
   },
@@ -78,7 +78,7 @@
    "fieldname": "donor",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor / المتبرع",
    "options": "Blood Donor",
    "read_only": 1
   },
@@ -86,7 +86,7 @@
    "fetch_from": "blood_unit.donor_name",
    "fieldname": "donor_name",
    "fieldtype": "Data",
-   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor Name / اسم المتبرع",
    "read_only": 1
   },
   {
@@ -94,7 +94,7 @@
    "fieldname": "blood_group",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Group / فصيلة الدم",
    "read_only": 1
   },
   {
@@ -102,36 +102,37 @@
    "fieldname": "bag_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Bag Number / \u0631\u0642\u0645 \u0643\u064a\u0633 \u0627\u0644\u062f\u0645",
+   "label": "Bag Number / رقم كيس الدم",
    "read_only": 1
   },
   {
    "fieldname": "screening_section",
    "fieldtype": "Section Break",
-   "label": "Screening / \u0641\u062d\u0635 \u0627\u0644\u062f\u0645"
+   "label": "Screening / فحص الدم"
   },
   {
    "fieldname": "screening_date",
    "fieldtype": "Date",
-   "label": "Screening Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0641\u062d\u0635",
+   "label": "Screening Date / تاريخ الفحص",
    "reqd": 1
   },
   {
    "fieldname": "sample_id",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Sample ID / \u0631\u0642\u0645 \u0627\u0644\u0639\u064a\u0646\u0629",
-   "reqd": 1
+   "label": "Sample ID / رقم العينة",
+   "reqd": 0,
+   "read_only": 1
   },
   {
    "fieldname": "screened_at",
    "fieldtype": "Datetime",
-   "label": "Screened At / \u0648\u0642\u062a \u0627\u0644\u0641\u062d\u0635"
+   "label": "Screened At / وقت الفحص"
   },
   {
    "fieldname": "screened_by",
    "fieldtype": "Link",
-   "label": "Screened By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0641\u062d\u0635",
+   "label": "Screened By / منفذ الفحص",
    "options": "User"
   },
   {
@@ -139,46 +140,46 @@
    "fieldname": "overall_result",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Overall Result / \u0627\u0644\u0646\u062a\u064a\u062c\u0629 \u0627\u0644\u0639\u0627\u0645\u0629",
+   "label": "Overall Result / النتيجة العامة",
    "options": "Pending\nPassed\nFailed",
    "reqd": 1
   },
   {
    "fieldname": "result_summary",
    "fieldtype": "Small Text",
-   "label": "Result Summary / \u0645\u0644\u062e\u0635 \u0627\u0644\u0646\u062a\u0627\u0626\u062c"
+   "label": "Result Summary / ملخص النتائج"
   },
   {
    "fieldname": "review_section",
    "fieldtype": "Section Break",
-   "label": "Results Review / \u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0646\u062a\u0627\u0626\u062c"
+   "label": "Results Review / مراجعة النتائج"
   },
   {
    "fieldname": "reviewer",
    "fieldtype": "Link",
-   "label": "Reviewer / \u0645\u0631\u0627\u062c\u0639 \u0627\u0644\u0646\u062a\u0627\u0626\u062c",
+   "label": "Reviewer / مراجع النتائج",
    "options": "User"
   },
   {
    "fieldname": "review_date",
    "fieldtype": "Date",
-   "label": "Review Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629"
+   "label": "Review Date / تاريخ المراجعة"
   },
   {
    "fieldname": "rejection_reason",
    "fieldtype": "Small Text",
-   "label": "Rejection Reason / \u0633\u0628\u0628 \u0627\u0644\u0631\u0641\u0636",
+   "label": "Rejection Reason / سبب الرفض",
    "mandatory_depends_on": "eval:doc.overall_result == \"Failed\""
   },
   {
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / الملاحظات"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / ملاحظات"
   },
   {
    "fieldname": "column_break_identification_2",

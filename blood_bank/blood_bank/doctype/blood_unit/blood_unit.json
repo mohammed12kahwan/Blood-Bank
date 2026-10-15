@@ -86,6 +86,14 @@
    "reqd": 1
   },
   {
+   "fieldname": "blood_processing",
+   "fieldtype": "Link",
+   "label": "Blood Processing / معالجة الدم المصدرية",
+   "options": "Blood Processing",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
    "fetch_from": "blood_donation.donor",
    "fieldname": "donor",
    "fieldtype": "Link",
