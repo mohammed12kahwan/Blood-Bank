@@ -12,6 +12,32 @@ class BloodScreening(Document):
         if not self.sample_id:
             self.sample_id = make_autoname("SMP-.YYYY.-.#####")
 
+    # BB_UNIT_GROUP_VERIFICATION_SERVER_GATE_V1
+    def validate(self):
+        if self.screening_status != "Accepted":
+            return
+        previous = self.get_doc_before_save()
+        if previous and previous.screening_status == "Accepted":
+            return
+        if self.overall_result != "Passed":
+            frappe.throw("لا يمكن قبول فحص المختبر ما لم تكن النتيجة Passed.")
+        if not self.blood_unit:
+            frappe.throw("سجل فحص الدم لا يحتوي على وحدة مرتبطة.")
+        unit = frappe.db.get_value(
+            "Blood Unit", self.blood_unit,
+            ["unit_status", "blood_group_verified", "group_verification_status"],
+            as_dict=True,
+        )
+        if not unit:
+            frappe.throw("وحدة الدم المرتبطة بالفحص غير موجودة.")
+        if (
+            not unit.blood_group_verified
+            or unit.group_verification_status != "Verified"
+        ):
+            frappe.throw("لا يمكن قبول الفحص قبل توثيق تحقق فصيلة الوحدة.")
+        if unit.unit_status not in ("Quarantine", "Accepted"):
+            frappe.throw("حالة الوحدة لا تسمح بقبول فحص المختبر.")
+
     def _bb_sync_processing_link_after_accept(self):
         """Link one matching processing record after screening acceptance."""
         if (

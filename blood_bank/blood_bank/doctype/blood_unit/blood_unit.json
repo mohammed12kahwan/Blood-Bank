@@ -28,6 +28,13 @@
   "column_break_blood_2",
   "blood_group",
   "blood_group_verified",
+  "tested_abo_group",
+  "tested_rh_factor",
+  "group_verification_sample_id",
+  "group_verification_status",
+  "blood_group_verification_by",
+  "blood_group_verification_date",
+  "group_verification_notes",
   "unit_information_section",
   "unit_type",
   "bag_number",
@@ -46,20 +53,20 @@
   "column_break_expiry_2",
   "expiry_note",
   "remarks_section",
-  "remarks"
+  "remarks",
+  "blood_processing"
  ],
  "fields": [
   {
    "fieldname": "identification_section",
-   "fieldtype": "Section Break",
-   "label": ""
+   "fieldtype": "Section Break"
   },
   {
    "default": "BU-.YYYY.-.#####",
-   "description": "Unique Blood Unit number / رقم فريد لوحدة الدم",
+   "description": "Unique Blood Unit number / \u0631\u0642\u0645 \u0641\u0631\u064a\u062f \u0644\u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Unit ID / رقم وحدة الدم",
+   "label": "Unit ID / \u0631\u0642\u0645 \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
    "options": "BU-.YYYY.-.#####",
    "reqd": 1
   },
@@ -68,37 +75,37 @@
    "fieldname": "unit_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Unit Status / حالة الوحدة",
+   "label": "Unit Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0648\u062d\u062f\u0629",
    "options": "Created\nQuarantine\nAccepted\nRejected\nProcessing\nAvailable\nReserved\nIssued\nReturned\nExpired\nDiscarded\nTransfused",
    "reqd": 1
   },
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "Source Donation / مصدر التبرع"
+   "label": "Source Donation / \u0645\u0635\u062f\u0631 \u0627\u0644\u062a\u0628\u0631\u0639"
   },
   {
    "fieldname": "blood_donation",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Blood Donation / عملية التبرع",
+   "label": "Blood Donation / \u0639\u0645\u0644\u064a\u0629 \u0627\u0644\u062a\u0628\u0631\u0639",
    "options": "Blood Donation",
    "reqd": 1
   },
   {
    "fieldname": "blood_processing",
    "fieldtype": "Link",
-   "label": "Blood Processing / معالجة الدم المصدرية",
+   "label": "Blood Processing / \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0635\u062f\u0631\u064a\u0629",
+   "no_copy": 1,
    "options": "Blood Processing",
-   "read_only": 1,
-   "no_copy": 1
+   "read_only": 1
   },
   {
    "fetch_from": "blood_donation.donor",
    "fieldname": "donor",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Donor / المتبرع",
+   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
    "options": "Blood Donor",
    "read_only": 1
   },
@@ -106,7 +113,7 @@
    "fieldname": "donor_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Donor Name / اسم المتبرع",
+   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
    "read_only": 1
   },
   {
@@ -114,77 +121,127 @@
    "fieldname": "donation_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Donation Date / تاريخ التبرع",
+   "label": "Donation Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u0628\u0631\u0639",
    "read_only": 1
   },
   {
    "fetch_from": "blood_donation.collection_start",
    "fieldname": "collection_start",
    "fieldtype": "Datetime",
-   "label": "Collection Start / بداية السحب",
+   "label": "Collection Start / \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0633\u062d\u0628",
    "read_only": 1
   },
   {
    "fetch_from": "blood_donation.collection_end",
    "fieldname": "collection_end",
    "fieldtype": "Datetime",
-   "label": "Collection End / نهاية السحب",
+   "label": "Collection End / \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0633\u062d\u0628",
    "read_only": 1
   },
   {
    "fetch_from": "blood_donation.collection_staff",
    "fieldname": "collection_staff",
    "fieldtype": "Link",
-   "label": "Collection Staff / موظف سحب الدم",
+   "label": "Collection Staff / \u0645\u0648\u0638\u0641 \u0633\u062d\u0628 \u0627\u0644\u062f\u0645",
    "options": "User",
    "read_only": 1
   },
   {
    "fieldname": "blood_information_section",
    "fieldtype": "Section Break",
-   "label": "Blood Information / معلومات الدم"
+   "label": "Blood Information / \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0644\u062f\u0645"
   },
   {
    "fieldname": "abo_group",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "ABO Group / فصيلة ABO",
+   "label": "ABO Group / \u0641\u0635\u064a\u0644\u0629 ABO",
    "options": "A\nB\nAB\nO",
-   "read_only": 1
+   "read_only": 1,
+   "fetch_from": "donor.abo_group"
   },
   {
    "fieldname": "rh_factor",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Rh Factor / عامل Rh",
+   "label": "Rh Factor / \u0639\u0627\u0645\u0644 Rh",
    "options": "Positive\nNegative",
-   "read_only": 1
+   "read_only": 1,
+   "fetch_from": "donor.rh_factor"
   },
   {
    "fieldname": "blood_group",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Blood Group / فصيلة الدم الكاملة",
-   "read_only": 1
+   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645 \u0627\u0644\u0643\u0627\u0645\u0644\u0629",
+   "read_only": 1,
+   "fetch_from": "donor.blood_group"
   },
   {
    "default": "0",
    "fieldname": "blood_group_verified",
    "fieldtype": "Check",
-   "label": "Blood Group Verified / تم التحقق من الفصيلة",
+   "label": "Blood Group Verified / \u062a\u0645 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u0641\u0635\u064a\u0644\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tested_abo_group",
+   "fieldtype": "Select",
+   "label": "Laboratory ABO Result / \u0646\u062a\u064a\u062c\u0629 ABO \u0627\u0644\u0645\u062e\u062a\u0628\u0631\u064a\u0629",
+   "options": "\nA\nB\nAB\nO",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tested_rh_factor",
+   "fieldtype": "Select",
+   "label": "Laboratory Rh Result / \u0646\u062a\u064a\u062c\u0629 Rh \u0627\u0644\u0645\u062e\u062a\u0628\u0631\u064a\u0629",
+   "options": "\nPositive\nNegative",
+   "read_only": 1
+  },
+  {
+   "fieldname": "group_verification_sample_id",
+   "fieldtype": "Data",
+   "label": "Group Test Sample ID / \u0631\u0642\u0645 \u0639\u064a\u0646\u0629 \u0641\u062d\u0635 \u0627\u0644\u0641\u0635\u064a\u0644\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "group_verification_status",
+   "fieldtype": "Select",
+   "label": "Group Verification Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u0641\u0635\u064a\u0644\u0629",
+   "options": "Pending\nVerified\nDiscrepancy",
+   "default": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group_verification_by",
+   "fieldtype": "Link",
+   "label": "Group Test Operator / \u0645\u0646\u0641\u0630 \u0641\u062d\u0635 \u0627\u0644\u0641\u0635\u064a\u0644\u0629",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_group_verification_date",
+   "fieldtype": "Datetime",
+   "label": "Group Test Date / \u062a\u0627\u0631\u064a\u062e \u0641\u062d\u0635 \u0627\u0644\u0641\u0635\u064a\u0644\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "group_verification_notes",
+   "fieldtype": "Small Text",
+   "label": "Group Verification Notes / \u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u062a\u062d\u0642\u0642",
    "read_only": 1
   },
   {
    "fieldname": "unit_information_section",
    "fieldtype": "Section Break",
-   "label": "Unit Information / معلومات الوحدة"
+   "label": "Unit Information / \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0644\u0648\u062d\u062f\u0629"
   },
   {
    "default": "Whole Blood",
    "fieldname": "unit_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Unit Type / نوع الوحدة",
+   "label": "Unit Type / \u0646\u0648\u0639 \u0627\u0644\u0648\u062d\u062f\u0629",
    "options": "Whole Blood\nApheresis\nOther",
    "reqd": 1
   },
@@ -192,74 +249,74 @@
    "fieldname": "bag_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Bag Number / رقم كيس الدم",
+   "label": "Bag Number / \u0631\u0642\u0645 \u0643\u064a\u0633 \u0627\u0644\u062f\u0645",
    "read_only": 1
   },
   {
    "fieldname": "volume",
    "fieldtype": "Float",
-   "label": "Volume / الحجم",
+   "label": "Volume / \u0627\u0644\u062d\u062c\u0645",
    "precision": "2"
   },
   {
    "default": "mL",
    "fieldname": "volume_unit",
    "fieldtype": "Select",
-   "label": "Volume Unit / وحدة الحجم",
+   "label": "Volume Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u062c\u0645",
    "options": "mL\nL"
   },
   {
    "fieldname": "collection_device",
    "fieldtype": "Data",
-   "label": "Collection Device / جهاز الجمع",
+   "label": "Collection Device / \u062c\u0647\u0627\u0632 \u0627\u0644\u062c\u0645\u0639",
    "read_only": 1
   },
   {
    "fieldname": "collection_location",
    "fieldtype": "Data",
-   "label": "Collection Location / مكان السحب",
+   "label": "Collection Location / \u0645\u0643\u0627\u0646 \u0627\u0644\u0633\u062d\u0628",
    "read_only": 1
   },
   {
    "fieldname": "quarantine_section",
    "fieldtype": "Section Break",
-   "label": "Quarantine / الحجر"
+   "label": "Quarantine / \u0627\u0644\u062d\u062c\u0631"
   },
   {
    "fieldname": "quarantine_date",
    "fieldtype": "Datetime",
-   "label": "Quarantine Date / تاريخ دخول الحجر",
+   "label": "Quarantine Date / \u062a\u0627\u0631\u064a\u062e \u062f\u062e\u0648\u0644 \u0627\u0644\u062d\u062c\u0631",
    "read_only": 1
   },
   {
    "fieldname": "quarantine_reason",
    "fieldtype": "Small Text",
-   "label": "Quarantine Note / ملاحظة الحجر"
+   "label": "Quarantine Note / \u0645\u0644\u0627\u062d\u0638\u0629 \u0627\u0644\u062d\u062c\u0631"
   },
   {
    "fieldname": "expiry_section",
    "fieldtype": "Section Break",
-   "label": "Expiry / الصلاحية"
+   "label": "Expiry / \u0627\u0644\u0635\u0644\u0627\u062d\u064a\u0629"
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
-   "label": "Expiry Date / تاريخ انتهاء الصلاحية"
+   "label": "Expiry Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0646\u062a\u0647\u0627\u0621 \u0627\u0644\u0635\u0644\u0627\u062d\u064a\u0629"
   },
   {
    "fieldname": "expiry_note",
    "fieldtype": "Small Text",
-   "label": "Expiry Note / ملاحظة الصلاحية"
+   "label": "Expiry Note / \u0645\u0644\u0627\u062d\u0638\u0629 \u0627\u0644\u0635\u0644\u0627\u062d\u064a\u0629"
   },
   {
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks / ملاحظات"
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / ملاحظات"
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
   },
   {
    "fieldname": "column_break_identification_2",
@@ -302,7 +359,7 @@
  "icon": "package",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-06 19:02:53.482376",
+ "modified": "2026-10-16 23:13:59.812736",
  "modified_by": "Administrator",
  "module": "Blood Bank",
  "name": "Blood Unit",
@@ -327,6 +384,11 @@
    "read": 1,
    "report": 1,
    "role": "Blood Bank Staff",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Laboratory User",
    "write": 1
   }
  ],

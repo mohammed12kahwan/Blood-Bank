@@ -47,15 +47,14 @@
  "fields": [
   {
    "fieldname": "identification_section",
-   "fieldtype": "Section Break",
-   "label": ""
+   "fieldtype": "Section Break"
   },
   {
    "default": "DONN-.YYYY.-.#####",
-   "description": "Automatically generated donation number / يتم إنشاء رقم التبرع تلقائيًا",
+   "description": "Automatically generated donation number / \u064a\u062a\u0645 \u0625\u0646\u0634\u0627\u0621 \u0631\u0642\u0645 \u0627\u0644\u062a\u0628\u0631\u0639 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627",
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Donation ID / رقم التبرع",
+   "label": "Donation ID / \u0631\u0642\u0645 \u0627\u0644\u062a\u0628\u0631\u0639",
    "options": "DONN-.YYYY.-.#####",
    "reqd": 1
   },
@@ -64,20 +63,20 @@
    "fieldname": "donation_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Donation Status / حالة التبرع",
+   "label": "Donation Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u0628\u0631\u0639",
    "options": "Draft\nScheduled\nChecked In\nBleeding\nCollected\nQuarantine\nCancelled\nAborted",
    "reqd": 1
   },
   {
    "fieldname": "donor_section",
    "fieldtype": "Section Break",
-   "label": "Donor Information / معلومات المتبرع"
+   "label": "Donor Information / \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0644\u0645\u062a\u0628\u0631\u0639"
   },
   {
    "fieldname": "donor",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Donor / المتبرع",
+   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
    "options": "Blood Donor",
    "reqd": 1
   },
@@ -86,107 +85,107 @@
    "fieldname": "donor_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Donor Name / اسم المتبرع",
+   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
    "read_only": 1
   },
   {
    "fieldname": "schedule_section",
    "fieldtype": "Section Break",
-   "label": "Donation Schedule / موعد التبرع"
+   "label": "Donation Schedule / \u0645\u0648\u0639\u062f \u0627\u0644\u062a\u0628\u0631\u0639"
   },
   {
    "fieldname": "donation_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Donation Date / تاريخ التبرع",
+   "label": "Donation Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u0628\u0631\u0639",
    "reqd": 1
   },
   {
    "fieldname": "donation_time",
    "fieldtype": "Time",
-   "label": "Donation Time / وقت التبرع"
+   "label": "Donation Time / \u0648\u0642\u062a \u0627\u0644\u062a\u0628\u0631\u0639"
   },
   {
    "fieldname": "donation_type",
    "fieldtype": "Select",
-   "label": "Donation Type / نوع التبرع",
+   "label": "Donation Type / \u0646\u0648\u0639 \u0627\u0644\u062a\u0628\u0631\u0639",
    "options": "Whole Blood\nApheresis\nOther",
    "reqd": 1
   },
   {
    "fieldname": "collection_section",
    "fieldtype": "Section Break",
-   "label": "Collection Information / معلومات سحب الدم"
+   "label": "Collection Information / \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0633\u062d\u0628 \u0627\u0644\u062f\u0645"
   },
   {
    "fieldname": "collection_start",
    "fieldtype": "Datetime",
-   "label": "Collection Start / بداية السحب"
+   "label": "Collection Start / \u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u0633\u062d\u0628"
   },
   {
    "fieldname": "collection_end",
    "fieldtype": "Datetime",
-   "label": "Collection End / نهاية السحب"
+   "label": "Collection End / \u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u0633\u062d\u0628"
   },
   {
    "fieldname": "volume_collected",
    "fieldtype": "Float",
-   "label": "Volume Collected / حجم الدم المسحوب",
+   "label": "Volume Collected / \u062d\u062c\u0645 \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0633\u062d\u0648\u0628",
    "precision": "2"
   },
   {
    "fieldname": "collection_unit",
    "fieldtype": "Select",
-   "label": "Collection Unit / وحدة القياس",
+   "label": "Collection Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u0642\u064a\u0627\u0633",
    "options": "mL\nL"
   },
   {
    "fieldname": "collection_staff",
    "fieldtype": "Link",
-   "label": "Collection Staff / موظف سحب الدم",
+   "label": "Collection Staff / \u0645\u0648\u0638\u0641 \u0633\u062d\u0628 \u0627\u0644\u062f\u0645",
    "options": "User"
   },
   {
    "fieldname": "collection_location",
    "fieldtype": "Data",
-   "label": "Collection Location / مكان السحب"
+   "label": "Collection Location / \u0645\u0643\u0627\u0646 \u0627\u0644\u0633\u062d\u0628"
   },
   {
    "fieldname": "bag_section",
    "fieldtype": "Section Break",
-   "label": "Blood Bag Information / معلومات كيس الدم"
+   "label": "Blood Bag Information / \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0643\u064a\u0633 \u0627\u0644\u062f\u0645"
   },
   {
    "fieldname": "bag_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Bag / Collection Number / رقم الكيس أو السحب"
+   "label": "Bag / Collection Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633 \u0623\u0648 \u0627\u0644\u0633\u062d\u0628"
   },
   {
    "fieldname": "collection_device",
    "fieldtype": "Data",
-   "label": "Collection Device / جهاز أو وسيلة الجمع"
+   "label": "Collection Device / \u062c\u0647\u0627\u0632 \u0623\u0648 \u0648\u0633\u064a\u0644\u0629 \u0627\u0644\u062c\u0645\u0639"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / ملاحظات"
+   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
   },
   {
    "fieldname": "quarantine_section",
    "fieldtype": "Section Break",
-   "label": "Quarantine / الحجر"
+   "label": "Quarantine / \u0627\u0644\u062d\u062c\u0631"
   },
   {
    "fieldname": "quarantine_date",
    "fieldtype": "Datetime",
-   "label": "Quarantine Date / تاريخ الحجر",
+   "label": "Quarantine Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062d\u062c\u0631",
    "read_only": 1
   },
   {
    "fieldname": "quarantine_reason",
    "fieldtype": "Small Text",
-   "label": "Quarantine Note / ملاحظة الحجر"
+   "label": "Quarantine Note / \u0645\u0644\u0627\u062d\u0638\u0629 \u0627\u0644\u062d\u062c\u0631"
   },
   {
    "fieldname": "column_break_identification_2",
@@ -241,7 +240,7 @@
  "icon": "droplet",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-06 18:12:34.972765",
+ "modified": "2026-10-16 23:13:59.399142",
  "modified_by": "Administrator",
  "module": "Blood Bank",
  "name": "Blood Donation",
@@ -267,6 +266,10 @@
    "report": 1,
    "role": "Blood Bank Staff",
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Laboratory User"
   }
  ],
  "row_format": "Dynamic",

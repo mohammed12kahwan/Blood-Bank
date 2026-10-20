@@ -1,0 +1,254 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "color": "purple",
+ "creation": "2026-10-05 21:09:38.583149",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "verification_status",
+  "source_section",
+  "blood_unit",
+  "blood_donation",
+  "donor",
+  "bag_number",
+  "blood_screening",
+  "sample_id",
+  "source_group_section",
+  "source_abo_group",
+  "source_rh_factor",
+  "source_blood_group",
+  "result_section",
+  "tested_abo_group",
+  "tested_rh_factor",
+  "test_method",
+  "test_reference",
+  "sample_identity_confirmed",
+  "test_notes",
+  "tested_by",
+  "tested_at",
+  "review_section",
+  "reviewed_by",
+  "reviewed_at",
+  "review_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Verification ID / \u0631\u0642\u0645 \u0633\u062c\u0644 \u0627\u0644\u062a\u062d\u0642\u0642",
+   "options": "BGV-.YYYY.-.#####",
+   "default": "BGV-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "verification_status",
+   "fieldtype": "Select",
+   "label": "Verification Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u062d\u0642\u0642",
+   "options": "Pending Review\nVerified\nDiscrepancy\nRejected",
+   "default": "Pending Review",
+   "in_list_view": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_section",
+   "fieldtype": "Section Break",
+   "label": "Source Records / \u0627\u0644\u0633\u062c\u0644\u0627\u062a \u0627\u0644\u0645\u0635\u062f\u0631\u064a\u0629"
+  },
+  {
+   "fieldname": "blood_unit",
+   "fieldtype": "Link",
+   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "options": "Blood Unit",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "blood_donation",
+   "fieldtype": "Link",
+   "label": "Blood Donation / \u0627\u0644\u062a\u0628\u0631\u0639",
+   "options": "Blood Donation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "donor",
+   "fieldtype": "Link",
+   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "options": "Blood Donor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bag_number",
+   "fieldtype": "Data",
+   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "read_only": 1
+  },
+  {
+   "fieldname": "blood_screening",
+   "fieldtype": "Link",
+   "label": "Blood Screening / \u0633\u062c\u0644 \u0641\u062d\u0635 \u0627\u0644\u0645\u062e\u062a\u0628\u0631",
+   "options": "Blood Screening",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "sample_id",
+   "fieldtype": "Data",
+   "label": "Sample ID / \u0631\u0642\u0645 \u0627\u0644\u0639\u064a\u0646\u0629",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "source_group_section",
+   "fieldtype": "Section Break",
+   "label": "Source Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u0645\u0635\u062f\u0631"
+  },
+  {
+   "fieldname": "source_abo_group",
+   "fieldtype": "Select",
+   "label": "Source ABO / ABO \u0627\u0644\u0645\u0635\u062f\u0631",
+   "options": "\nA\nB\nAB\nO",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_rh_factor",
+   "fieldtype": "Select",
+   "label": "Source Rh / \u0639\u0627\u0645\u0644 Rh \u0644\u0644\u0645\u0635\u062f\u0631",
+   "options": "\nPositive\nNegative",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_blood_group",
+   "fieldtype": "Data",
+   "label": "Source Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u0645\u0635\u062f\u0631 \u0627\u0644\u0643\u0627\u0645\u0644\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "result_section",
+   "fieldtype": "Section Break",
+   "label": "Observed Laboratory Result / \u0646\u062a\u064a\u062c\u0629 \u0627\u0644\u0645\u062e\u062a\u0628\u0631 \u0627\u0644\u0645\u0633\u062c\u0644\u0629"
+  },
+  {
+   "fieldname": "tested_abo_group",
+   "fieldtype": "Select",
+   "label": "Tested ABO / \u0646\u062a\u064a\u062c\u0629 ABO",
+   "options": "\nA\nB\nAB\nO",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tested_rh_factor",
+   "fieldtype": "Select",
+   "label": "Tested Rh / \u0646\u062a\u064a\u062c\u0629 Rh",
+   "options": "\nPositive\nNegative",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_method",
+   "fieldtype": "Data",
+   "label": "Test Method / \u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u0641\u062d\u0635",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_reference",
+   "fieldtype": "Data",
+   "label": "Lab Reference / \u0645\u0631\u062c\u0639 \u0627\u0644\u0645\u062e\u062a\u0628\u0631",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sample_identity_confirmed",
+   "fieldtype": "Check",
+   "label": "Physical Sample Label Matched / \u062a\u0645\u062a \u0645\u0637\u0627\u0628\u0642\u0629 \u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u0639\u064a\u0646\u0629",
+   "default": "0",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_notes",
+   "fieldtype": "Small Text",
+   "label": "Test Notes / \u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u0641\u062d\u0635",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tested_by",
+   "fieldtype": "Link",
+   "label": "Tested By / \u0645\u0646\u0641\u0630 \u0627\u0644\u0641\u062d\u0635",
+   "options": "User",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tested_at",
+   "fieldtype": "Datetime",
+   "label": "Tested At / \u0648\u0642\u062a \u0627\u0644\u0641\u062d\u0635",
+   "read_only": 1
+  },
+  {
+   "fieldname": "review_section",
+   "fieldtype": "Section Break",
+   "label": "Independent Review / \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0645\u0633\u062a\u0642\u0644\u0629"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By / \u0645\u0631\u0627\u062c\u0639 \u0627\u0644\u0646\u062a\u064a\u062c\u0629",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reviewed_at",
+   "fieldtype": "Datetime",
+   "label": "Reviewed At / \u0648\u0642\u062a \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+   "read_only": 1
+  },
+  {
+   "fieldname": "review_notes",
+   "fieldtype": "Small Text",
+   "label": "Review Notes / \u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "icon": "search",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-19 21:05:46.954277",
+ "modified_by": "Administrator",
+ "module": "Blood Bank",
+ "name": "Blood Group Verification",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "share": 1
+  },
+  {
+   "role": "Laboratory User",
+   "read": 1,
+   "write": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "blood_unit,blood_donation,donor,sample_id,verification_status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "naming_rule": "By \"Naming Series\" field",
+ "title_field": "blood_unit",
+ "is_submittable": 0,
+ "issingle": 0
+}

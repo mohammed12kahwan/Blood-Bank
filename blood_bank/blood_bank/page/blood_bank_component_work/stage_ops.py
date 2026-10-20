@@ -380,7 +380,12 @@ def apply_stage_action(doctype, name, donation_name, action):
     _verify_existing_doc(doc, context)
 
     if doctype == "Blood Component":
+        # BB_SCREENING_GATED_QC_AND_AUTO_ADVANCE_V2
         if action == "Send to Quality Check":
+            if not doc.blood_unit or not doc.blood_processing:
+                frappe.throw(
+                    "يجب ربط المكوّن بوحدة الدم والمعالجة أولًا."
+                )
             _passed_screening(context, doc.blood_unit)
 
     elif doctype == "Blood Screening":
@@ -392,6 +397,20 @@ def apply_stage_action(doctype, name, donation_name, action):
                 frappe.throw(
                     "لا يمكن قبول الفحص ما لم تكن النتيجة Passed."
                 )
+            # BB_UNIT_GROUP_VERIFICATION_PRECHECK_V1
+            unit_name = doc.get("blood_unit")
+            if not unit_name:
+                frappe.throw("سجل فحص الدم لا يحتوي على وحدة مرتبطة.")
+            unit_precheck = frappe.get_doc("Blood Unit", unit_name)
+            if (
+                not unit_precheck.blood_group_verified
+                or unit_precheck.group_verification_status != "Verified"
+            ):
+                frappe.throw(
+                    "يجب توثيق التحقق المخبري من فصيلة الوحدة قبل قبول الفحص."
+                )
+            if unit_precheck.unit_status not in ("Quarantine", "Accepted"):
+                frappe.throw("حالة الوحدة لا تسمح بقبول فحص المختبر.")
 
     elif doctype == "Blood Component Quality Check":
         component = _component(context, doc.blood_component)
@@ -423,6 +442,135 @@ def apply_stage_action(doctype, name, donation_name, action):
                 )
 
     updated = apply_workflow(doc, action)
+
+    # BB_SCREENING_GATED_QC_AND_AUTO_ADVANCE_V2
+    if doctype == "Blood Screening" and action == "Accept Screening":
+        if (
+            updated.screening_status != "Accepted"
+            or updated.overall_result != "Passed"
+        ):
+            frappe.throw(
+                "لا يمكن الانتقال إلى الجودة قبل قبول الفحص بنتيجة Passed."
+            )
+
+        unit_name = updated.blood_unit
+        if not unit_name:
+            frappe.throw("سجل فحص الدم لا يحتوي على وحدة دم مرتبطة.")
+
+        processing_rows = frappe.get_all(
+            "Blood Processing",
+            filters={
+                "blood_donation": donation_name,
+                "blood_unit": unit_name,
+                "processing_status": "Component Separation",
+            },
+            fields=["name", "blood_screening"],
+            limit_page_length=2,
+        )
+
+        if len(processing_rows) != 1:
+            frappe.throw(
+                "تعذر تحديد معالجة واحدة مطابقة لوحدة الدم وفصل المكونات."
+            )
+
+        processing = frappe.get_doc(
+            "Blood Processing", processing_rows[0].name
+        )
+
+        if (
+            processing.blood_screening
+            and processing.blood_screening != updated.name
+        ):
+            frappe.throw(
+                "المعالجة مرتبطة بفحص دم آخر؛ لم يتم تغيير الرابط."
+            )
+
+        if not processing.blood_screening:
+            processing.blood_screening = updated.name
+            processing.save(ignore_permissions=True)
+
+        fresh_context = _context(donation_name)
+        _passed_screening(fresh_context, unit_name)
+
+        candidates = [
+            row for row in fresh_context["component_records"]
+            if row.get("blood_unit") == unit_name
+            and row.get("blood_processing") == processing.name
+        ]
+
+        if not candidates:
+            frappe.throw(
+                "تم قبول الفحص، لكن لم يتم العثور على مكوّن مرتبط "
+                "بوحدة الدم والمعالجة نفسيهما."
+            )
+
+        quality_ready = 0
+
+        for row in candidates:
+            component = frappe.get_doc("Blood Component", row["name"])
+
+            if component.component_status not in ("Created", "Quality Check"):
+                continue
+
+            if (
+                component.blood_screening
+                and component.blood_screening != updated.name
+            ):
+                frappe.throw(
+                    f"المكوّن {component.name} مرتبط بفحص آخر."
+                )
+
+            # يحفظ مرجع فحص الدم من سجل المعالجة عبر دورة مستند Frappe.
+            component.save(ignore_permissions=True)
+
+            if component.component_status == "Created":
+                apply_workflow(component, "Send to Quality Check")
+
+            quality_ready += 1
+
+        if quality_ready == 0:
+            frappe.throw(
+                "لا يوجد مكوّن بحالة تسمح بالانتقال إلى فحص الجودة."
+            )
+
+        # Component creation and QC advancement happen before Unit acceptance.
+        unit_doc = frappe.get_doc("Blood Unit", unit_name)
+
+        if (
+            not unit_doc.blood_group_verified
+            or unit_doc.group_verification_status != "Verified"
+        ):
+            frappe.throw("يجب توثيق التحقق المخبري من الفصيلة قبل قبول الوحدة.")
+
+        if unit_doc.unit_status == "Quarantine":
+            apply_workflow(unit_doc, "Accept Unit")
+        elif unit_doc.unit_status != "Accepted":
+            frappe.throw(
+                "حالة وحدة الدم لا تسمح بإكمال قبول فحص المختبر."
+            )
+
+    if doctype == "Blood Screening" and action == "Reject Screening":
+        if (
+            updated.screening_status != "Rejected"
+            or updated.overall_result != "Failed"
+        ):
+            frappe.throw(
+                "رفض الوحدة يتطلب فحصًا مرفوضًا بنتيجة Failed."
+            )
+
+        unit_name = updated.blood_unit
+        if not unit_name:
+            frappe.throw("سجل الفحص المرفوض لا يحتوي على وحدة دم.")
+
+        unit_doc = frappe.get_doc("Blood Unit", unit_name)
+
+        if unit_doc.unit_status == "Quarantine":
+            apply_workflow(unit_doc, "Reject Unit")
+        elif unit_doc.unit_status != "Rejected":
+            frappe.throw(
+                "حالة وحدة الدم لا تسمح بإكمال رفض فحص المختبر."
+            )
+
     return _result(updated)
 
 

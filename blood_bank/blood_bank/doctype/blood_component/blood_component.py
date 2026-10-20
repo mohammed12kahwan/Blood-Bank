@@ -19,23 +19,6 @@ class BloodComponent(Document):
             from frappe.model.naming import make_autoname
             self.component_number = make_autoname("CMP-.YYYY.-.#####")
 
-        # استعادة وحدة الدم من الفحص عند الحاجة.
-        if self.blood_screening and not self.blood_unit:
-            screening = frappe.db.get_value(
-                "Blood Screening",
-                self.blood_screening,
-                ["screening_status", "overall_result", "blood_unit"],
-                as_dict=True,
-            )
-            if not screening:
-                frappe.throw("سجل فحص الدم المرتبط غير موجود.")
-            if (
-                screening.screening_status != "Accepted"
-                or screening.overall_result != "Passed"
-            ):
-                frappe.throw("إنشاء المكوّن يتطلب فحصًا مقبولًا ونتيجته Passed.")
-            self.blood_unit = screening.blood_unit
-
         # الأولوية للرابط الصريح المخزّن في وحدة الدم.
         if self.blood_unit and not self.blood_processing:
             unit = frappe.get_doc("Blood Unit", self.blood_unit)
@@ -174,11 +157,18 @@ class BloodComponent(Document):
                 "Blood Unit record not found."
             )
 
-        if unit.unit_status != "Quarantine":
-
+        # New components must be created while the source unit
+        # is quarantined. Existing linked components may still be
+        # saved after successful screening changes the unit to Accepted.
+        if self.is_new() and unit.unit_status != "Quarantine":
             frappe.throw(
-                "Blood Component creation requires "
-                "the Blood Unit to remain in Quarantine."
+                "إنشاء المكوّن يتطلب بقاء وحدة الدم في الحجر."
+            )
+
+        if unit.unit_status not in ("Quarantine", "Accepted"):
+            frappe.throw(
+                "لا يمكن متابعة المكوّن: حالة وحدة الدم غير صالحة "
+                "لهذه المرحلة."
             )
 
         if unit.blood_group != self.blood_group:

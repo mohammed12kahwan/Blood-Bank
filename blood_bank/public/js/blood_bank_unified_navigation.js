@@ -7,52 +7,52 @@
 
     const pages = [
         {
+            id: "workspace",
+            label: "⌂ مساحة العمل الرئيسية",
+            type: "page",
+            route: "blood-bank-ui-test"
+        },
+        {
             id: "initial",
-            label: "نافذة العمل الأولية",
+            label: "🩸 نافذة العمل الأولية",
             type: "page",
             route: "blood-bank-initial-work"
         },
         {
+            id: "staff",
+            label: "👨‍⚕️ عمليات الموظفين",
+            type: "page",
+            route: "blood-bank-staff-operations"
+        },
+        {
             id: "component",
-            label: "متابعة المكونات",
+            label: "🧪 متابعة المكونات",
             type: "page",
             route: "blood-bank-component-work"
         },
         {
             id: "request",
-            label: "متابعة الطلبات",
+            label: "📦 متابعة طلبات الدم",
             type: "page",
             route: "blood-bank-request-work"
         },
         {
-            id: "staff",
-            label: "عمليات الموظفين",
-            type: "page",
-            route: "blood-bank-staff-operations"
-        },
-        {
             id: "donation-report",
-            label: "تقرير التبرعات",
+            label: "📊 تقرير التبرعات",
             type: "report",
             route: "Blood Donation Tracking"
         },
         {
             id: "request-report",
-            label: "تقرير طلبات الدم",
+            label: "📋 تقرير طلبات الدم",
             type: "report",
             route: "Blood Request Tracking"
         },
         {
             id: "initial-report",
-            label: "تقرير نافذة العمل",
+            label: "🗂️ تقرير نافذة العمل",
             type: "report",
             route: "Blood Initial Work Tracking"
-        },
-        {
-            id: "workspace",
-            label: "⌂ مساحة العمل",
-            type: "page",
-            route: "blood-bank-ui-test"
         }
     ];
 
@@ -225,19 +225,24 @@
 
         removeOldPageNavigation(main);
 
-        let nav = null;
-        for (const child of Array.from(main.children || [])) {
-            if (child.classList &&
-                child.classList.contains("bb-unified-navigation")) {
-                nav = child;
-                break;
-            }
-        }
+        // Keep exactly one shared navigation bar at the top of the page content.
+        const navElements = Array.from(
+            main.querySelectorAll(".bb-unified-navigation")
+        );
+
+        let nav = navElements.shift() || null;
+
+        navElements.forEach(function (element) {
+            element.remove();
+        });
 
         if (!nav || nav.dataset.routeKey !== currentKey) {
             if (nav) nav.remove();
             nav = buildNavigation(currentKey);
             nav.dataset.routeKey = currentKey;
+        }
+
+        if (nav.parentNode !== main || main.firstChild !== nav) {
             main.insertBefore(nav, main.firstChild);
         }
     }

@@ -83,6 +83,14 @@
       </div>
     </div>
 
+    <div id="bb-rw-active-record-summary"
+         class="bb-rw-active-record-summary" hidden>
+      <div id="bb-rw-active-record-heading"
+           class="bb-rw-active-record-heading"></div>
+      <div id="bb-rw-stage-readonly-summary"
+           class="bb-rw-summary-grid bb-rw-stage-readonly-grid"></div>
+    </div>
+
     <div class="row bb-rw-request-picker-row">
       <div class="col-md-8">
         <div id="bb-rw-request-picker"></div>
@@ -113,9 +121,9 @@
       <span class="bb-rw-workspace-code">REQUEST WORKFLOW · 01–07</span>
     </div>
 
-    <ul id="bb-rw-stage-tabs"
-        class="nav nav-tabs bb-rw-tabs"
-        role="tablist"></ul>
+    <nav id="bb-rw-stage-tabs"
+         class="bb-rw-tabs bb-rw-tabs-native"
+         role="tablist" aria-label="مراحل طلبات الدم"></nav>
 
     <!-- BB-RW-CONSOLIDATED-WORKFLOW-V1 -->
     <div
@@ -133,7 +141,7 @@
             بيانات المرحلة
           </div>
           <p class="text-muted bb-rw-stage-description">
-            بيانات السجل المرتبط بطلب الدم المحدد.
+            الحقول القابلة للتعديل في المرحلة الحالية.
           </p>
         </div>
 
@@ -150,12 +158,10 @@
 
         <div class="row bb-rw-content-row">
           <div class="col-md-9 bb-rw-editor-column">
-            <div class="form-section bb-rw-panel bb-rw-editor-panel">
-              <div class="section-head bb-rw-subsection-head">
-                بيانات السجل
-              </div>
+            <div class="bb-rw-editor-panel">
               <div id="bb-rw-unsaved-message"></div>
               <div id="bb-rw-stage-fields"></div>
+              <div id="bb-rw-readonly-control-stash" hidden></div>
               <div id="bb-rw-save-message"
                    class="text-muted small"></div>
             </div>

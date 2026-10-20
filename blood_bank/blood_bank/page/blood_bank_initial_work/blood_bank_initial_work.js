@@ -634,22 +634,128 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             });
             if (filled.length) models[1].dirty = true;
 
-            const rowsHtml = rows.map(d => `
+            /* BB_DONOR_HISTORY_RESULT_COLUMNS_V1 */
+              if (!document.getElementById("bb-iw-history-result-style")) {
+                  const style = document.createElement("style");
+                  style.id = "bb-iw-history-result-style";
+                  style.textContent = `
+                    .bb-iw-history-acceptance {
+                      display:inline-block; padding:3px 8px; border-radius:999px;
+                      font-weight:700; white-space:nowrap;
+                    }
+                    .bb-iw-history-acceptance.accepted {
+                      background:#dcfce7; color:#166534;
+                    }
+                    .bb-iw-history-acceptance.rejected {
+                      background:#fee2e2; color:#991b1b;
+                    }
+                    .bb-iw-history-acceptance.mixed {
+                      background:#fef3c7; color:#92400e;
+                    }
+                    .bb-iw-history-acceptance.pending,
+                    .bb-iw-history-acceptance.cancelled {
+                      background:#e5e7eb; color:#374151;
+                    }
+                  `;
+                  document.head.appendChild(style);
+              }
+
+              const donationStatusLabels = {
+                  Draft: "مسودة",
+                  Scheduled: "مجدول",
+                  "Checked In": "تم تسجيل الحضور",
+                  Bleeding: "سحب الدم",
+                  Collected: "تم جمع الدم",
+                  Quarantine: "في الحجر",
+                  Cancelled: "ملغي",
+                  Aborted: "متوقف"
+              };
+              const unitStatusLabels = {
+                  Created: "منشأة",
+                  Quarantine: "في الحجر",
+                  Accepted: "مقبولة",
+                  Rejected: "مرفوضة",
+                  Processing: "قيد المعالجة",
+                  Available: "متاحة",
+                  Reserved: "محجوزة",
+                  Issued: "مصروفة",
+                  Returned: "مرتجعة",
+                  Expired: "منتهية الصلاحية",
+                  Discarded: "مستبعدة",
+                  Transfused: "تم نقلها"
+              };
+              const screeningStatusLabels = {
+                  Draft: "مسودة",
+                  Screening: "قيد الفحص",
+                  "Results Review": "مراجعة النتائج",
+                  Accepted: "مقبول",
+                  Rejected: "مرفوض"
+              };
+              const overallResultLabels = {
+                  Pending: "لم تُحسم",
+                  Passed: "ناجح",
+                  Failed: "فاشل"
+              };
+              const decisionClasses = {
+                  Accepted: "accepted",
+                  Rejected: "rejected",
+                  Mixed: "mixed",
+                  Cancelled: "cancelled",
+                  Pending: "pending"
+              };
+              const historyLabel = (value, dictionary) =>
+                  dictionary[value] || value || "—";
+              const historyLabels = (values, dictionary, fallback) => {
+                  const result = (Array.isArray(values) ? values : [])
+                      .map(value => historyLabel(value, dictionary))
+                      .filter(Boolean);
+                  return result.length ? result.join("، ") : fallback;
+              };
+
+              const rowsHtml = rows.map(d => {
+                  const decision = d.acceptance_status || "Pending";
+                  const decisionClass = decisionClasses[decision] || "pending";
+                  const decisionLabel = d.acceptance_label || "لم تُحسم النتيجة";
+
+                  return `
                 <tr>
                     <td>${esc(d.name)}</td>
                     <td>${esc(d.donation_date || "—")}</td>
                     <td>${esc(d.donation_type || "—")}</td>
-                    <td>${esc(d.donation_status || "—")}</td>
+                    <td>${esc(historyLabel(d.donation_status, donationStatusLabels))}</td>
+                    <td>
+                      <span
+                        class="bb-iw-history-acceptance ${decisionClass}"
+                        title="${esc(d.acceptance_detail || "")}">
+                        ${esc(decisionLabel)}
+                      </span>
+                    </td>
+                    <td>${esc(historyLabels(d.screening_statuses, screeningStatusLabels, "لا يوجد فحص مسجل"))}</td>
+                    <td>${esc(historyLabels(d.overall_results, overallResultLabels, "لا توجد نتيجة مسجلة"))}</td>
+                    <td>${esc(historyLabels(d.unit_statuses, unitStatusLabels, "لا توجد وحدة مرتبطة"))}</td>
                     <td>${esc(d.bag_number || "—")}</td>
                     <td>${esc(d.volume_collected ?? "—")}</td>
-                </tr>`).join("");
+                    <td>
+                      <button
+                        type="button"
+                        class="btn btn-default btn-xs bb-iw-select-donation"
+                        data-donation-name="${esc(d.name)}">
+                        تحديد وتعديل
+                      </button>
+                    </td>
+                </tr>`;
+              }).join("");
 
             panel.innerHTML = `
                 <strong>التبرعات السابقة (${rows.length})</strong>
                 <div class="bb-iw-history-table-wrap">
                   <table class="bb-iw-history-table">
-                    <thead><tr><th>رقم التبرع</th><th>التاريخ</th><th>النوع</th>
-                    <th>الحالة</th><th>رقم الكيس</th><th>الحجم</th></tr></thead>
+                    <thead><tr>
+                    <th>رقم التبرع</th><th>التاريخ</th><th>النوع</th>
+                    <th>حالة التبرع</th><th>تقييم القبول</th>
+                    <th>حالة الفحص</th><th>نتيجة الفحص</th><th>حالة وحدة الدم</th>
+                    <th>رقم الكيس</th><th>الحجم</th><th>إجراء</th>
+                    </tr></thead>
                     <tbody>${rowsHtml}</tbody>
                   </table>
                 </div>
@@ -658,6 +764,134 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
                     ? "عُبئت الحقول الفارغة من أحدث تبرع: " + filled.map(esc).join("، ")
                     : "التاريخ ورقم الكيس والحجم لا تُنسخ من تبرع سابق."
                 }</div>`;
+
+            /* BB_DONATION_HISTORY_SELECT_V1 */
+            panel.querySelectorAll(".bb-iw-select-donation").forEach(
+                selectButton => {
+                    selectButton.addEventListener("click", async () => {
+                        const donationName =
+                            selectButton.getAttribute("data-donation-name");
+                        const currentDonorName = donor.name;
+                        const donationModel = models[1];
+
+                        if (!donationName || !currentDonorName) {
+                            notify(
+                                "تعذر تحديد التبرع أو المتبرع المرتبط به.",
+                                "error"
+                            );
+                            return;
+                        }
+
+                        if (
+                            !selectedDonor ||
+                            selectedDonor.name !== currentDonorName
+                        ) {
+                            notify(
+                                "تغير المتبرع المحدد. اختر المتبرع الصحيح ثم أعد المحاولة.",
+                                "warning"
+                            );
+                            return;
+                        }
+
+                        if (selectButton.disabled) return;
+
+                        const loadSelectedDonation = async () => {
+                            selectButton.disabled = true;
+                            const oldLabel = selectButton.textContent;
+                            selectButton.textContent = "جارٍ التحميل...";
+
+                            try {
+                                const response = await frappe.call({
+                                    method:
+                                        "blood_bank.blood_bank.page." +
+                                        "blood_bank_initial_work." +
+                                        "blood_bank_initial_work." +
+                                        "get_initial_work_document",
+                                    args: {
+                                        doctype: "Blood Donation",
+                                        name: donationName
+                                    }
+                                });
+
+                                const doc = response.message;
+
+                                if (!doc || doc.name !== donationName) {
+                                    throw new Error(
+                                        "تعذر تحميل سجل التبرع المحدد."
+                                    );
+                                }
+
+                                // Do not let a history row load another donor's donation.
+                                if (doc.donor !== currentDonorName) {
+                                    throw new Error(
+                                        "التبرع المحدد لا يرتبط بالمتبرع الحالي."
+                                    );
+                                }
+
+                                donationModel.name = doc.name;
+                                donationModel.values = {
+                                    ...donationModel.values,
+                                    ...doc
+                                };
+                                donationModel.dirty = false;
+
+                                // Keep the current donor context and its link.
+                                selectedDonor = {
+                                    name: currentDonorName,
+                                    full_name:
+                                        donor.full_name || currentDonorName
+                                };
+                                selectedDonorProfile = {
+                                    ...selectedDonor
+                                };
+                                donationModel.values.donor = doc.donor;
+
+                                if (!donationModel.values.donor_name) {
+                                    donationModel.values.donor_name =
+                                        selectedDonor.full_name;
+                                }
+
+                                updateRecordId(1);
+                                renderFields(1);
+                                activateWindow(1);
+
+                                notify(
+                                    `تم تحميل التبرع ${doc.name} في نافذة التبرع. ` +
+                                    "يمكنك مراجعة حقوله وتعديلها ثم حفظها.",
+                                    "success"
+                                );
+                            } catch (error) {
+                                console.error(
+                                    "Unable to load selected donation:",
+                                    error
+                                );
+                                notify(
+                                    `تعذر تحميل التبرع: ${readableError(error)}`,
+                                    "error"
+                                );
+                            } finally {
+                                selectButton.disabled = false;
+                                selectButton.textContent = oldLabel;
+                            }
+                        };
+
+                        // Protect existing edits from accidental replacement.
+                        if (donationModel.dirty) {
+                            frappe.confirm(
+                                "توجد تغييرات غير محفوظة في نافذة التبرع. " +
+                                "هل تريد تجاهلها وتحميل التبرع " +
+                                donationName + "؟",
+                                () => {
+                                    loadSelectedDonation();
+                                }
+                            );
+                            return;
+                        }
+
+                        loadSelectedDonation();
+                    });
+                }
+            );
         } catch (e) {
             console.error("Donation history failed:", e);
             panel.innerHTML =
@@ -745,19 +979,22 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         return true;
     }
 
+    /* BB_AUTO_ADVANCE_TO_PROCESSING_V1 */
     function transferAfterDonation() {
-        const donation = models[1].values;
+        const donation = models[1]?.values || {};
         const status = donation.donation_status;
 
         if (status !== "Quarantine") {
             notify(
-                `تم حفظ التبرع. حالته الحالية: ${status || "غير محددة"}. لن تُنقل البيانات إلى المعالجة حتى تصل إلى حالة Quarantine عبر سير العمل.`,
+                `تم حفظ التبرع. حالته الحالية: ${status || "غير محددة"}. ` +
+                "لن تُنقل البيانات إلى المعالجة حتى تصل إلى حالة Quarantine عبر سير العمل.",
                 "success"
             );
-            return;
+            return false;
         }
 
-        transferValues(2, {
+        // انقل البيانات أولًا، ولا تفتح نافذة المعالجة إذا تعذر النقل.
+        const moved = transferValues(2, {
             blood_donation: models[1].name,
             donor: donation.donor,
             donor_name: donation.donor_name,
@@ -767,22 +1004,43 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             processing_date: donation.donation_date
         });
 
-        notify("تم حفظ التبرع ونقل البيانات المتاحة إلى بطاقة المعالجة.", "success");
+        if (!moved) {
+            notify(
+                "وصل التبرع إلى الحجر، لكن نافذة المعالجة تحتوي على سجل محفوظ " +
+                "أو تعديلات غير محفوظة. لم تُستبدل بياناتها ولم يتم الانتقال تلقائيًا.",
+                "warning"
+            );
+            return false;
+        }
+
+        // اعرض الحقول المنقولة ثم فعّل نافذة المعالجة تلقائيًا.
+        renderFields(2);
+        activateWindow(2);
+
+        notify(
+            "تم نقل بيانات التبرع إلى نافذة المعالجة والانتقال إليها تلقائيًا.",
+            "success"
+        );
+        return true;
     }
 
+    /* BB_AUTO_ADVANCE_PROCESSING_TO_UNIT_V1 */
+    /* BB_UNIT_AUTO_ADVANCE_AND_LINK_V2 */
     function transferAfterProcessing() {
-        const processing = models[2].values;
+        const processing = models[2]?.values || {};
         const status = processing.processing_status;
 
         if (status !== "Component Separation") {
             notify(
-                `تم حفظ المعالجة. حالتها الحالية: ${status || "غير محددة"}. لن تُنقل البيانات إلى وحدة الدم حتى تكتمل مرحلة فصل المكونات.`,
+                `تم تحديث المعالجة. حالتها الحالية: ${status || "غير محددة"}. ` +
+                "لن تُنقل البيانات إلى وحدة الدم حتى تصل إلى حالة Component Separation عبر سير العمل.",
                 "success"
             );
-            return;
+            return false;
         }
 
-        transferValues(3, {
+        const moved = transferValues(3, {
+            blood_processing: models[2].name,
             blood_donation: processing.blood_donation,
             donor: processing.donor,
             donor_name: processing.donor_name,
@@ -792,7 +1050,23 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             blood_group: processing.blood_group
         });
 
-        notify("تم حفظ المعالجة ونقل البيانات المتاحة إلى بطاقة وحدة الدم.", "success");
+        if (!moved) {
+            notify(
+                "اكتمل فصل المكونات، لكن نافذة وحدة الدم تحتوي على سجل محفوظ " +
+                "أو تعديلات غير محفوظة. لم تُستبدل بياناتها ولم يتم الانتقال تلقائيًا.",
+                "warning"
+            );
+            return false;
+        }
+
+        renderFields(3);
+        activateWindow(3);
+
+        notify(
+            "تم نقل بيانات المعالجة ورقمها المرجعي والانتقال تلقائيًا إلى نافذة وحدة الدم.",
+            "success"
+        );
+        return true;
     }
 
     async function saveCard(i) {
@@ -815,6 +1089,21 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         }
 
         const payload = getDocumentPayload(i);
+
+        /* BB_PRESERVE_BLOOD_PROCESSING_LINK_V1 */
+        if (i === 3) {
+            const source = models[2];
+            const sourceDonation = source?.values?.blood_donation;
+
+            if (
+                source?.name &&
+                source.values?.processing_status === "Component Separation" &&
+                sourceDonation &&
+                payload.blood_donation === sourceDonation
+            ) {
+                payload.blood_processing = source.name;
+            }
+        }
 
         if (i === 1 && selectedDonor?.name) {
             payload.donor = selectedDonor.name;
@@ -910,29 +1199,49 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
     }
 
     function transferEligibleRecords() {
-        // لا نغيّر حالات المستندات؛ النقل يتم فقط بعد بلوغ الحالة المطلوبة.
-        if (models[1]?.name && models[1].values.donation_status === "Quarantine") {
-            transferValues(2, {
+        // الانتقال من التبرع إلى المعالجة بعد الحجر فقط.
+        if (
+            models[1]?.name &&
+            models[1].values.donation_status === "Quarantine"
+        ) {
+            const donation = models[1].values;
+            const moved = transferValues(2, {
                 blood_donation: models[1].name,
-                donor: models[1].values.donor,
-                donor_name: models[1].values.donor_name,
-                bag_number: models[1].values.bag_number,
-                volume_collected: models[1].values.volume_collected,
-                collection_unit: models[1].values.collection_unit,
-                processing_date: models[1].values.donation_date
+                donor: donation.donor,
+                donor_name: donation.donor_name,
+                bag_number: donation.bag_number,
+                volume_collected: donation.volume_collected,
+                collection_unit: donation.collection_unit,
+                processing_date: donation.donation_date
             });
+
+            if (moved) {
+                renderFields(2);
+                activateWindow(2);
+            }
         }
 
-        if (models[2]?.name && models[2].values.processing_status === "Component Separation") {
-            transferValues(3, {
-                blood_donation: models[2].values.blood_donation,
-                donor: models[2].values.donor,
-                donor_name: models[2].values.donor_name,
-                bag_number: models[2].values.bag_number,
-                volume: models[2].values.volume_collected,
-                volume_unit: models[2].values.collection_unit,
-                blood_group: models[2].values.blood_group
+        // الانتقال من المعالجة إلى وحدة الدم بعد فصل المكونات.
+        if (
+            models[2]?.name &&
+            models[2].values.processing_status === "Component Separation"
+        ) {
+            const processing = models[2].values;
+            const moved = transferValues(3, {
+                blood_processing: models[2].name,
+                blood_donation: processing.blood_donation,
+                donor: processing.donor,
+                donor_name: processing.donor_name,
+                bag_number: processing.bag_number,
+                volume: processing.volume_collected,
+                volume_unit: processing.collection_unit,
+                blood_group: processing.blood_group
             });
+
+            if (moved) {
+                renderFields(3);
+                activateWindow(3);
+            }
         }
     }
 
@@ -1082,6 +1391,7 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             }
 
             activateWindow(index);
+            transferEligibleRecords();
             window.sessionStorage.removeItem(key);
 
             notify(
@@ -1100,28 +1410,73 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
 
     root.__bbLoadReportSelection = loadInitialWorkReportSelection;
 
+
+    /* BB_INITIAL_WORK_ALERT_RESTORE_V1 */
+    const bbInitialPage = frappe.pages["blood-bank-initial-work"];
+    if (bbInitialPage && !bbInitialPage.__bbAlertShowHook) {
+        const bbPreviousInitialShow = bbInitialPage.on_page_show;
+        bbInitialPage.on_page_show = function () {
+            if (typeof bbPreviousInitialShow === "function") {
+                bbPreviousInitialShow.apply(this, arguments);
+            }
+            loadInitialWorkReportSelection();
+        };
+        bbInitialPage.__bbAlertShowHook = true;
+    }
+
+
+    /* BB_IW_ACTIONS_DROPDOWN_V1 */
     async function openCardActions(i) {
-        const model = models[i];
-
-        if (!model || !model.name) {
-            frappe.msgprint(
-                __("احفظ السجل أولًا قبل تنفيذ إجراءات سير العمل.")
-            );
-            return;
-        }
-
-        if (model.dirty) {
-            frappe.msgprint(
-                __("لديك تغييرات غير محفوظة. احفظ السجل أولًا قبل تنفيذ إجراء سير العمل.")
-            );
-            return;
-        }
-
         if (!Number.isInteger(i) || i < 0 || i > 3) {
             return;
         }
 
-        const doctype = doctypes[i];
+        const button = root.querySelector("#iw-actions-active");
+        const menu = root.querySelector("#iw-actions-menu");
+
+        if (!button || !menu) {
+            notify("تعذر العثور على قائمة إجراءات سير العمل.", "error");
+            return;
+        }
+
+        if (!menu.hidden && Number(menu.dataset.window) === i) {
+            menu.hidden = true;
+            button.setAttribute("aria-expanded", "false");
+            return;
+        }
+
+        menu.dataset.window = String(i);
+        menu.hidden = false;
+        button.setAttribute("aria-expanded", "true");
+
+        const $menu = $(menu);
+        $menu.off(".bbIwWorkflowDropdown");
+
+        // أغلق القائمة عند النقر خارجها، دون استخدام نافذة منبثقة.
+        if (!root.__bbIwActionsOutsideHandler) {
+            root.__bbIwActionsOutsideHandler = true;
+            root.addEventListener("click", function (event) {
+                if (
+                    event.target &&
+                    event.target.closest(".bb-iw-actions-wrap")
+                ) {
+                    return;
+                }
+
+                const liveMenu = root.querySelector("#iw-actions-menu");
+                const liveButton = root.querySelector("#iw-actions-active");
+
+                if (liveMenu && !liveMenu.hidden) {
+                    liveMenu.hidden = true;
+                    if (liveButton) {
+                        liveButton.setAttribute("aria-expanded", "false");
+                    }
+                }
+            }, true);
+        }
+
+        const model = models[i];
+
         const statusFields = [
             "donor_status",
             "donation_status",
@@ -1158,281 +1513,360 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         const translateAction = action =>
             (actionLabels[i] || {})[action] || action;
 
-        const dialog = new frappe.ui.Dialog({
-            title: `${windowTitles[i]} — الإجراءات | Actions`,
-            fields: [
-                {
-                    fieldtype: "HTML",
-                    fieldname: "workflow_actions"
-                }
-            ],
-            primary_action_label: __("فتح النموذج القياسي | Open Standard Form"),
-            primary_action() {
-                dialog.hide();
-                frappe.set_route("Form", doctype, model.name);
-            }
-        });
+        if (!model || !model.name) {
+            menu.innerHTML = `
+                <div class="bb-iw-actions-menu-message">
+                    <strong>لا يوجد سجل محفوظ في هذه النافذة.</strong>
+                    <div class="text-muted">
+                      اختر سجلًا أو احفظ السجل الحالي أولًا.
+                    </div>
+                </div>`;
+            return;
+        }
 
-        dialog.show();
+        if (model.dirty) {
+            menu.innerHTML = `
+                <div class="bb-iw-actions-menu-message">
+                    <strong>توجد تغييرات غير محفوظة.</strong>
+                    <div class="text-muted">
+                      احفظ السجل أولًا، ثم افتح قائمة الإجراءات مجددًا.
+                    </div>
+                </div>`;
+            return;
+        }
 
-        const $content = dialog.fields_dict.workflow_actions.$wrapper;
-        $content.html(
-            '<div class="text-muted">جارٍ تحميل الإجراءات... | Loading workflow actions...</div>'
-        );
+        menu.innerHTML = `
+            <div class="bb-iw-actions-menu-message">
+                جارٍ تحميل إجراءات سير العمل...
+            </div>`;
+
+        let savedDoc = null;
+        let transitions = [];
+        let pendingTransition = null;
+        let applying = false;
+        let summaryHtml = "";
 
         try {
-            // اقرأ السجل المحفوظ أولًا حتى تُحسب الانتقالات من حالته الحقيقية.
+            // قراءة السجل المحفوظ قبل تحميل الإجراءات.
             const documentResponse = await frappe.call({
                 method: "frappe.client.get",
                 args: {
-                    doctype: doctype,
+                    doctype: doctypes[i],
                     name: model.name
                 }
             });
 
-            const doc = documentResponse.message;
+            savedDoc = documentResponse.message;
 
-            if (!doc || !doc.name) {
+            if (!savedDoc || !savedDoc.name) {
                 throw new Error("تعذر تحميل السجل المحفوظ.");
             }
 
             const transitionResponse = await frappe.call({
                 method: "frappe.model.workflow.get_transitions",
                 args: {
-                    doc: doc
+                    doc: savedDoc
                 }
             });
 
-            const transitions = Array.isArray(transitionResponse.message)
+            transitions = Array.isArray(transitionResponse.message)
                 ? transitionResponse.message
                 : [];
 
-            // حدّث النسخة المحلية من البيانات المحفوظة فقط.
-            model.name = doc.name;
-            model.values = { ...model.values, ...doc };
+            // مزامنة البيانات المحلية مع السجل المحفوظ.
+            model.name = savedDoc.name;
+            model.values = { ...model.values, ...savedDoc };
             model.dirty = false;
             updateRecordId(i);
 
             const currentStatus =
-                doc[statusFields[i]] || "غير محددة | Not specified";
+                savedDoc[statusFields[i]] || "غير محددة";
 
-            const summary = `
-                <div class="mb-3 p-3 border rounded">
+            summaryHtml = `
+                <div class="bb-iw-actions-menu-summary">
                     <div>
-                        <strong>نوع السجل | Document:</strong>
-                        ${esc(doctype)}
+                        <span>نوع السجل</span>
+                        <strong>${esc(doctypes[i])}</strong>
                     </div>
                     <div>
-                        <strong>رقم السجل | Record ID:</strong>
-                        ${esc(doc.name)}
+                        <span>رقم السجل</span>
+                        <strong>${esc(savedDoc.name)}</strong>
                     </div>
                     <div>
-                        <strong>الحالة الحالية | Current status:</strong>
-                        ${esc(currentStatus)}
+                        <span>الحالة الحالية</span>
+                        <strong>${esc(currentStatus)}</strong>
                     </div>
-                </div>
-            `;
+                </div>`;
 
-            const actionsHtml = transitions.length
-                ? `
-                    <div class="bb-iw-workflow-actions">
+            function renderActions() {
+                const actionsHtml = transitions.length
+                    ? `
+                      <div class="bb-iw-dropdown-action-list">
                         ${transitions.map((transition, index) => {
                             const action = String(transition.action || "");
-                            const arabic = translateAction(action);
                             const nextState = String(
                                 transition.next_state || ""
                             );
 
                             return `
-                                <div class="bb-iw-workflow-action-row border rounded p-3 mb-2">
-                                    <div class="mb-2">
-                                        <strong>${esc(arabic)}</strong>
-                                        <div class="text-muted">${esc(action)}</div>
-                                        ${
-                                            nextState
-                                                ? `<small>الحالة التالية | Next state: ${esc(nextState)}</small>`
-                                                : ""
-                                        }
-                                    </div>
-                                    <button
-                                        type="button"
-                                        class="btn btn-primary btn-sm bb-iw-workflow-action"
-                                        data-action-index="${index}">
-                                        تنفيذ الإجراء | Apply Action
-                                    </button>
+                              <div class="bb-iw-dropdown-action-row">
+                                <div class="bb-iw-dropdown-action-info">
+                                  <strong>
+                                    ${esc(translateAction(action))}
+                                  </strong>
+                                  <small>${esc(action)}</small>
+                                  ${
+                                      nextState
+                                          ? `<span>الحالة التالية: ${esc(nextState)}</span>`
+                                          : ""
+                                  }
                                 </div>
-                            `;
+                                <button
+                                  type="button"
+                                  class="btn btn-default btn-sm bb-iw-workflow-action"
+                                  data-action-index="${index}"
+                                  role="menuitem">
+                                  اختيار
+                                </button>
+                              </div>`;
                         }).join("")}
-                    </div>
-                `
-                : `
-                    <div class="alert alert-info">
-                        لا توجد إجراءات انتقال متاحة لهذه الحالة أو للمستخدم الحالي.
-                        <br>
-                        No workflow actions are available for this state or user.
-                    </div>
-                `;
+                      </div>`
+                    : `
+                      <div class="bb-iw-actions-menu-message">
+                        لا توجد إجراءات انتقال متاحة للحالة الحالية أو للمستخدم.
+                      </div>`;
 
-            $content.html(summary + actionsHtml);
+                menu.innerHTML = summaryHtml + actionsHtml;
+            }
 
-            $content.off(
-                "click.bbIwWorkflow",
-                ".bb-iw-workflow-action"
-            );
+            function renderConfirmation(transition) {
+                menu.innerHTML = summaryHtml + `
+                    <div class="bb-iw-actions-menu-confirm">
+                      <strong>
+                        تأكيد تنفيذ الإجراء
+                      </strong>
+                      <p>
+                        هل تريد تنفيذ
+                        «${esc(translateAction(transition.action))}»
+                        على السجل
+                        <b>${esc(savedDoc.name)}</b>؟
+                      </p>
+                      <div class="bb-iw-actions-menu-confirm-buttons">
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm bb-iw-workflow-confirm">
+                          تأكيد التنفيذ
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-default btn-sm bb-iw-workflow-cancel">
+                          رجوع
+                        </button>
+                      </div>
+                    </div>`;
+            }
 
-            $content.on(
-                "click.bbIwWorkflow",
+            renderActions();
+
+            $menu.on(
+                "click.bbIwWorkflowDropdown",
                 ".bb-iw-workflow-action",
                 function () {
                     const index = Number(
                         this.getAttribute("data-action-index")
                     );
-
                     const transition = transitions[index];
 
-                    if (!transition || !transition.action) {
+                    if (!transition || !transition.action || applying) {
                         return;
                     }
 
-                    const $button = $(this);
-                    if ($button.prop("disabled")) {
+                    pendingTransition = transition;
+                    renderConfirmation(transition);
+                }
+            );
+
+            $menu.on(
+                "click.bbIwWorkflowDropdown",
+                ".bb-iw-workflow-cancel",
+                function () {
+                    if (applying) return;
+                    pendingTransition = null;
+                    renderActions();
+                }
+            );
+
+            $menu.on(
+                "click.bbIwWorkflowDropdown",
+                ".bb-iw-workflow-confirm",
+                async function () {
+                    if (applying || !pendingTransition) {
                         return;
                     }
 
-                    const arabic = translateAction(transition.action);
+                    applying = true;
 
-                    frappe.confirm(
-                        `هل تريد تنفيذ «${arabic} | ${transition.action}» على السجل ${model.name}؟`,
-                        async () => {
-                            if ($button.prop("disabled")) {
-                                return;
+                    const transition = pendingTransition;
+                    const action = transition.action;
+                    const arabic = translateAction(action);
+                    const confirmButton = this;
+
+                    confirmButton.disabled = true;
+                    confirmButton.textContent = "جارٍ التنفيذ...";
+
+                    let applied = false;
+
+                    try {
+                        // تنفيذ انتقال Frappe الحقيقي مع فحص الصلاحيات والحالة.
+                        await frappe.call({
+                            method: "frappe.model.workflow.apply_workflow",
+                            args: {
+                                doc: savedDoc,
+                                action: action
                             }
+                        });
 
-                            $button
-                                .prop("disabled", true)
-                                .text("جارٍ التنفيذ... | Applying...");
+                        applied = true;
 
-                            let applied = false;
+                        const refreshedResponse = await frappe.call({
+                            method: "frappe.client.get",
+                            args: {
+                                doctype: doctypes[i],
+                                name: savedDoc.name
+                            }
+                        });
 
-                            try {
-                                // يستخدم Frappe انتقال سير العمل الحقيقي
-                                // ويعيد التحقق من الصلاحيات والحالة على الخادم.
-                                await frappe.call({
-                                    method: "frappe.model.workflow.apply_workflow",
-                                    args: {
-                                        doc: doc,
-                                        action: transition.action
-                                    }
-                                });
+                        const saved = refreshedResponse.message;
 
-                                applied = true;
+                        if (!saved || !saved.name) {
+                            throw new Error(
+                                "تم إرسال الإجراء، لكن تعذرت إعادة تحميل السجل."
+                            );
+                        }
 
-                                const refreshedResponse = await frappe.call({
-                                    method: "frappe.client.get",
-                                    args: {
-                                        doctype: doctype,
-                                        name: model.name
-                                    }
-                                });
+                        model.name = saved.name;
+                        model.values = { ...model.values, ...saved };
+                        model.dirty = false;
+                        savedDoc = saved;
+                        updateRecordId(i);
 
-                                const saved = refreshedResponse.message;
+                        // الحفاظ على الربط بين المتبرع والتبرع.
+                        if (i === 0) {
+                            selectedDonor = {
+                                name: saved.name,
+                                full_name:
+                                    saved.full_name ||
+                                    model.values.full_name ||
+                                    ""
+                            };
 
-                                if (!saved || !saved.name) {
-                                    throw new Error(
-                                        "تم تنفيذ الطلب، لكن تعذّر إعادة تحميل السجل."
-                                    );
-                                }
+                            selectedDonorProfile = {
+                                name: selectedDonor.name,
+                                full_name: selectedDonor.full_name
+                            };
 
-                                model.name = saved.name;
-                                model.values = {
-                                    ...model.values,
-                                    ...saved
-                                };
-                                model.dirty = false;
-                                updateRecordId(i);
+                            pendingDonorProfileName = "";
 
-                                // حافظ على الربط بين المتبرع والتبرع.
-                                if (i === 0) {
-                                    selectedDonor = {
-                                        name: saved.name,
-                                        full_name:
-                                            saved.full_name ||
-                                            model.values.full_name ||
-                                            ""
-                                    };
+                            models[1].values.donor = saved.name;
+                            models[1].values.donor_name =
+                                selectedDonor.full_name;
 
-                                    selectedDonorProfile = {
-                                        name: selectedDonor.name,
-                                        full_name: selectedDonor.full_name
-                                    };
-
-                                    pendingDonorProfileName = "";
-
-                                    models[1].values.donor = saved.name;
-                                    models[1].values.donor_name =
-                                        selectedDonor.full_name;
-
-                                    if (donorPicker) {
-                                        donorPicker.set_value(
-                                            selectedDonor.full_name
-                                        );
-                                    }
-                                }
-
-                                // النقل مشروط بحالات سير العمل كما في منطق الحفظ.
-                                if (i === 1) {
-                                    transferAfterDonation();
-                                } else if (i === 2) {
-                                    transferAfterProcessing();
-                                }
-
-                                dialog.hide();
-
-                                notify(
-                                    `تم تنفيذ الإجراء «${arabic} | ${transition.action}» بنجاح. ` +
-                                    `الحالة الحالية: ${saved[statusFields[i]] || "—"}`,
-                                    "success"
+                            if (donorPicker) {
+                                donorPicker.set_value(
+                                    selectedDonor.full_name
                                 );
-                            } catch (error) {
-                                console.error(
-                                    `Workflow action failed for ${doctype}:`,
-                                    error
-                                );
-
-                                if (applied) {
-                                    dialog.hide();
-                                    notify(
-                                        "أُرسل إجراء سير العمل بنجاح، لكن تعذّر تحديث بيانات الصفحة. استخدم «تحديث البيانات» قبل متابعة العمل.",
-                                        "warning"
-                                    );
-                                } else {
-                                    $button
-                                        .prop("disabled", false)
-                                        .text("تنفيذ الإجراء | Apply Action");
-
-                                    notify(
-                                        `تعذر تنفيذ الإجراء: ${readableError(error)}`,
-                                        "error"
-                                    );
-                                }
                             }
                         }
-                    );
+
+                        /* BB_AUTO_ADVANCE_DONOR_TO_DONATION_V1 */
+                        if (
+                            i === 0 &&
+                            action === "Mark Ready for Donation" &&
+                            saved.donor_status === "Ready for Donation"
+                        ) {
+                            const target = models[1];
+                            const targetDonor = target?.values?.donor;
+
+                            const safeToAdvance =
+                                target &&
+                                !target.name &&
+                                (!target.dirty || targetDonor === saved.name);
+
+                            if (safeToAdvance) {
+                                target.values.donor = saved.name;
+                                target.values.donor_name =
+                                    saved.full_name ||
+                                    selectedDonor?.full_name ||
+                                    "";
+
+                                renderFields(1);
+                                activateWindow(1);
+
+                                notify(
+                                    "تم اعتماد جاهزية المتبرع والانتقال تلقائيًا إلى نافذة التبرع.",
+                                    "success"
+                                );
+                            } else {
+                                notify(
+                                    "لم يتم الانتقال تلقائيًا لحماية بيانات نافذة التبرع الحالية. راجع السجل والتعديلات أولًا.",
+                                    "warning"
+                                );
+                            }
+                        }
+
+                        // إبقاء آليات نقل البيانات الحالية كما هي.
+                        if (i === 1) {
+                            transferAfterDonation();
+                        } else if (i === 2) {
+                            transferAfterProcessing();
+                        }
+
+                        pendingTransition = null;
+                        menu.hidden = true;
+                        button.setAttribute("aria-expanded", "false");
+
+                        notify(
+                            `تم تنفيذ «${arabic} | ${action}» بنجاح. ` +
+                            `الحالة الحالية: ${saved[statusFields[i]] || "—"}`,
+                            "success"
+                        );
+                    } catch (error) {
+                        console.error(
+                            `Workflow action failed for ${doctypes[i]}:`,
+                            error
+                        );
+
+                        if (applied) {
+                            menu.hidden = true;
+                            button.setAttribute("aria-expanded", "false");
+                            notify(
+                                "تم تنفيذ الإجراء، لكن تعذّر تحديث بيانات الصفحة. استخدم «تحديث البيانات» قبل متابعة العمل.",
+                                "warning"
+                            );
+                        } else {
+                            pendingTransition = null;
+                            renderActions();
+                            notify(
+                                `تعذر تنفيذ الإجراء: ${readableError(error)}`,
+                                "error"
+                            );
+                        }
+                    } finally {
+                        applying = false;
+                    }
                 }
             );
         } catch (error) {
             console.error(
-                `Unable to load workflow transitions for ${doctype}:`,
+                `Unable to load workflow transitions for ${doctypes[i]}:`,
                 error
             );
 
-            $content.html(`
-                <div class="alert alert-danger">
-                    تعذر تحميل إجراءات سير العمل.
-                    <br>
-                    ${esc(readableError(error))}
-                </div>
-            `);
+            menu.innerHTML = `
+                <div class="bb-iw-actions-menu-message bb-iw-actions-menu-error">
+                  <strong>تعذر تحميل إجراءات سير العمل.</strong>
+                  <div>${esc(readableError(error))}</div>
+                </div>`;
         }
     }
 

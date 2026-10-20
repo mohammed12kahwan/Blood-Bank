@@ -314,16 +314,16 @@ if isinstance(_bb_nav_css, str):
 
 app_include_css = list(dict.fromkeys(
     _bb_nav_css + [
-        "/assets/blood_bank/css/blood_bank_navigation.css?v=2",
+        "/assets/blood_bank/css/blood_bank_navigation.css?v=3",
     ]
 ))
 
 
-app_include_js = list(dict.fromkeys(globals().get("app_include_js", []) + ["/assets/blood_bank/js/blood_donor_embedded_forms.js?v=1", "/assets/blood_bank/js/blood_bank_workspace_shortcut.js?v=5"]))
+app_include_js = list(dict.fromkeys(globals().get("app_include_js", []) + ["/assets/blood_bank/js/blood_donor_embedded_forms.js?v=1", "/assets/blood_bank/js/blood_bank_workspace_shortcut.js?v=7"]))
 
 _bb_workspace_css = globals().get("app_include_css", [])
 _bb_workspace_css = _bb_workspace_css if isinstance(_bb_workspace_css, list) else [_bb_workspace_css]
-app_include_css = list(dict.fromkeys(_bb_workspace_css + ["/assets/blood_bank/css/blood_bank_workspace_shortcut.css?v=5"]))
+app_include_css = list(dict.fromkeys(_bb_workspace_css + ["/assets/blood_bank/css/blood_bank_workspace_shortcut.css?v=6"]))
 
 
 # BB_UNIFIED_NAVIGATION_ASSETS_V1
@@ -334,7 +334,7 @@ else:
     _bb_unified_nav_js = list(_bb_unified_nav_js or [])
 app_include_js = list(dict.fromkeys(
     _bb_unified_nav_js + [
-        "/assets/blood_bank/js/blood_bank_unified_navigation.js?v=1"
+        "/assets/blood_bank/js/blood_bank_unified_navigation.js?v=3"
     ]
 ))
 
@@ -345,6 +345,19 @@ else:
     _bb_unified_nav_css = list(_bb_unified_nav_css or [])
 app_include_css = list(dict.fromkeys(
     _bb_unified_nav_css + [
-        "/assets/blood_bank/css/blood_bank_unified_navigation.css?v=1"
+        "/assets/blood_bank/css/blood_bank_unified_navigation.css?v=4"
     ]
 ))
+
+# Shared hospital messaging shortcut on Blood Bank routes.
+app_include_js = list(globals().get('app_include_js', []) or [])
+_bb_messaging_asset = '/assets/blood_bank/js/blood_bank_messaging_shortcut.js'
+if _bb_messaging_asset not in app_include_js:
+    app_include_js.append(_bb_messaging_asset)
+
+# BB_ACTION_BUTTON_THEME_V1
+_bb_action_theme_asset = (
+    "/assets/blood_bank/js/blood_bank_action_button_theme.js?v=1"
+)
+if _bb_action_theme_asset not in app_include_js:
+    app_include_js.append(_bb_action_theme_asset)

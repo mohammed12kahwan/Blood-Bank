@@ -192,3 +192,163 @@
         grid-template-columns: repeat(2, minmax(110px, 1fr));
     }
 }
+
+/* BB_ACTION_BUTTON_COLORS_V1 */
+
+.bb-action-themed {
+    min-height: 34px !important;
+    padding: 6px 11px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 6px !important;
+    font-family: inherit;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: normal;
+    box-sizing: border-box;
+    transition: filter .15s ease, box-shadow .15s ease;
+}
+
+.bb-action-themed .bb-action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 1.2em;
+    line-height: 1;
+    font-size: 1.12em;
+}
+
+/* إضافة جديد */
+.bb-action-themed[data-bb-action="create"] {
+    background: #15803d !important;
+    border-color: #15803d !important;
+    color: #fff !important;
+}
+
+/* حفظ */
+.bb-action-themed[data-bb-action="save"] {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: #fff !important;
+}
+
+/* تحديث البيانات */
+.bb-action-themed[data-bb-action="refresh"] {
+    background: #0f766e !important;
+    border-color: #0f766e !important;
+    color: #fff !important;
+}
+
+/* السابق والتالي */
+.bb-action-themed[data-bb-action="previous"],
+.bb-action-themed[data-bb-action="next"] {
+    background: #475569 !important;
+    border-color: #475569 !important;
+    color: #fff !important;
+}
+
+/* قائمة وحدات الدم والقوائم */
+.bb-action-themed[data-bb-action="units"],
+.bb-action-themed[data-bb-action="list"] {
+    background: #6d28d9 !important;
+    border-color: #6d28d9 !important;
+    color: #fff !important;
+}
+
+/* الصفحة الرئيسية */
+.bb-action-themed[data-bb-action="home"] {
+    background: #334155 !important;
+    border-color: #334155 !important;
+    color: #fff !important;
+}
+
+/* التنقل إلى بنك الدم */
+.bb-action-themed[data-bb-action="bank"] {
+    background: #b42332 !important;
+    border-color: #b42332 !important;
+    color: #fff !important;
+}
+
+/* طباعة */
+.bb-action-themed[data-bb-action="print"] {
+    background: #0369a1 !important;
+    border-color: #0369a1 !important;
+    color: #fff !important;
+}
+
+/* إجراءات ناجحة وإتمام الخطوة */
+.bb-action-themed[data-bb-action="complete"],
+.bb-action-themed[data-bb-action="collect"],
+.bb-action-themed[data-bb-action="approve"] {
+    background: #15803d !important;
+    border-color: #15803d !important;
+    color: #fff !important;
+}
+
+/* إلغاء أو حذف */
+.bb-action-themed[data-bb-action="cancel"],
+.bb-action-themed[data-bb-action="delete"] {
+    background: #b42332 !important;
+    border-color: #b42332 !important;
+    color: #fff !important;
+}
+
+/* الحجر والتحذير */
+.bb-action-themed[data-bb-action="quarantine"] {
+    background: #fef3c7 !important;
+    border-color: #d97706 !important;
+    color: #78350f !important;
+}
+
+/* الحجز */
+.bb-action-themed[data-bb-action="reserve"] {
+    background: #0e7490 !important;
+    border-color: #0e7490 !important;
+    color: #fff !important;
+}
+
+/* صرف الدم والتسليم ونقل الدم */
+.bb-action-themed[data-bb-action="issue"],
+.bb-action-themed[data-bb-action="handover"],
+.bb-action-themed[data-bb-action="transfusion"] {
+    background: #c2410c !important;
+    border-color: #c2410c !important;
+    color: #fff !important;
+}
+
+/* الفحص والتحقق */
+.bb-action-themed[data-bb-action="verify"] {
+    background: #7c3aed !important;
+    border-color: #7c3aed !important;
+    color: #fff !important;
+}
+
+/* بدء الإجراء */
+.bb-action-themed[data-bb-action="start"] {
+    background: #0f766e !important;
+    border-color: #0f766e !important;
+    color: #fff !important;
+}
+
+.bb-action-themed:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.bb-action-themed:focus-visible {
+    outline: 2px solid var(--text-color, #111827);
+    outline-offset: 2px;
+}
+
+.bb-action-themed:disabled {
+    opacity: .58;
+    cursor: not-allowed;
+    filter: none;
+}
+
+/* END BB_ACTION_BUTTON_COLORS_V1 */

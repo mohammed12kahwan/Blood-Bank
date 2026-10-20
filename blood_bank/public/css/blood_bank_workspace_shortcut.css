@@ -598,3 +598,68 @@
         height: 29px;
     }
 }
+
+/* BB_ALERT_INLINE_RECORDS_V1 */
+.bb-wa-record-details {
+    display: block;
+    width: 100%;
+    margin: 14px 0;
+    padding: 14px;
+    border: 1px solid var(--border-color, #d7dce2);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+    box-sizing: border-box;
+}
+.bb-wa-record-details[hidden],
+.bb-wa-record-details .bb-wa-load-more[hidden] {
+    display: none !important;
+}
+.bb-wa-record-details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.bb-wa-record-details-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+.bb-wa-record-status {
+    margin: 8px 0 12px;
+    color: var(--text-muted, #64748b);
+    font-size: 12px;
+}
+.bb-wa-record-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 9px;
+}
+.bb-wa-record-item {
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 7px;
+    background: var(--bg-color, #f8fafc);
+    overflow-wrap: anywhere;
+}
+.bb-wa-record-name {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+}
+.bb-wa-record-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 11px;
+}
+.bb-wa-record-field b {
+    color: var(--text-muted, #64748b);
+}
+.bb-wa-load-more {
+    margin-top: 12px;
+}
+/* END BB_ALERT_INLINE_RECORDS_V1 */

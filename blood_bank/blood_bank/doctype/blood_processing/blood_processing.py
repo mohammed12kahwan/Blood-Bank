@@ -68,7 +68,111 @@ class BloodProcessing(Document):
             if not self.separation_started_by:
                 self.separation_started_by = frappe.session.user
 
+        self.validate_verified_donor_blood_group()
         self.validate_source_unit()
+
+    def validate_verified_donor_blood_group(self):
+        allowed_abo = {"A", "B", "AB", "O"}
+        allowed_rh = {"Positive", "Negative"}
+
+        donor_name = self.donor
+        if not donor_name and self.blood_donation:
+            donor_name = frappe.db.get_value(
+                "Blood Donation", self.blood_donation, "donor"
+            )
+
+        if not donor_name:
+            if self.blood_group or self.blood_screening:
+                frappe.throw(
+                    "تعذر التحقق من فصيلة المعالجة: سجل المتبرع غير مرتبط."
+                )
+            return
+
+        source = frappe.db.get_value(
+            "Blood Donor",
+            donor_name,
+            [
+                "abo_group",
+                "rh_factor",
+                "blood_group",
+                "blood_group_verified",
+            ],
+            as_dict=True,
+        )
+
+        if not source:
+            frappe.throw("سجل المتبرع المصدر غير موجود.")
+
+        if not source.blood_group_verified:
+            if self.blood_group:
+                frappe.throw(
+                    "لا يمكن اعتماد فصيلة المعالجة؛ فصيلة المتبرع "
+                    "غير معتمدة في سجل المتبرع."
+                )
+            return
+
+        if source.abo_group not in allowed_abo:
+            frappe.throw(
+                "قيمة ABO في سجل المتبرع غير صحيحة. "
+                "صحح سجل المتبرع وفق نتيجة الفحص الأصلية أولًا."
+            )
+
+        if source.rh_factor not in allowed_rh:
+            frappe.throw(
+                "عامل Rh في سجل المتبرع غير صحيح. "
+                "صحح سجل المتبرع وفق نتيجة الفحص الأصلية أولًا."
+            )
+
+        expected_group = f"{source.abo_group} {source.rh_factor}"
+
+        if source.blood_group != expected_group:
+            frappe.throw(
+                "الفصيلة المحفوظة في سجل المتبرع لا تطابق حقلي ABO وRh. "
+                "يجب تصحيح المصدر قبل متابعة المعالجة."
+            )
+
+        if self.blood_donation:
+            donation_donor = frappe.db.get_value(
+                "Blood Donation", self.blood_donation, "donor"
+            )
+            if donation_donor and donation_donor != donor_name:
+                frappe.throw(
+                    "المتبرع في المعالجة لا يطابق المتبرع في التبرع المصدر."
+                )
+
+        if self.blood_screening:
+            screening_source = frappe.db.get_value(
+                "Blood Screening",
+                self.blood_screening,
+                ["donor", "blood_group"],
+                as_dict=True,
+            )
+            if (
+                screening_source
+                and screening_source.donor
+                and screening_source.donor != donor_name
+            ):
+                frappe.throw(
+                    "المتبرع في سجل الفحص لا يطابق المتبرع المعتمد."
+                )
+            if (
+                screening_source
+                and screening_source.blood_group
+                and screening_source.blood_group != expected_group
+            ):
+                frappe.throw(
+                    "فصيلة سجل الفحص لا تطابق الفصيلة المعتمدة للمتبرع. "
+                    "يجب مراجعة نتيجة الفحص قبل متابعة المعالجة."
+                )
+
+        if self.blood_group and self.blood_group != expected_group:
+            frappe.throw(
+                "فصيلة المعالجة لا تطابق الفصيلة المعتمدة في سجل المتبرع. "
+                "لم يتم تعديل أي سجل تلقائيًا؛ راجع مصدر الفصيلة أولًا."
+            )
+
+        self.donor = donor_name
+        self.blood_group = expected_group
 
     def validate_accepted_screening(self):
 
@@ -128,10 +232,42 @@ class BloodProcessing(Document):
         self.blood_unit = screening.blood_unit
         self.donor = screening.donor
         self.donor_name = screening.donor_name
-        self.blood_group = screening.blood_group
+        # Blood Donor is the authoritative blood-group source.
+        # Screening is checked against that source below; its
+        # blood_group must not overwrite the donor-derived value.
         self.bag_number = screening.bag_number
 
     def validate_source_unit(self):
+
+        # استرجاع الرابط العكسي فقط من وحدة تشير صراحةً إلى هذه المعالجة.
+        if not self.blood_unit and self.name:
+            linked_units = frappe.get_all(
+                "Blood Unit",
+                filters={
+                    "blood_processing": self.name,
+                    "unit_status": "Quarantine",
+                },
+                fields=["name", "blood_donation"],
+                limit_page_length=2,
+            )
+
+            if len(linked_units) > 1:
+                frappe.throw(
+                    "توجد عدة وحدات حجر مرتبطة بهذه المعالجة. "
+                    "تعذر تحديد الوحدة الصحيحة."
+                )
+
+            if len(linked_units) == 1:
+                linked = linked_units[0]
+                if (
+                    self.blood_donation
+                    and linked.blood_donation != self.blood_donation
+                ):
+                    frappe.throw(
+                        "تعذر الربط: التبرع في وحدة الدم "
+                        "لا يطابق التبرع في المعالجة."
+                    )
+                self.blood_unit = linked.name
 
         if not self.blood_unit:
             return
@@ -143,19 +279,37 @@ class BloodProcessing(Document):
                 "unit_status",
                 "blood_group",
                 "bag_number",
+                "blood_processing",
+                "blood_donation",
             ],
             as_dict=True,
         )
 
         if not unit:
+            frappe.throw("Blood Unit record not found.")
+
+        if (
+            self.blood_donation
+            and unit.blood_donation
+            and unit.blood_donation != self.blood_donation
+        ):
             frappe.throw(
-                "Blood Unit record not found."
+                "Blood Donation mismatch between Processing and Unit."
             )
 
-        if unit.unit_status != "Quarantine":
+        if unit.blood_processing and unit.blood_processing != self.name:
             frappe.throw(
-                "Blood Processing requires "
-                "the Blood Unit to be in Quarantine."
+                "Blood Unit is linked to a different Blood Processing record."
+            )
+
+        if self.is_new() and unit.unit_status != "Quarantine":
+            frappe.throw(
+                "إنشاء المعالجة المرتبطة بوحدة الدم يتطلب حالة Quarantine."
+            )
+
+        if unit.unit_status not in ("Quarantine", "Accepted"):
+            frappe.throw(
+                "حالة وحدة الدم لا تسمح بمتابعة سجل المعالجة."
             )
 
         if unit.blood_group != self.blood_group:

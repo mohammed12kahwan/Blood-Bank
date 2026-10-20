@@ -86,37 +86,36 @@
       <span class="bb-cw-workspace-code">WORKFLOW · 01–04</span>
     </div>
 
-    <ul class="nav nav-tabs bb-cw-tabs"
-        id="bb-cw-stage-tabs" role="tablist">
-      <li class="active">
-        <a href="#" data-stage="0">
-          <span class="bb-cw-tab-number">١</span>
-          <span>المكوّن</span>
-          <small>Blood Component</small>
-        </a>
-      </li>
-      <li class="disabled">
-        <a href="#" data-stage="1">
-          <span class="bb-cw-tab-number">٢</span>
-          <span>فحص الدم</span>
-          <small>Blood Screening</small>
-        </a>
-      </li>
-      <li class="disabled">
-        <a href="#" data-stage="2">
-          <span class="bb-cw-tab-number">٣</span>
-          <span>فحص الجودة</span>
-          <small>Quality Check</small>
-        </a>
-      </li>
-      <li class="disabled">
-        <a href="#" data-stage="3">
-          <span class="bb-cw-tab-number">٤</span>
-          <span>التخزين</span>
-          <small>Blood Storage</small>
-        </a>
-      </li>
-    </ul>
+    <nav class="bb-cw-tabs bb-cw-tabs-native"
+         id="bb-cw-stage-tabs" role="tablist"
+         aria-label="مراحل متابعة مكونات الدم">
+      <button type="button" class="bb-cw-tab is-active" data-stage="0"
+              role="tab" aria-selected="true">
+        <span class="bb-cw-tab-number">١</span>
+        <span class="bb-cw-tab-label">المكوّن | Blood Component</span>
+      </button>
+      <button type="button" class="bb-cw-tab" data-stage="1"
+              role="tab" aria-selected="false">
+        <span class="bb-cw-tab-number">٢</span>
+        <span class="bb-cw-tab-label">فحص الدم | Blood Screening</span>
+      </button>
+      <button type="button" class="bb-cw-tab" data-stage="2"
+              role="tab" aria-selected="false">
+        <span class="bb-cw-tab-number">٣</span>
+        <span class="bb-cw-tab-label">فحص الجودة | Quality Check</span>
+      </button>
+      <button type="button" class="bb-cw-tab" data-stage="3"
+              role="tab" aria-selected="false">
+        <span class="bb-cw-tab-number">٤</span>
+        <span class="bb-cw-tab-label">التخزين | Blood Storage</span>
+      </button>
+    </nav>
+
+    <div id="bb-cw-screening-actions" style="display:none;justify-content:flex-end;margin:8px 0;" hidden>
+      <button type="button" id="bb-cw-group-verification" class="btn btn-warning">
+        🧪 تسجيل فحص الفصيلة | Record Blood Group Test
+      </button>
+    </div>
 
     <section class="form-section bb-cw-panel bb-cw-stage-panel">
       <div class="bb-cw-stage-bar">

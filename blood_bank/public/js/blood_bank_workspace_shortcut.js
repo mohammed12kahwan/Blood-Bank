@@ -115,20 +115,434 @@
         return document.querySelector(".layout-main-section");
     }
 
-    function openFollowup(target) {
-        const routes = {
-            initial: () => frappe.set_route("blood-bank-initial-work"),
-            component: () => frappe.set_route("blood-bank-component-work"),
-            request: () => frappe.set_route("blood-bank-request-work"),
-            staff: () => frappe.set_route("blood-bank-staff-operations"),
-            donation_report: () =>
-                frappe.set_route("query-report", "Blood Donation Tracking"),
-            request_report: () =>
-                frappe.set_route("query-report", "Blood Request Tracking")
+
+    async function loadAlertRecordPage(details) {
+        const state = details.__bbAlertState;
+        if (!state || state.loading) return;
+
+        state.loading = true;
+        const moreButton = details.querySelector("[data-bb-alert-load-more]");
+        if (moreButton) {
+            moreButton.disabled = true;
+            moreButton.textContent = "جارٍ تحميل السجلات…";
+        }
+
+        try {
+            const records = await frappe.db.get_list(state.doctype, {
+                filters: state.filters,
+                fields: state.fields,
+                order_by: "modified desc",
+                limit_start: state.offset,
+                limit_page_length: state.pageSize
+            });
+
+            if (!details.isConnected) return;
+
+            if (!Array.isArray(records)) {
+                throw new Error("Unexpected records response");
+            }
+
+            records.forEach(function (record) {
+                const row = document.createElement("article");
+                row.className = "bb-wa-record-item";
+
+                const identifier = document.createElement("button");
+                identifier.type = "button";
+                identifier.className = "bb-wa-record-name bb-wa-record-open";
+                identifier.dataset.bbAlertRecordOpen = "1";
+                identifier.dataset.bbAlertRecordDoctype = String(state.doctype || "");
+                identifier.dataset.bbAlertRecordName = String(record.name || "");
+                identifier.textContent = "رقم السجل: " + String(record.name || "—");
+                identifier.title = "فتح السجل داخل نافذة عمل بنك الدم";
+                identifier.style.cssText =
+                    "border:0;background:transparent;padding:0;" +
+                    "font:inherit;font-weight:700;color:#0369a1;" +
+                    "text-decoration:underline;cursor:pointer;text-align:start;";
+                row.appendChild(identifier);
+
+                const values = document.createElement("div");
+                values.className = "bb-wa-record-fields";
+
+                state.fields.forEach(function (fieldname) {
+                    if (fieldname === "name") return;
+
+                    const value = record[fieldname];
+                    if (value === null || value === undefined || value === "") {
+                        return;
+                    }
+
+                    const fieldLine = document.createElement("span");
+                    fieldLine.className = "bb-wa-record-field";
+
+                    const label = document.createElement("b");
+                    label.textContent =
+                        (state.labels[fieldname] || fieldname) + ": ";
+
+                    const valueText = document.createElement("span");
+                    valueText.textContent = String(value);
+
+                    fieldLine.append(label, valueText);
+                    values.appendChild(fieldLine);
+                });
+
+                row.appendChild(values);
+                state.list.appendChild(row);
+            });
+
+            state.offset += records.length;
+            state.loaded += records.length;
+
+            const total = state.total;
+            state.status.textContent = (
+                total > state.loaded
+                    ? `تم عرض ${state.loaded} من ${total} سجلًا مطابقًا.`
+                    : `تم عرض ${state.loaded} سجلًا مطابقًا.`
+            );
+
+            if (state.loaded === 0) {
+                state.status.textContent =
+                    "لا توجد سجلات متاحة للعرض بهذه الشروط أو لا تتوفر صلاحية قراءتها.";
+            }
+
+            if (moreButton) {
+                const hasMore =
+                    records.length === state.pageSize &&
+                    state.offset < total;
+
+                moreButton.hidden = !hasMore;
+                moreButton.disabled = false;
+                moreButton.textContent = "تحميل المزيد";
+            }
+        } catch (error) {
+            console.error("Blood Bank alert records:", error);
+            state.status.textContent =
+                "تعذر تحميل السجلات. تحقق من الصلاحيات والاتصال ثم حاول مجددًا.";
+
+            if (moreButton) {
+                moreButton.hidden = false;
+                moreButton.disabled = false;
+                moreButton.textContent = "إعادة المحاولة";
+            }
+        } finally {
+            state.loading = false;
+            if (moreButton && moreButton.isConnected && !moreButton.disabled) {
+                moreButton.textContent = "تحميل المزيد";
+            }
+        }
+    }
+
+
+    /* BB_ALERT_RECORD_NAVIGATION_V1 */
+    const BB_ALERT_INITIAL_DOCTYPES = new Set([
+        "Blood Donor", "Blood Donation", "Blood Processing", "Blood Unit"
+    ]);
+
+    const BB_ALERT_COMPONENT_DOCTYPES = new Set([
+        "Blood Component", "Blood Screening",
+        "Blood Component Quality Check", "Blood Storage"
+    ]);
+
+    const BB_ALERT_REQUEST_DOCTYPES = new Set([
+        "Blood Request", "Blood Reservation", "Blood Crossmatch",
+        "Blood Issue", "Blood Handover", "Blood Transfusion",
+        "Blood Unit Disposition"
+    ]);
+
+    async function bbAlertFindRelatedRecord(startDoctype, startName, targetDoctype) {
+        const donationTypes = new Set([
+            "Blood Donation", "Blood Processing", "Blood Unit",
+            "Blood Component", "Blood Screening",
+            "Blood Component Quality Check", "Blood Storage"
+        ]);
+        const requestTypes = new Set([
+            "Blood Request", "Blood Reservation", "Blood Crossmatch",
+            "Blood Issue", "Blood Handover", "Blood Transfusion",
+            "Blood Unit Disposition", "Blood Unit", "Blood Storage"
+        ]);
+        const allowed = targetDoctype === "Blood Donation"
+            ? donationTypes : requestTypes;
+
+        const fallback = {
+            blood_donation: "Blood Donation",
+            donation: "Blood Donation",
+            donation_id: "Blood Donation",
+            blood_unit: "Blood Unit",
+            blood_component: "Blood Component",
+            blood_processing: "Blood Processing",
+            blood_screening: "Blood Screening",
+            blood_request: "Blood Request",
+            request_name: "Blood Request",
+            blood_reservation: "Blood Reservation",
+            blood_crossmatch: "Blood Crossmatch",
+            blood_issue: "Blood Issue",
+            blood_handover: "Blood Handover",
+            blood_transfusion: "Blood Transfusion"
         };
 
-        if (routes[target]) {
-            routes[target]();
+        const queue = [{ doctype: startDoctype, name: startName }];
+        const seen = new Set();
+
+        while (queue.length && seen.size < 20) {
+            const current = queue.shift();
+            if (!current || !current.name || !current.doctype) continue;
+
+            const key = current.doctype + "|" + current.name;
+            if (seen.has(key)) continue;
+            seen.add(key);
+
+            if (current.doctype === targetDoctype) return current.name;
+
+            const response = await frappe.call({
+                method: "frappe.client.get",
+                args: { doctype: current.doctype, name: current.name }
+            });
+            const doc = response && response.message;
+            if (!doc) continue;
+
+            let fields = [];
+            try {
+                const meta = frappe.get_meta(current.doctype);
+                fields = meta && Array.isArray(meta.fields) ? meta.fields : [];
+            } catch (e) {}
+
+            const inspected = new Set();
+            for (const field of fields) {
+                if (field.fieldtype !== "Link" || !field.fieldname) continue;
+                inspected.add(field.fieldname);
+                const value = doc[field.fieldname];
+                const linkedType = field.options;
+                if (!value || typeof value !== "string" || !linkedType) continue;
+                if (linkedType === targetDoctype) return value;
+                if (allowed.has(linkedType)) {
+                    queue.push({ doctype: linkedType, name: value });
+                }
+            }
+
+            for (const [fieldname, linkedType] of Object.entries(fallback)) {
+                if (inspected.has(fieldname)) continue;
+                const value = doc[fieldname];
+                if (!value || typeof value !== "string") continue;
+                if (linkedType === targetDoctype) return value;
+                if (allowed.has(linkedType)) {
+                    queue.push({ doctype: linkedType, name: value });
+                }
+            }
+        }
+        return "";
+    }
+
+    async function bbAlertOpenRecord(button) {
+        const doctype = button.dataset.bbAlertRecordDoctype || "";
+        const name = button.dataset.bbAlertRecordName || "";
+        if (!doctype || !name) {
+            frappe.msgprint(__("رقم السجل أو نوعه غير محدد."));
+            return;
+        }
+
+        button.disabled = true;
+        try {
+            if (BB_ALERT_INITIAL_DOCTYPES.has(doctype)) {
+                sessionStorage.setItem(
+                    "bb_initial_work_report_selection",
+                    JSON.stringify({ doctype, name })
+                );
+                frappe.set_route("blood-bank-initial-work");
+                return;
+            }
+
+            if (BB_ALERT_COMPONENT_DOCTYPES.has(doctype)) {
+                const donation = await bbAlertFindRelatedRecord(
+                    doctype, name, "Blood Donation"
+                );
+                if (!donation) {
+                    frappe.msgprint(__(
+                        "تعذر تحديد التبرع المرتبط؛ لم يُفتح نموذج DocType القياسي."
+                    ));
+                    return;
+                }
+                frappe.route_options = Object.assign({}, frappe.route_options || {}, {
+                    donation_id: donation,
+                    bb_alert_target_doctype: doctype,
+                    bb_alert_target_name: name
+                });
+                frappe.set_route("blood-bank-component-work");
+                return;
+            }
+
+            if (BB_ALERT_REQUEST_DOCTYPES.has(doctype)) {
+                const request = await bbAlertFindRelatedRecord(
+                    doctype, name, "Blood Request"
+                );
+                if (!request) {
+                    frappe.msgprint(__(
+                        "تعذر تحديد طلب الدم المرتبط؛ لم يُفتح نموذج DocType القياسي."
+                    ));
+                    return;
+                }
+                frappe.route_options = Object.assign({}, frappe.route_options || {}, {
+                    blood_request: request,
+                    bb_alert_target_doctype: doctype,
+                    bb_alert_target_name: name
+                });
+                frappe.set_route("blood-bank-request-work");
+                return;
+            }
+
+            frappe.msgprint(__("لا توجد صفحة عمل مخصصة مرتبطة بهذا النوع من السجلات."));
+        } catch (error) {
+            console.error("Blood Bank alert navigation:", error);
+            frappe.msgprint({
+                title: __("تعذر فتح السجل"),
+                message: (error && error.message) || __("حدث خطأ أثناء فتح السجل.")
+            });
+        } finally {
+            if (button.isConnected) button.disabled = false;
+        }
+    }
+
+    async function showAlertRecords(panel, card) {
+        const doctype = card.dataset.bbAlertDoctype;
+        const titleNode = card.querySelector(".bb-wa-title");
+        const alertTitle = titleNode
+            ? titleNode.textContent
+            : "السجلات المرتبطة بالتنبيه";
+
+        let filters;
+        try {
+            filters = JSON.parse(card.dataset.bbAlertFilters || "{}");
+        } catch (error) {
+            console.error("Invalid Blood Bank alert filters:", error);
+            frappe.msgprint(__("تعذر قراءة شروط التنبيه."));
+            return;
+        }
+
+        if (!doctype || !filters || typeof filters !== "object") {
+            frappe.msgprint(__("بيانات التنبيه غير مكتملة."));
+            return;
+        }
+
+        const signature = doctype + "|" + JSON.stringify(filters);
+        const previous = panel.querySelector(".bb-wa-record-details");
+
+        if (previous && previous.dataset.signature === signature) {
+            previous.hidden = !previous.hidden;
+            if (!previous.hidden) {
+                previous.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            }
+            return;
+        }
+
+        if (previous) previous.remove();
+
+        const details = document.createElement("section");
+        details.className = "bb-wa-record-details";
+        details.dataset.signature = signature;
+
+        const header = document.createElement("div");
+        header.className = "bb-wa-record-details-header";
+
+        const heading = document.createElement("h4");
+        heading.textContent = alertTitle + " — السجلات المطابقة";
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "btn btn-default btn-sm";
+        close.dataset.bbAlertDetailsClose = "1";
+        close.textContent = "إغلاق ✕";
+        close.setAttribute("aria-label", "إغلاق تفاصيل السجلات");
+
+        header.append(heading, close);
+
+        const status = document.createElement("p");
+        status.className = "bb-wa-record-status";
+        status.textContent = "جارٍ تحميل السجلات المطابقة…";
+
+        const list = document.createElement("div");
+        list.className = "bb-wa-record-list";
+
+        const more = document.createElement("button");
+        more.type = "button";
+        more.className = "btn btn-default btn-sm bb-wa-load-more";
+        more.dataset.bbAlertLoadMore = "1";
+        more.textContent = "تحميل المزيد";
+        more.hidden = true;
+
+        details.append(header, status, list, more);
+
+        const alertGrid = panel.querySelector(".bb-wa-grid");
+        if (alertGrid) {
+            alertGrid.insertAdjacentElement("afterend", details);
+        } else {
+            panel.appendChild(details);
+        }
+
+        let meta = null;
+        try {
+            if (typeof frappe.get_meta === "function") {
+                meta = frappe.get_meta(doctype);
+            }
+        } catch (error) {
+            console.warn("Blood Bank alert metadata:", error);
+        }
+
+        const definitions = meta && Array.isArray(meta.fields)
+            ? meta.fields
+            : [];
+
+        const validFields = new Set(
+            ["name"].concat(
+                definitions.map(field => field.fieldname).filter(Boolean)
+            )
+        );
+
+        const candidates = [
+            meta && meta.title_field,
+            ...Object.keys(filters)
+        ];
+
+        const fields = ["name"];
+        candidates.forEach(function (fieldname) {
+            if (
+                fieldname &&
+                validFields.has(fieldname) &&
+                !fields.includes(fieldname)
+            ) {
+                fields.push(fieldname);
+            }
+        });
+
+        const labels = {};
+        definitions.forEach(function (field) {
+            if (field.fieldname) {
+                labels[field.fieldname] = field.label || field.fieldname;
+            }
+        });
+        labels.name = "رقم السجل";
+
+        details.__bbAlertState = {
+            doctype: doctype,
+            filters: filters,
+            fields: fields,
+            labels: labels,
+            offset: 0,
+            loaded: 0,
+            pageSize: 50,
+            total: Number(card.dataset.bbAlertCount || 0),
+            loading: false,
+            status: status,
+            list: list
+        };
+
+        await loadAlertRecordPage(details);
+
+        if (details.isConnected) {
+            details.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
         }
     }
 
@@ -351,6 +765,9 @@
         card.type = "button";
         card.className = `bb-wa-card bb-wa-${item.level}`;
         card.dataset.bbAlertRoute = item.route;
+        card.dataset.bbAlertDoctype = item.doctype;
+        card.dataset.bbAlertFilters = JSON.stringify(item.filters || {});
+        card.dataset.bbAlertCount = String(Number(item.count || 0));
         card.setAttribute(
             "aria-label",
             `${item.title}: ${Number(item.count).toLocaleString("en-US")}`
@@ -378,7 +795,7 @@
 
         const action = document.createElement("span");
         action.className = "bb-wa-action";
-        action.textContent = "فتح شاشة المتابعة ←";
+        action.textContent = "عرض السجلات المطابقة ←";
 
         topline.append(icon, count);
         card.append(topline, title, message, action);
@@ -545,9 +962,31 @@
                 return;
             }
 
+            const closeDetails = event.target.closest(
+                "[data-bb-alert-details-close]"
+            );
+            if (closeDetails && panel.contains(closeDetails)) {
+                const details = panel.querySelector(".bb-wa-record-details");
+                if (details) details.remove();
+                return;
+            }
+
+            const loadMore = event.target.closest("[data-bb-alert-load-more]");
+            if (loadMore && panel.contains(loadMore)) {
+                const details = loadMore.closest(".bb-wa-record-details");
+                if (details) loadAlertRecordPage(details);
+                return;
+            }
+
+            const recordButton = event.target.closest("[data-bb-alert-record-open]");
+            if (recordButton && panel.contains(recordButton)) {
+                bbAlertOpenRecord(recordButton);
+                return;
+            }
+
             const routeButton = event.target.closest("[data-bb-alert-route]");
-            if (routeButton) {
-                openFollowup(routeButton.dataset.bbAlertRoute);
+            if (routeButton && panel.contains(routeButton)) {
+                showAlertRecords(panel, routeButton);
             }
         });
 
@@ -570,6 +1009,8 @@
         summary.textContent = "جارٍ فحص الحالات المسجلة…";
         errors.hidden = true;
         errors.textContent = "";
+        const openDetails = panel.querySelector(".bb-wa-record-details");
+        if (openDetails) openDetails.remove();
         grid.replaceChildren();
 
         try {

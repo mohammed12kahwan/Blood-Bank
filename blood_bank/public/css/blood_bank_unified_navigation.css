@@ -50,3 +50,314 @@
         flex: 1 1 calc(50% - 5px);
     }
 }
+
+/* BB_UNIFIED_NAV_BUTTON_COLORS_V1 */
+
+/* الأزرار موحّدة في الحجم، ومتميزة في اللون والأيقونة */
+.bb-unified-navigation .bb-unified-nav-button {
+    color: #fff !important;
+    font-weight: 600;
+    border-width: 1px;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="workspace"] {
+    background: #334155 !important;
+    border-color: #334155 !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="initial"] {
+    background: #b42332 !important;
+    border-color: #b42332 !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="staff"] {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="component"] {
+    background: #7c3aed !important;
+    border-color: #7c3aed !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="request"] {
+    background: #0f766e !important;
+    border-color: #0f766e !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="donation-report"] {
+    background: #c2410c !important;
+    border-color: #c2410c !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="request-report"] {
+    background: #0369a1 !important;
+    border-color: #0369a1 !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button[data-target-id="initial-report"] {
+    background: #4b5563 !important;
+    border-color: #4b5563 !important;
+}
+
+.bb-unified-navigation .bb-unified-nav-button:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.bb-unified-navigation .bb-unified-nav-button:focus-visible {
+    outline: 2px solid var(--text-color, #111827);
+    outline-offset: 2px;
+}
+
+.bb-unified-navigation .bb-unified-nav-button.bb-unified-nav-active {
+    box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.95);
+    border-color: #fff !important;
+    filter: brightness(1.06);
+}
+
+/* END BB_UNIFIED_NAV_BUTTON_COLORS_V1 */
+
+/* BB_SHARED_BUTTON_DESIGN_SYSTEM_V1 */
+
+/* نظام تصميم مشترك لأزرار بنك الدم */
+:root {
+    --bb-color-create: #15803d;
+    --bb-color-save: #1d4ed8;
+    --bb-color-refresh: #0f766e;
+    --bb-color-navigation: #475569;
+    --bb-color-list: #6d28d9;
+    --bb-color-home: #334155;
+    --bb-color-bank: #b42332;
+    --bb-color-neutral-bg: #f1f5f9;
+    --bb-color-neutral-text: #334155;
+    --bb-button-radius: 6px;
+    --bb-button-min-height: 34px;
+}
+
+/* توحيد ارتفاع الأزرار والخط والمحاذاة في مجموعات الواجهة */
+.bb-navigation-root .bb-nav-main-btn,
+.bb-navigation-root .bb-nav-windows-btn,
+.bb-cw-root .bb-cw-toolbar .btn,
+.bb-rw-root .bb-rw-toolbar .btn,
+.bb-iw-root .bb-iw-toolbar .btn,
+.bb-iw-root .bb-iw-shared-buttons .btn,
+.bb-staff-page .btn,
+.bb-unified-navigation .bb-unified-nav-button {
+    min-height: var(--bb-button-min-height);
+    border-radius: var(--bb-button-radius);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+    transition: background-color .15s ease, filter .15s ease,
+                box-shadow .15s ease;
+}
+
+/* نفس اللون للإجراء نفسه في التنقل العام */
+.bb-navigation-root .bb-btn-new {
+    background: var(--bb-color-create) !important;
+    border-color: var(--bb-color-create) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-save,
+#bb-cw-root #bb-cw-save,
+#bb-rw-root #bb-rw-save {
+    background: var(--bb-color-save) !important;
+    border-color: var(--bb-color-save) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-refresh,
+.bb-navigation-root [class*="bb-btn-update"] {
+    background: var(--bb-color-refresh) !important;
+    border-color: var(--bb-color-refresh) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-prev,
+.bb-navigation-root .bb-btn-next {
+    background: var(--bb-color-navigation) !important;
+    border-color: var(--bb-color-navigation) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-list {
+    background: var(--bb-color-list) !important;
+    border-color: var(--bb-color-list) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-bank {
+    background: var(--bb-color-bank) !important;
+    border-color: var(--bb-color-bank) !important;
+    color: #fff !important;
+}
+
+.bb-navigation-root .bb-btn-home {
+    background: var(--bb-color-home) !important;
+    border-color: var(--bb-color-home) !important;
+    color: #fff !important;
+}
+
+/* توحيد دلالة ألوان Bootstrap في النوافذ التشغيلية */
+.bb-cw-root .btn-primary,
+.bb-rw-root .btn-primary,
+.bb-iw-root .btn-primary,
+.bb-staff-page .btn-primary {
+    background-color: var(--bb-color-save) !important;
+    border-color: var(--bb-color-save) !important;
+    color: #fff !important;
+}
+
+.bb-cw-root .btn-success,
+.bb-rw-root .btn-success,
+.bb-iw-root .btn-success,
+.bb-staff-page .btn-success {
+    background-color: var(--bb-color-create) !important;
+    border-color: var(--bb-color-create) !important;
+    color: #fff !important;
+}
+
+.bb-cw-root .btn-info,
+.bb-rw-root .btn-info,
+.bb-iw-root .btn-info,
+.bb-staff-page .btn-info {
+    background-color: var(--bb-color-refresh) !important;
+    border-color: var(--bb-color-refresh) !important;
+    color: #fff !important;
+}
+
+/* إبقاء التحذير والإلغاء بلونين واضحين ومتسقين */
+.bb-cw-root .btn-danger,
+.bb-rw-root .btn-danger,
+.bb-iw-root .btn-danger,
+.bb-staff-page .btn-danger {
+    background-color: #b42332 !important;
+    border-color: #b42332 !important;
+    color: #fff !important;
+}
+
+.bb-cw-root .btn-warning,
+.bb-rw-root .btn-warning,
+.bb-iw-root .btn-warning,
+.bb-staff-page .btn-warning {
+    background-color: #fef3c7 !important;
+    border-color: #d97706 !important;
+    color: #78350f !important;
+}
+
+/* الأزرار المحايدة؛ لا نغيّر الأزرار ذات دلالات الحالة أعلاه */
+.bb-cw-root .btn-default,
+.bb-rw-root .btn-default,
+.bb-iw-root .btn-default,
+.bb-staff-page .btn-default {
+    background-color: var(--bb-color-neutral-bg);
+    border-color: #cbd5e1;
+    color: var(--bb-color-neutral-text);
+}
+
+/* استجابة موحّدة عند التحويم والتركيز */
+.bb-navigation-root .bb-nav-main-btn:hover,
+.bb-navigation-root .bb-nav-windows-btn:hover,
+.bb-cw-root .bb-cw-toolbar .btn:hover,
+.bb-rw-root .bb-rw-toolbar .btn:hover,
+.bb-iw-root .bb-iw-toolbar .btn:hover,
+.bb-iw-root .bb-iw-shared-buttons .btn:hover,
+.bb-staff-page .btn:hover,
+.bb-unified-navigation .bb-unified-nav-button:hover {
+    filter: brightness(1.06);
+}
+
+.bb-navigation-root button:focus-visible,
+.bb-cw-root .bb-cw-toolbar .btn:focus-visible,
+.bb-rw-root .bb-rw-toolbar .btn:focus-visible,
+.bb-iw-root .bb-iw-toolbar .btn:focus-visible,
+.bb-staff-page .btn:focus-visible,
+.bb-unified-navigation .bb-unified-nav-button:focus-visible {
+    outline: 2px solid var(--text-color, #111827);
+    outline-offset: 2px;
+}
+
+/* END BB_SHARED_BUTTON_DESIGN_SYSTEM_V1 */
+
+/* BB_REPORT_FILTER_ONE_ROW_SHARED_V1 */
+
+/* صف الفلاتر في التقارير الثلاثة */
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form.row,
+.bb-request-tracking-report.bb-request-tracking-report .page-form.row,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form.row {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: flex-end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 10px !important;
+    padding: 8px 0 10px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form.row::before,
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form.row::after,
+.bb-request-tracking-report.bb-request-tracking-report .page-form.row::before,
+.bb-request-tracking-report.bb-request-tracking-report .page-form.row::after,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form.row::before,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form.row::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* عرض متوازن لجميع عناصر الفلترة دون إنشاء صف إضافي */
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form.row > .frappe-control,
+.bb-request-tracking-report.bb-request-tracking-report .page-form.row > .frappe-control,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form.row > .frappe-control {
+    display: block !important;
+    float: none !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
+    box-sizing: border-box !important;
+}
+
+/* إبقاء أسماء الحقول ظاهرة مع السماح بالتفاف نص التسمية فقط */
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form .control-label,
+.bb-request-tracking-report.bb-request-tracking-report .page-form .control-label,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form .control-label {
+    display: block !important;
+    visibility: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+}
+
+/* الحقول النصية والتواريخ والقوائم */
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form .form-control,
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form input,
+.bb-donation-tracking-report.bb-donation-tracking-report .page-form select,
+.bb-request-tracking-report.bb-request-tracking-report .page-form .form-control,
+.bb-request-tracking-report.bb-request-tracking-report .page-form input,
+.bb-request-tracking-report.bb-request-tracking-report .page-form select,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form .form-control,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form input,
+.bb-initial-work-tracking-report.bb-initial-work-tracking-report .page-form select {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* END BB_REPORT_FILTER_ONE_ROW_SHARED_V1 */

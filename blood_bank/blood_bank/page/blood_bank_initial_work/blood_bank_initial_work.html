@@ -29,9 +29,27 @@
     <div class="bb-iw-shared-bar">
       <span id="iw-active-window-title">المتبرع | Donor</span>
       <div class="bb-iw-shared-buttons">
-        <button type="button" class="btn btn-default" id="iw-actions-active">
-          ⚙ الإجراءات | Actions
-        </button>
+        <div class="bb-iw-actions-wrap">
+          <button
+            type="button"
+            class="btn btn-default"
+            id="iw-actions-active"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="iw-actions-menu">
+            ⚙ الإجراءات | Actions <span aria-hidden="true">▾</span>
+          </button>
+          <div
+            id="iw-actions-menu"
+            class="bb-iw-actions-menu"
+            role="menu"
+            aria-label="إجراءات سير العمل"
+            hidden>
+            <div class="text-muted">
+              اختر سجلًا لعرض إجراءات سير العمل المتاحة.
+            </div>
+          </div>
+        </div>
         <button type="button" class="btn btn-primary" id="iw-save-active">
           💾 حفظ | Save
         </button>

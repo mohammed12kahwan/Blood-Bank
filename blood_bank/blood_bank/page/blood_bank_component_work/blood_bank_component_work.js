@@ -168,17 +168,140 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
         return false;
     }
 
+
+    /* BB_COMPONENT_GROUP_VERIFICATION_BUTTON_V1 */
+    function updateGroupVerificationButton() {
+        const wrap = root.find("#bb-cw-screening-actions");
+        const visible = Number(state.index) === 1;
+        if (wrap.length) {
+            wrap.prop("hidden", !visible);
+            wrap.css("display", visible ? "flex" : "none");
+        }
+    }
+
+    function openGroupVerificationDialog() {
+        if (Number(state.index) !== 1) return;
+
+        const screening = state.doc || {};
+        const unitName =
+            screening.blood_unit ||
+            state.context?.source_link_check?.unit?.name ||
+            "";
+
+        if (!unitName) {
+            frappe.msgprint(
+                __("لا توجد وحدة دم مرتبطة بمرحلة الفحص الحالية. اربط وحدة الدم بالتبرع والمعالجة أولاً.")
+            );
+            return;
+        }
+
+        frappe.prompt(
+            [
+                {
+                    fieldname: "screening_name",
+                    fieldtype: "Link",
+                    label: __("Blood Screening / سجل فحص العينة"),
+                    options: "Blood Screening",
+                    default: screening.blood_unit ? screening.name : "",
+                    get_query: function () {
+                        return {
+                            filters: {
+                                blood_unit: unitName,
+                                screening_status: [
+                                    "in",
+                                    ["Screening", "Results Review"]
+                                ],
+                                sample_id: ["!=", ""]
+                            }
+                        };
+                    },
+                    reqd: 1
+                },
+                {
+                    fieldname: "tested_abo_group",
+                    fieldtype: "Select",
+                    label: __("Observed ABO / نتيجة ABO"),
+                    options: "\nA\nB\nAB\nO",
+                    reqd: 1
+                },
+                {
+                    fieldname: "tested_rh_factor",
+                    fieldtype: "Select",
+                    label: __("Observed Rh / نتيجة Rh"),
+                    options: "\nPositive\nNegative",
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_method",
+                    fieldtype: "Data",
+                    label: __("Test Method / طريقة الفحص"),
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_reference",
+                    fieldtype: "Data",
+                    label: __("Lab Reference / مرجع المختبر")
+                },
+                {
+                    fieldname: "sample_identity_confirmed",
+                    fieldtype: "Check",
+                    label: __("تمت مطابقة بطاقة العينة الفعلية مع سجل الفحص"),
+                    default: 0,
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_notes",
+                    fieldtype: "Small Text",
+                    label: __("Test Notes / ملاحظات الفحص")
+                }
+            ],
+            function (values) {
+                if (!values.sample_identity_confirmed) {
+                    frappe.msgprint(
+                        __("يجب تأكيد مطابقة بطاقة العينة الفعلية قبل التسجيل.")
+                    );
+                    return;
+                }
+
+                frappe.call({
+                    method: "blood_bank.blood_bank.doctype.blood_group_verification.blood_group_verification.record_group_test",
+                    args: {
+                        unit_name: unitName,
+                        screening_name: values.screening_name,
+                        tested_abo_group: values.tested_abo_group,
+                        tested_rh_factor: values.tested_rh_factor,
+                        test_method: values.test_method,
+                        test_reference: values.test_reference,
+                        sample_identity_confirmed: values.sample_identity_confirmed,
+                        test_notes: values.test_notes
+                    },
+                    freeze: true,
+                    callback: function (r) {
+                        if (!r.message) return;
+                        frappe.msgprint(r.message.message);
+                    }
+                });
+            },
+            __("Record Blood Group Test / تسجيل نتيجة الفحص"),
+            __("Save Test Record / حفظ سجل الفحص")
+        );
+    }
+
+    /* BB_COMPONENT_TABS_NATIVE_V3 */
     function renderTabs() {
-        root.find("[data-stage]").each(function () {
+        root.find("#bb-cw-stage-tabs [data-stage]").each(function () {
             const index = Number(this.dataset.stage);
             const enabled = canOpenStage(index);
+            const active = index === state.index;
 
-            $(this).closest("li")
-                .toggleClass("disabled", !enabled)
-                .toggleClass("active", index === state.index);
-
-            $(this).attr("aria-disabled", String(!enabled));
+            $(this)
+                .toggleClass("is-active", active)
+                .toggleClass("is-disabled", !enabled)
+                .prop("disabled", !enabled)
+                .attr("aria-disabled", String(!enabled))
+                .attr("aria-selected", String(active));
         });
+        updateGroupVerificationButton();
     }
 
     function renderDonationSummary() {
@@ -608,6 +731,92 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
             state.name = result.name;
             await loadRecord(result.name);
 
+            /* BB_COMPONENT_AUTO_ADVANCE_TO_SCREENING_V2 */
+            if (state.index === 0) {
+                const unitName =
+                    state.doc?.blood_unit ||
+                    state.context?.source_link_check?.unit?.name ||
+                    "";
+
+                const screeningRows = (
+                    state.context?.screening_records || []
+                ).filter(row => row.blood_unit === unitName);
+
+                const passedRows = screeningRows.filter(row =>
+                    row.screening_status === "Accepted" &&
+                    row.overall_result === "Passed"
+                );
+
+                // إذا كان الفحص مقبولًا مسبقًا، انتقل إلى الجودة
+                // بعد التأكد من حالة المكوّن.
+                if (passedRows.length === 1) {
+                    const savedComponent = (
+                        state.context?.component_records || []
+                    ).find(row => row.name === result.name);
+
+                    if (savedComponent?.component_status === "Created") {
+                        await call(API.action, {
+                            doctype: "Blood Component",
+                            name: result.name,
+                            donation_name: state.donation,
+                            action: "Send to Quality Check"
+                        });
+
+                        state.context = await call(API.context, {
+                            donation_name: state.donation
+                        });
+                        renderDonationSummary();
+                    } else if (
+                        savedComponent?.component_status !== "Quality Check"
+                    ) {
+                        notify(
+                            "تعذر الانتقال التلقائي إلى الجودة: حالة المكوّن غير متوقعة.",
+                            "orange"
+                        );
+                        return;
+                    }
+
+                    state.index = 2;
+                    state.name = "";
+                    state.doc = null;
+                    state.isNew = false;
+                    await renderStage();
+                    notify(
+                        "تم تحديد فحص دم مقبول والانتقال إلى فحص الجودة.",
+                        "green"
+                    );
+                    return;
+                }
+
+                state.index = 1;
+                state.doc = null;
+                state.name = "";
+
+                const usableScreens = screeningRows.filter(
+                    row => row.screening_status !== "Rejected"
+                );
+
+                if (usableScreens.length === 1) {
+                    state.name = usableScreens[0].name;
+                    state.isNew = false;
+                    await renderStage();
+                    await loadRecord(usableScreens[0].name);
+                } else if (usableScreens.length === 0) {
+                    state.isNew = true;
+                    await renderStage();
+                } else {
+                    // عند وجود أكثر من فحص، لا نختار سجلًا عشوائيًا.
+                    state.isNew = false;
+                    await renderStage();
+                }
+
+                notify(
+                    "تم حفظ المكوّن والانتقال تلقائيًا إلى نافذة فحص الدم.",
+                    "green"
+                );
+                return;
+            }
+
             notify(`تم حفظ ${result.name} بنجاح.`, "green");
         } catch (error) {
             console.error(error);
@@ -665,20 +874,52 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
 
                     renderDonationSummary();
 
-                    // After screening acceptance, the Component transition
-                    // Send to Quality Check must occur before the QC stage.
+                    let actionNotice = `تم تنفيذ الإجراء: ${action}`;
+                    let actionNoticeColor = "green";
+
+                    // BB_AUTO_QUALITY_NAV_AFTER_SCREENING_ACCEPT_V2
                     if (
                         oldIndex === 1 &&
                         action === "Accept Screening"
                     ) {
-                        state.index = 0;
+                        state.index = 2;
                         state.name = "";
                         state.doc = null;
                         state.isNew = false;
+                        actionNotice =
+                            "تم قبول فحص الدم والانتقال تلقائيًا إلى نافذة فحص الجودة.";
+                    }
+
+                    /* BB_AUTO_STORAGE_NAV_AFTER_QUALITY_PASS_V1 */
+                    if (
+                        oldIndex === 2 &&
+                        action === "Pass Quality Check"
+                    ) {
+                        const passedRecord = (
+                            state.context?.quality_records || []
+                        ).some(qc =>
+                            qc.name === state.name &&
+                            qc.qc_status === "Passed" &&
+                            qc.overall_result === "Passed"
+                        );
+
+                        if (passedRecord && canOpenStage(3)) {
+                            state.index = 3;
+                            state.name = "";
+                            state.doc = null;
+                            state.isNew = false;
+
+                            actionNotice =
+                                "نجح فحص الجودة، وتم الانتقال تلقائيًا إلى نافذة التخزين.";
+                        } else {
+                            actionNotice =
+                                "تم تنفيذ الإجراء، لكن شروط فتح التخزين لم تكتمل. تحقق من حالة الجودة وفحص الدم.";
+                            actionNoticeColor = "orange";
+                        }
                     }
 
                     await renderStage();
-                    notify(`تم تنفيذ الإجراء: ${action}`, "green");
+                    notify(actionNotice, actionNoticeColor);
                 } catch (error) {
                     console.error(error);
                     notify(error?.message || `تعذر تنفيذ ${action}.`, "red");
@@ -703,21 +944,66 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
         await renderStage();
     }
 
+    /* BB_ALERT_TARGET_RESTORE_V1 */
     async function restoreDonationFromRoute() {
-        const routeOptions = frappe.route_options || {};
-        const routeDonation = routeOptions.donation_id || "";
+        // Do not consume route options before this page has loaded its schema.
+        if (state.loading || !Object.keys(state.schemas).length) return;
+
+        const options = frappe.route_options || {};
+        const routeDonation = options.donation_id || "";
+        const targetDoctype = options.bb_alert_target_doctype || "";
+        const targetName = options.bb_alert_target_name || "";
         const cachedDonation =
             sessionStorage.getItem("bb_component_work_donation_id") || "";
-
         const donationName = routeDonation || cachedDonation;
 
-        if (routeDonation && frappe.route_options) {
+        if (frappe.route_options) {
             delete frappe.route_options.donation_id;
+            delete frappe.route_options.bb_alert_target_doctype;
+            delete frappe.route_options.bb_alert_target_name;
         }
 
-        if (donationName) {
-            sessionStorage.removeItem("bb_component_work_donation_id");
-            await loadDonation(donationName);
+        try {
+            if (donationName) {
+                sessionStorage.removeItem("bb_component_work_donation_id");
+                if (routeDonation || !state.context || state.donation !== donationName) {
+                    await loadDonation(donationName);
+                }
+            }
+
+            if (!targetDoctype || !targetName) return;
+
+            const targetIndex = STAGES.findIndex(
+                item => item.doctype === targetDoctype
+            );
+            if (targetIndex < 0) {
+                notify("نوع السجل غير موجود في نافذة متابعة المكونات.", "orange");
+                return;
+            }
+            if (!state.donation || !state.context) {
+                notify("تعذر تحميل التبرع المرتبط بالسجل.", "red");
+                return;
+            }
+            if (!canOpenStage(targetIndex)) {
+                notify("لا يمكن فتح هذه المرحلة قبل استكمال المتطلبات السابقة.", "orange");
+                return;
+            }
+
+            state.index = targetIndex;
+            state.name = targetName;
+            state.doc = null;
+            state.isNew = false;
+
+            const rows = currentStageRows();
+            if (rows.some(row => row.name === targetName)) {
+                await renderStage();
+            } else {
+                // Load the requested record, never silently select another one.
+                await loadRecord(targetName);
+            }
+        } catch (error) {
+            console.error("Blood Bank alert component selection:", error);
+            notify("تعذر تحميل السجل المحدد داخل نافذة متابعة المكونات.", "red");
         }
     }
 
@@ -766,10 +1052,15 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
     });
 
 
+    root.on("click", "#bb-cw-group-verification", function (event) {
+        event.preventDefault();
+        openGroupVerificationDialog();
+    });
+
     root.on("click", "[data-stage]", function (event) {
         event.preventDefault();
 
-        if ($(this).closest("li").hasClass("disabled")) return;
+        if (this.disabled || $(this).hasClass("is-disabled")) return;
         setStage(Number(this.dataset.stage));
     });
 

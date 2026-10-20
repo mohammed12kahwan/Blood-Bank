@@ -97,6 +97,95 @@ frappe.query_reports["Blood Donation Tracking"] = {
 
     onload: function (report) {
         const wrapper = report.page.wrapper;
+        /* BB_REPORT_PRINT_BUTTON_V3_DIRECT */
+        if (!$(report.page.wrapper).find(".bb-report-print-button").length) {
+            if (!document.getElementById("bbReportPrintButtonStyle")) {
+                const printStyle = document.createElement("style");
+                printStyle.id = "bbReportPrintButtonStyle";
+                printStyle.textContent = `
+                    .bb-report-print-button {
+                        background: #0369a1 !important;
+                        border-color: #0369a1 !important;
+                        color: #fff !important;
+                        font-weight: 700 !important;
+                        border-radius: 5px !important;
+                    }
+                    .bb-report-print-button:hover {
+                        background: #075985 !important;
+                        border-color: #075985 !important;
+                        color: #fff !important;
+                    }
+                `;
+                document.head.appendChild(printStyle);
+            }
+
+            const printButton = report.page.add_inner_button(
+                "🖨️ طباعة التقرير",
+                function () {
+                    if (
+                        !report.report_doc ||
+                        typeof report.print_report !== "function"
+                    ) {
+                        frappe.msgprint({
+                            title: __("تعذر الطباعة"),
+                            message: __("لا تتوفر وظيفة طباعة التقرير حاليًا.")
+                        });
+                        return;
+                    }
+
+                    const refDoctype = report.report_doc.ref_doctype;
+                    if (
+                        refDoctype &&
+                        frappe.model &&
+                        typeof frappe.model.can_print === "function" &&
+                        !frappe.model.can_print(refDoctype)
+                    ) {
+                        frappe.msgprint({
+                            title: __("صلاحية الطباعة"),
+                            message: __("ليس لديك صلاحية طباعة هذا التقرير.")
+                        });
+                        return;
+                    }
+
+                    const visibleColumns =
+                        typeof report.get_visible_columns === "function"
+                            ? report.get_visible_columns()
+                            : [];
+
+                    // طباعة مباشرة باستخدام قالب التقرير الافتراضي،
+                    // من دون فتح نافذة إعدادات الطباعة في Frappe.
+                    const printSettings = {
+                        orientation: visibleColumns.length > 5
+                            ? "Landscape"
+                            : "Portrait",
+                        include_filters: true,
+                        columns: [],
+                        with_letter_head: !!report.report_doc.letter_head,
+                        letter_head_name: report.report_doc.letter_head || null
+                    };
+
+                    Promise.resolve(
+                        report.print_report(printSettings)
+                    ).catch(function (error) {
+                        console.error("Blood Bank direct report print:", error);
+                        frappe.msgprint({
+                            title: __("تعذر الطباعة"),
+                            message: __("تعذر تجهيز التقرير للطباعة. راجع سجل المتصفح.")
+                        });
+                    });
+                },
+                null,
+                "primary"
+            );
+
+            if (printButton && typeof printButton.addClass === "function") {
+                printButton
+                    .addClass("bb-report-print-button")
+                    .attr("title", __("طباعة التقرير مباشرة"));
+            }
+        }
+        /* END BB_REPORT_PRINT_BUTTON_V3_DIRECT */
+
 
         // BB-REPORT-FILTERS-ONE-ROW-V1
         $(wrapper)
@@ -168,31 +257,6 @@ frappe.query_reports["Blood Donation Tracking"] = {
             document.head.appendChild(style);
         }
 
-
-
-        // BB_GLOBAL_NAV_REPORT
-        if (!report.page.__bbGlobalNavAdded) {
-            report.page.__bbGlobalNavAdded = true;
-            const navigationItems = [
-                ["⌂ قائمة عمل بنك الدم", "workspace"],
-                ["🩸 قائمة مكونات الدم", "donation_report"],
-                ["📋 قائمة طلبات الدم", "request_report"],
-                ["🧪 قوائم بنك الدم", "component_work"],
-                ["🩸 متابعة طلبات الدم", "request_work"]
-            ];
-            const navigationRoutes = {
-                workspace: () => frappe.set_route("blood-bank-ui-test"),
-                donation_report: () => frappe.set_route("query-report", "Blood Donation Tracking"),
-                request_report: () => frappe.set_route("query-report", "Blood Request Tracking"),
-                component_work: () => frappe.set_route("blood-bank-component-work"),
-                request_work: () => frappe.set_route("blood-bank-request-work")
-            };
-            navigationItems.forEach(([label, target]) => {
-                report.page.add_inner_button(__(label), function() {
-                    navigationRoutes[target]();
-                });
-            });
-        }
 
 
         $(wrapper)

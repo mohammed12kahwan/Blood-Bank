@@ -50,10 +50,10 @@
  "fields": [
   {
    "default": "DON-.YYYY.-.#####",
-   "description": "Automatically generated donor number / يتم إنشاء رقم المتبرع تلقائيًا",
+   "description": "Automatically generated donor number / \u064a\u062a\u0645 \u0625\u0646\u0634\u0627\u0621 \u0631\u0642\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627",
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "رقم المتبرع | Donor ID",
+   "label": "\u0631\u0642\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Donor ID",
    "options": "DON-.YYYY.-.#####",
    "read_only": 1,
    "reqd": 1
@@ -63,7 +63,7 @@
    "fieldname": "donor_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "حالة المتبرع | Donor Status",
+   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Donor Status",
    "options": "New\nUnder Assessment\nEligible\nDeferred\nRejected\nReady for Donation",
    "read_only": 1,
    "reqd": 1
@@ -72,81 +72,81 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "الاسم الكامل | Full Name",
+   "label": "\u0627\u0644\u0627\u0633\u0645 \u0627\u0644\u0643\u0627\u0645\u0644 | Full Name",
    "reqd": 1
   },
   {
    "fieldname": "date_of_birth",
    "fieldtype": "Date",
-   "label": "تاريخ الميلاد | Date of Birth",
+   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0645\u064a\u0644\u0627\u062f | Date of Birth",
    "reqd": 1
   },
   {
    "fieldname": "gender",
    "fieldtype": "Select",
-   "label": "الجنس | Gender",
+   "label": "\u0627\u0644\u062c\u0646\u0633 | Gender",
    "options": "Male\nFemale\nOther"
   },
   {
    "fieldname": "national_id",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "رقم الهوية | National ID"
+   "label": "\u0631\u0642\u0645 \u0627\u0644\u0647\u0648\u064a\u0629 | National ID"
   },
   {
    "fieldname": "donor_type",
    "fieldtype": "Select",
-   "label": "نوع المتبرع | Donor Type",
+   "label": "\u0646\u0648\u0639 \u0627\u0644\u0645\u062a\u0628\u0631\u0639 | Donor Type",
    "options": "Voluntary\nReplacement\nDirected\nOther"
   },
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "رقم الهاتف | Mobile Number"
+   "label": "\u0631\u0642\u0645 \u0627\u0644\u0647\u0627\u062a\u0641 | Mobile Number"
   },
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
-   "label": "البريد الإلكتروني | Email",
+   "label": "\u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a | Email",
    "options": "Email"
   },
   {
    "fieldname": "address",
    "fieldtype": "Small Text",
-   "label": "العنوان | Address"
+   "label": "\u0627\u0644\u0639\u0646\u0648\u0627\u0646 | Address"
   },
   {
    "fieldname": "abo_group",
    "fieldtype": "Select",
-   "label": "فصيلة ABO | ABO Group",
-   "options": "A+\nA-\nB+\nB-\nAB+\nAB-\nO+\nO-"
+   "label": "\u0641\u0635\u064a\u0644\u0629 ABO | ABO Group",
+   "options": "A\nB\nAB\nO"
   },
   {
    "fieldname": "rh_factor",
    "fieldtype": "Select",
-   "label": "عامل Rh | Rh Factor",
+   "label": "\u0639\u0627\u0645\u0644 Rh | Rh Factor",
    "options": "Positive\nNegative"
   },
   {
-   "description": "Derived from ABO Group + Rh Factor / يتم اشتقاقها من ABO وRh",
+   "description": "Derived from ABO Group + Rh Factor / \u064a\u062a\u0645 \u0627\u0634\u062a\u0642\u0627\u0642\u0647\u0627 \u0645\u0646 ABO \u0648Rh",
    "fieldname": "blood_group",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "فصيلة الدم الكاملة | Blood Group",
+   "label": "\u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645 \u0627\u0644\u0643\u0627\u0645\u0644\u0629 | Blood Group",
    "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "blood_group_verified",
    "fieldtype": "Check",
-   "label": "تم التحقق من الفصيلة | Blood Group Verified"
+   "label": "\u062a\u0645 \u0627\u0644\u062a\u062d\u0642\u0642 \u0645\u0646 \u0627\u0644\u0641\u0635\u064a\u0644\u0629 | Blood Group Verified"
   },
   {
    "depends_on": "eval:doc.blood_group_verified==1",
    "fieldname": "blood_group_verification_date",
    "fieldtype": "Date",
-   "label": "تاريخ التحقق | Blood Group Verification Date",
+   "label": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u062d\u0642\u0642 | Blood Group Verification Date",
    "mandatory_depends_on": "eval:doc.blood_group_verified==1",
    "read_only": 1
   },
@@ -155,82 +155,82 @@
    "fieldname": "eligibility_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "حالة الأهلية | Eligibility Status",
+   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u0623\u0647\u0644\u064a\u0629 | Eligibility Status",
    "options": "Pending\nEligible\nDeferred\nRejected",
    "reqd": 1
   },
   {
    "fieldname": "eligibility_review_date",
    "fieldtype": "Date",
-   "label": "تاريخ مراجعة الأهلية | Eligibility Review Date"
+   "label": "\u062a\u0627\u0631\u064a\u062e \u0645\u0631\u0627\u062c\u0639\u0629 \u0627\u0644\u0623\u0647\u0644\u064a\u0629 | Eligibility Review Date"
   },
   {
    "fieldname": "eligibility_reviewed_by",
    "fieldtype": "Link",
-   "label": "مراجع الأهلية | Eligibility Reviewed By",
+   "label": "\u0645\u0631\u0627\u062c\u0639 \u0627\u0644\u0623\u0647\u0644\u064a\u0629 | Eligibility Reviewed By",
    "options": "User"
   },
   {
    "depends_on": "eval:doc.eligibility_status=='Deferred'",
    "fieldname": "deferral_reason",
    "fieldtype": "Small Text",
-   "label": "سبب التأجيل | Deferral Reason",
+   "label": "\u0633\u0628\u0628 \u0627\u0644\u062a\u0623\u062c\u064a\u0644 | Deferral Reason",
    "mandatory_depends_on": "eval:doc.eligibility_status=='Deferred'"
   },
   {
    "depends_on": "eval:doc.eligibility_status=='Deferred'",
    "fieldname": "deferral_start_date",
    "fieldtype": "Date",
-   "label": "بداية التأجيل | Deferral Start Date"
+   "label": "\u0628\u062f\u0627\u064a\u0629 \u0627\u0644\u062a\u0623\u062c\u064a\u0644 | Deferral Start Date"
   },
   {
    "depends_on": "eval:doc.eligibility_status=='Deferred'",
    "fieldname": "deferral_end_date",
    "fieldtype": "Date",
-   "label": "نهاية التأجيل | Deferral End Date"
+   "label": "\u0646\u0647\u0627\u064a\u0629 \u0627\u0644\u062a\u0623\u062c\u064a\u0644 | Deferral End Date"
   },
   {
-   "description": "Updated automatically from Blood Donation / يتم تحديثه تلقائيًا من سجل التبرعات",
+   "description": "Updated automatically from Blood Donation / \u064a\u062a\u0645 \u062a\u062d\u062f\u064a\u062b\u0647 \u062a\u0644\u0642\u0627\u0626\u064a\u064b\u0627 \u0645\u0646 \u0633\u062c\u0644 \u0627\u0644\u062a\u0628\u0631\u0639\u0627\u062a",
    "fieldname": "last_donation_date",
    "fieldtype": "Date",
-   "label": "آخر تاريخ للتبرع | Last Donation Date",
+   "label": "\u0622\u062e\u0631 \u062a\u0627\u0631\u064a\u062e \u0644\u0644\u062a\u0628\u0631\u0639 | Last Donation Date",
    "read_only": 1
   },
   {
    "fieldname": "bb_personal_section",
    "fieldtype": "Section Break",
-   "label": "البيانات الشخصية | Personal Information"
+   "label": "\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0634\u062e\u0635\u064a\u0629 | Personal Information"
   },
   {
    "fieldname": "bb_address_section",
    "fieldtype": "Section Break",
-   "label": "العنوان | Address"
+   "label": "\u0627\u0644\u0639\u0646\u0648\u0627\u0646 | Address"
   },
   {
    "fieldname": "bb_eligibility_section",
    "fieldtype": "Section Break",
-   "label": "حالة الأهلية | Eligibility"
+   "label": "\u062d\u0627\u0644\u0629 \u0627\u0644\u0623\u0647\u0644\u064a\u0629 | Eligibility"
   },
   {
    "depends_on": "eval:doc.eligibility_status=='Deferred'",
    "fieldname": "bb_deferral_section",
    "fieldtype": "Section Break",
-   "label": "تفاصيل التأجيل | Deferral Details"
+   "label": "\u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u062a\u0623\u062c\u064a\u0644 | Deferral Details"
   },
   {
    "fieldname": "bb_blood_section",
    "fieldtype": "Section Break",
-   "label": "فصيلة الدم والتحقق | Blood Group & Verification"
+   "label": "\u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645 \u0648\u0627\u0644\u062a\u062d\u0642\u0642 | Blood Group & Verification"
   },
   {
    "fieldname": "bb_history_section",
    "fieldtype": "Section Break",
-   "label": "سجل التبرعات | Donation History"
+   "label": "\u0633\u062c\u0644 \u0627\u0644\u062a\u0628\u0631\u0639\u0627\u062a | Donation History"
   },
   {
    "fieldname": "bb_identity_section",
    "fieldtype": "Section Break",
-   "label": "بيانات المتبرع والحالة | Donor Identification & Status"
+   "label": "\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u0645\u062a\u0628\u0631\u0639 \u0648\u0627\u0644\u062d\u0627\u0644\u0629 | Donor Identification & Status"
   },
   {
    "fieldname": "bb_identity_column_2",
@@ -277,7 +277,7 @@
  "icon": "user",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-08 20:23:24.489881",
+ "modified": "2026-10-16 23:13:59.192037",
  "modified_by": "Administrator",
  "module": "Blood Bank",
  "name": "Blood Donor",
@@ -304,15 +304,19 @@
    "report": 1,
    "role": "Blood Bank Staff",
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Laboratory User"
   }
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
  "search_fields": "full_name, mobile_no, national_id",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "title_field": "full_name",
- "show_title_field_in_link": 1,
  "track_changes": 1
 }

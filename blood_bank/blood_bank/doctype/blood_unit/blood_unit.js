@@ -1,6 +1,7 @@
 frappe.ui.form.on("Blood Unit", {
     refresh(frm) {
         apply_blood_unit_colors(frm);
+        add_group_verification_button(frm);
         setTimeout(() => apply_blood_unit_colors(frm), 150);
         setTimeout(() => apply_blood_unit_colors(frm), 600);
     },
@@ -119,4 +120,100 @@ function apply_blood_unit_colors(frm) {
             );
         });
     });
+}
+
+
+/* BB_GROUP_VERIFICATION_ENTRY_BUTTON_V1 */
+function add_group_verification_button(frm) {
+    if (frm.is_new() || frm.doc.unit_status !== "Quarantine") return;
+    if (frm.doc.blood_group_verified) return;
+    // Visibility is not authorization; the server enforces Laboratory User.
+
+    frm.add_custom_button(
+        __("Record Laboratory Group Test / تسجيل فحص الفصيلة"),
+        function () {
+            frappe.prompt([
+                {
+                    fieldname: "screening_name",
+                    fieldtype: "Link",
+                    label: __("Blood Screening / سجل فحص العينة"),
+                    options: "Blood Screening",
+                    reqd: 1
+                },
+                {
+                    fieldname: "tested_abo_group",
+                    fieldtype: "Select",
+                    label: __("Observed ABO / نتيجة ABO"),
+                    options: "\nA\nB\nAB\nO",
+                    reqd: 1
+                },
+                {
+                    fieldname: "tested_rh_factor",
+                    fieldtype: "Select",
+                    label: __("Observed Rh / نتيجة Rh"),
+                    options: "\nPositive\nNegative",
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_method",
+                    fieldtype: "Data",
+                    label: __("Test Method / طريقة الفحص"),
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_reference",
+                    fieldtype: "Data",
+                    label: __("Lab Reference / مرجع المختبر")
+                },
+                {
+                    fieldname: "sample_identity_confirmed",
+                    fieldtype: "Check",
+                    label: __("I matched the physical sample label to the screening record / تحققت من مطابقة بطاقة العينة الفعلية"),
+                    default: 0,
+                    reqd: 1
+                },
+                {
+                    fieldname: "test_notes",
+                    fieldtype: "Small Text",
+                    label: __("Test Notes / ملاحظات الفحص")
+                }
+            ], function (values) {
+                if (!values.sample_identity_confirmed) {
+                    frappe.msgprint(
+                        __("Confirm the physical sample label before saving.")
+                    );
+                    return;
+                }
+
+                frappe.call({
+                    method: "blood_bank.blood_bank.doctype.blood_group_verification.blood_group_verification.record_group_test",
+                    args: {
+                        unit_name: frm.doc.name,
+                        screening_name: values.screening_name,
+                        tested_abo_group: values.tested_abo_group,
+                        tested_rh_factor: values.tested_rh_factor,
+                        test_method: values.test_method,
+                        test_reference: values.test_reference,
+                        sample_identity_confirmed: values.sample_identity_confirmed,
+                        test_notes: values.test_notes
+                    },
+                    freeze: true,
+                    callback: function (r) {
+                        if (!r.message) return;
+                        frappe.msgprint(r.message.message);
+                        if (r.message.name) {
+                            frappe.set_route(
+                                "Form", "Blood Group Verification", r.message.name
+                            );
+                        } else {
+                            frm.reload_doc();
+                        }
+                    }
+                });
+            },
+            __("Record Blood Group Test / تسجيل نتيجة الفحص"),
+            __("Save Test Record / حفظ سجل الفحص")
+        );
+    }
+    );
 }

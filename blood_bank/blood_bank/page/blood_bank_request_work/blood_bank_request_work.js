@@ -1,4 +1,5 @@
 frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
+    const pageNode = wrapper && wrapper[0] ? wrapper[0] : wrapper;
     const page = frappe.ui.make_app_page({
         parent: wrapper,
         title: __("متابعة طلبات الدم"),
@@ -19,7 +20,8 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         currentValues: {},
         controls: {},
         requestPicker: null,
-        busy: false
+        busy: false,
+        initializing: true
     };
 
     const API = "blood_bank.blood_bank.page.blood_bank_request_work.ui_api.";
@@ -151,87 +153,44 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
     }
 
     /* BB-RW-CONSOLIDATED-WORKFLOW-V1 */
+    /* BB_REQUEST_TABS_ALL_STAGES_V1 */
+    /* BB_REQUEST_TABS_NATIVE_V3 */
     function renderTabs() {
         const $tabs = page.main.find("#bb-rw-stage-tabs");
         const $combined = page.main.find("#bb-rw-combined-stage-tabs");
+        const nums = ["١", "٢", "٣", "٤", "٥", "٦", "٧"];
+
         $tabs.empty();
 
-        const nums = ["١", "٢", "٣", "٤"];
-        const activeMain = state.index >= 3 ? 3 : state.index;
-
-        function addMainTab(label, index, subtitle, badge) {
-            const $li = $("<li>").toggleClass("active", index === activeMain);
-            const $link = $("<a>", {
-                href: "#",
-                "data-stage-index": index
-            });
+        state.schema.forEach(function (item, index) {
+            const active = index === state.index;
+            const $tab = $("<button>", {
+                type: "button",
+                class: "bb-rw-tab",
+                "data-stage-index": index,
+                role: "tab",
+                title: item.doctype,
+                "aria-selected": String(active)
+            }).toggleClass("is-active", active);
 
             $("<span>", {
                 class: "bb-rw-tab-number",
-                text: nums[index]
-            }).appendTo($link);
+                text: nums[index] || String(index + 1)
+            }).appendTo($tab);
 
             $("<span>", {
                 class: "bb-rw-tab-label",
-                text: label
-            }).appendTo($link);
+                text: `${item.label} | ${item.doctype}`
+            }).appendTo($tab);
 
-            $("<small>", { text: subtitle }).appendTo($link);
-            $("<span>", { class: "badge", text: badge }).appendTo($link);
-            $li.append($link).appendTo($tabs);
-        }
-
-        state.schema.slice(0, 3).forEach(function(item, index) {
-            addMainTab(
-                item.label,
-                index,
-                item.doctype,
-                String(stageRecords(item.doctype).length)
-            );
+            $tabs.append($tab);
         });
 
-        addMainTab(
-            "الصرف والتسليم ونقل الدم ومصير الوحدة",
-            3,
-            "Issue · Handover · Transfusion · Disposition",
-            "٤ مراحل"
-        );
-
-        $combined.empty();
-
-        state.schema.slice(3, 7).forEach(function(item, offset) {
-            const index = offset + 3;
-            const $button = $("<button>", {
-                type: "button",
-                class: "btn btn-default bb-rw-combined-stage-tab",
-                "data-stage-index": index,
-                title: item.doctype
-            }).toggleClass("active", index === state.index);
-
-            const $copy = $("<span>", {
-                class: "bb-rw-combined-stage-tab-copy"
-            });
-
-            $("<span>", {
-                class: "bb-rw-combined-stage-tab-label",
-                text: item.label
-            }).appendTo($copy);
-
-            $("<small>", {
-                class: "bb-rw-combined-stage-tab-doctype",
-                text: item.doctype
-            }).appendTo($copy);
-
-            $button.append($copy);
-            $("<span>", {
-                class: "badge",
-                text: String(stageRecords(item.doctype).length)
-            }).appendTo($button);
-
-            $combined.append($button);
-        });
-
-        $combined.prop("hidden", state.index < 3);
+        // جميع المراحل في الشريط نفسه، ولا حاجة للشريط التجميعي القديم.
+        $combined.empty()
+            .prop("hidden", true)
+            .attr("aria-hidden", "true")
+            .hide();
     }
 
     function renderRecordList(item) {
@@ -740,6 +699,43 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         }
     }
 
+    /* BB_ALERT_TARGET_RESTORE_V1 */
+    async function openAlertRecordFromRoute(requestName, targetDoctype, targetName) {
+        if (!requestName) return;
+
+        await openRequest(requestName);
+        if (!state.request || state.request.name !== requestName) return;
+        if (!targetDoctype || !targetName) return;
+
+        const index = state.schema.findIndex(
+            item => item.doctype === targetDoctype
+        );
+        const exists = targetDoctype === "Blood Request"
+            ? state.request.name === targetName
+            : stageRecords(targetDoctype).some(row => row.name === targetName);
+
+        if (index < 0 || !exists) {
+            frappe.msgprint({
+                title: __("السجل غير موجود في سياق طلب الدم"),
+                message: __(
+                    "تم فتح صفحة متابعة الطلبات، لكن السجل المحدد لم يظهر ضمن " +
+                    "سجلات الطلب المرتبط. لم يتم اختيار سجل بديل."
+                )
+            });
+            return;
+        }
+
+        state.index = index;
+        state.selectedNames[targetDoctype] = targetName;
+        state.currentName = targetName;
+        state.currentIsNew = false;
+        const record = targetDoctype === "Blood Request"
+            ? state.request : selectedRecord(targetDoctype);
+        state.currentValues = Object.assign({}, record || {});
+        renderStage();
+    }
+
+
     async function newRecord() {
         const item = stage();
 
@@ -905,14 +901,11 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
     function bindEvents() {
         page.main.on(
             "click",
-            "#bb-rw-stage-tabs a[data-stage-index]",
+            "#bb-rw-stage-tabs button[data-stage-index]",
             function (event) {
                 event.preventDefault();
                 const index = parseInt($(this).attr("data-stage-index"), 10);
                 if (!Number.isFinite(index)) return;
-
-                // Keep the selected substage when clicking its main tab.
-                if (index === 3 && state.index >= 3) return;
                 changeStage(index);
             }
         );
@@ -1003,13 +996,21 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             renderTabs();
 
             let requestName = null;
+            let alertTargetDoctype = "";
+            let alertTargetName = "";
 
             if (frappe.route_options) {
                 requestName = frappe.route_options.blood_request ||
-                    frappe.route_options.request_name ||
-                    null;
+                    frappe.route_options.request_name || null;
+                alertTargetDoctype =
+                    frappe.route_options.bb_alert_target_doctype || "";
+                alertTargetName =
+                    frappe.route_options.bb_alert_target_name || "";
+
                 delete frappe.route_options.blood_request;
                 delete frappe.route_options.request_name;
+                delete frappe.route_options.bb_alert_target_doctype;
+                delete frappe.route_options.bb_alert_target_name;
             }
 
             if (!requestName) {
@@ -1021,7 +1022,9 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             }
 
             if (requestName) {
-                await openRequest(requestName);
+                await openAlertRecordFromRoute(
+                    requestName, alertTargetDoctype, alertTargetName
+                );
             } else {
                 updateRequestSummary();
                 showMessage(
@@ -1037,9 +1040,38 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
                     __("تعذر تحميل بيانات النوافذ.")
             });
         } finally {
+            state.initializing = false;
             setBusy(false);
         }
     }
 
+    pageNode.__bbRequestWorkController = {
+        isReady: () => state.schema.length === 7 && !state.initializing,
+        openAlertRecordFromRoute
+    };
+
     boot();
+};
+
+
+/* BB_REQUEST_WORK_ALERT_PAGE_SHOW_V1 */
+frappe.pages["blood-bank-request-work"].on_page_show = function (wrapper) {
+    const node = wrapper && wrapper[0] ? wrapper[0] : wrapper;
+    const controller = node && node.__bbRequestWorkController;
+    if (!controller || !controller.isReady()) return;
+
+    const options = frappe.route_options || {};
+    const requestName = options.blood_request || options.request_name || "";
+    const targetDoctype = options.bb_alert_target_doctype || "";
+    const targetName = options.bb_alert_target_name || "";
+    if (!requestName) return;
+
+    delete options.blood_request;
+    delete options.request_name;
+    delete options.bb_alert_target_doctype;
+    delete options.bb_alert_target_name;
+
+    controller.openAlertRecordFromRoute(
+        requestName, targetDoctype, targetName
+    );
 };
