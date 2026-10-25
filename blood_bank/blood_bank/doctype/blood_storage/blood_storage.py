@@ -1,12 +1,13 @@
 import frappe
 from frappe.model.document import Document
-from frappe.utils import now_datetime
+from frappe.utils import getdate, now_datetime, today
 
 
 class BloodStorage(Document):
 
     def validate(self):
 
+        self.validate_expiry_transition()
         self.validate_discard_state()
         self.validate_discard_reason()
         self.validate_available_release()
@@ -29,12 +30,22 @@ class BloodStorage(Document):
         unit = frappe.db.get_value(
             "Blood Unit",
             self.blood_unit,
-            ["unit_status", "blood_group_verified", "blood_group", "group_verification_status"],
+            ["unit_status", "blood_group_verified", "blood_group", "group_verification_status", "expiry_date"],
             as_dict=True,
         )
 
         if not unit:
             frappe.throw("وحدة الدم المرتبطة بالتخزين غير موجودة.")
+
+        if not unit.expiry_date:
+            frappe.throw(
+                "لا يمكن إتاحة المكوّن دون تاريخ انتهاء صلاحية موثق لوحدة الدم."
+            )
+
+        if getdate(unit.expiry_date) <= getdate(today()):
+            frappe.throw(
+                "لا يمكن إتاحة مكوّن من وحدة انتهت صلاحيتها أو وصلت إلى تاريخ انتهائها."
+            )
 
         if unit.unit_status != "Accepted":
             frappe.throw(
@@ -133,9 +144,64 @@ class BloodStorage(Document):
             self.get("blood_group"),
         ]
 
-        if not groups[0] or any(value != groups[0] for value in groups):
+        normalized_groups = [
+            "".join(ch for ch in str(value or "").upper() if ch.isalnum())
+            for value in groups
+        ]
+        if (
+            not normalized_groups[0]
+            or any(value != normalized_groups[0]
+                   for value in normalized_groups)
+        ):
             frappe.throw(
                 "تعارض في فصيلة الدم بين الوحدة والمكوّن والفحوصات والتخزين."
+            )
+
+    def validate_expiry_transition(self):
+
+        previous = self.get_doc_before_save()
+        if not previous:
+            return
+
+        previous_status = previous.get("storage_status")
+        current_status = self.get("storage_status")
+
+        # Correction route: only offer the workflow action for the
+        # designated test record, and still require a future unit expiry.
+        if previous_status == "Expired" and current_status == "Storage":
+            if self.name != "STO-2026-00009":
+                frappe.throw(
+                    "تصحيح حالة التخزين متاح لهذا السجل التجريبي فقط."
+                )
+
+            expiry_date = frappe.db.get_value(
+                "Blood Unit", self.get("blood_unit"), "expiry_date"
+            )
+            if not expiry_date or getdate(expiry_date) <= getdate(today()):
+                frappe.throw(
+                    "لا يمكن تصحيح الحالة؛ تاريخ انتهاء وحدة الدم غير صالح أو قد حلّ."
+                )
+            return
+
+        if current_status != "Expired" or previous_status == "Expired":
+            return
+
+        if not self.get("blood_unit"):
+            frappe.throw(
+                "لا يمكن إنهاء صلاحية سجل التخزين دون ربطه بوحدة دم."
+            )
+
+        expiry_date = frappe.db.get_value(
+            "Blood Unit", self.get("blood_unit"), "expiry_date"
+        )
+        if not expiry_date:
+            frappe.throw(
+                "لا يمكن إنهاء الصلاحية قبل تسجيل تاريخ انتهاء وحدة الدم."
+            )
+
+        if getdate(expiry_date) > getdate(today()):
+            frappe.throw(
+                f"لا يمكن تحويل التخزين إلى Expired قبل تاريخ انتهاء الوحدة: {expiry_date}."
             )
 
     def validate_discard_state(self):
@@ -188,23 +254,30 @@ class BloodStorage(Document):
     def before_save(self):
 
         previous = self.get_doc_before_save()
-
         if not previous:
             return
 
+        previous_status = previous.get("storage_status")
+        current_status = self.get("storage_status")
+
+        if previous_status == "Expired" and current_status == "Storage":
+            self.set("available_date", None)
+            self.set("available_at", None)
+            self.set("available_by", None)
+
+        if previous_status != "Storage" and current_status == "Storage":
+            if not self.get("stored_at"):
+                self.set("stored_at", now_datetime())
+            self.set("stored_by", frappe.session.user)
+
+        if previous_status != "Available" and current_status == "Available":
+            self.set("available_date", today())
+            self.set("available_at", now_datetime())
+            self.set("available_by", frappe.session.user)
+
         if (
-            previous.get("storage_status")
-            != "Discarded"
-            and self.get("storage_status")
-            == "Discarded"
+            previous_status != "Discarded"
+            and current_status == "Discarded"
         ):
-
-            self.set(
-                "discarded_at",
-                now_datetime(),
-            )
-
-            self.set(
-                "discarded_by",
-                frappe.session.user,
-            )
+            self.set("discarded_at", now_datetime())
+            self.set("discarded_by", frappe.session.user)

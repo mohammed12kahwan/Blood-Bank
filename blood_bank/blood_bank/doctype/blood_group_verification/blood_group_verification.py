@@ -191,14 +191,13 @@ class BloodGroupVerification(Document):
         if self.verification_status == "Verified":
             if not matched:
                 frappe.throw("لا يمكن اعتماد نتيجة لا تطابق المصدر.")
-            if (
-                not self.reviewed_by
-                or not self.reviewed_at
-                or self.reviewed_by == self.tested_by
-            ):
-                frappe.throw(
-                    "الاعتماد يتطلب مراجعًا مستقلًا غير منفذ الفحص."
-                )
+            if not self.reviewed_by or not self.reviewed_at:
+                frappe.throw("يجب تسجيل الموظف ووقت الاعتماد.")
+            same_user_action = bool(getattr(
+                frappe.flags, "bb_group_same_operator_action", False
+            ))
+            if self.reviewed_by == self.tested_by and not same_user_action:
+                frappe.throw("الاعتماد يتطلب إجراءً موثقًا ومخولًا.")
         if self.verification_status == "Rejected":
             if (
                 not self.reviewed_by
@@ -219,6 +218,7 @@ def record_group_test(
     sample_identity_confirmed=0,
     test_reference=None,
     test_notes=None,
+    approve_same_user=0,
 ):
     user = _require_lab_user()
     unit = frappe.get_doc("Blood Unit", unit_name)
@@ -265,12 +265,99 @@ def record_group_test(
     if not matched and not test_notes:
         frappe.throw("اشرح تعارض النتيجة في ملاحظات الفحص.")
 
-    if frappe.db.exists(
-        "Blood Group Verification", {"sample_id": screening.sample_id}
-    ):
-        frappe.throw(
-            "للعينة سجل تحقق سابق؛ استخدم عينة جديدة موثقة لإعادة الفحص."
+    # BB_REUSE_PENDING_SAME_OPERATOR_V1
+    prior_name = frappe.db.get_value(
+        "Blood Group Verification",
+        {"sample_id": screening.sample_id},
+        "name",
+    )
+
+    if prior_name:
+        prior = frappe.get_doc("Blood Group Verification", prior_name)
+
+        if prior.verification_status != "Pending Review":
+            frappe.throw(
+                "للعينة سجل تحقق ليس بانتظار الاعتماد؛ "
+                "لا يمكن إعادة اعتماده من هذا الإجراء."
+            )
+
+        if (
+            prior.blood_unit != unit.name
+            or prior.blood_screening != screening.name
+            or prior.sample_id != screening.sample_id
+        ):
+            frappe.throw("سجل التحقق لا يطابق الوحدة والعينة الحالية.")
+
+        if prior.tested_by != user:
+            frappe.throw(
+                "لا يمكن اعتماد هذا السجل من مستخدم مختلف عن منفذ الفحص."
+            )
+
+        if (
+            prior.tested_abo_group != tested_abo_group
+            or prior.tested_rh_factor != tested_rh_factor
+            or prior.test_method != test_method
+            or (prior.test_reference or "") != test_reference
+        ):
+            frappe.throw(
+                "البيانات المدخلة تختلف عن سجل الفحص المعلّق؛ "
+                "لم يتم تغيير السجل."
+            )
+
+        if not prior.sample_identity_confirmed:
+            frappe.throw("سجل الفحص لا يتضمن تأكيد مطابقة العينة.")
+
+        if (
+            not matched
+            or prior.tested_abo_group != source.abo_group
+            or prior.tested_rh_factor != source.rh_factor
+        ):
+            frappe.throw(
+                "النتيجة لا تطابق فصيلة المصدر؛ لا يمكن اعتمادها."
+            )
+
+        if screening.overall_result != "Passed":
+            frappe.throw(
+                "يجب أن تكون نتيجة فحص الدم Passed قبل اعتماد الفصيلة."
+            )
+
+        prior.verification_status = "Verified"
+        prior.reviewed_by = user
+        prior.reviewed_at = frappe.utils.now_datetime()
+        prior.review_notes = (
+            "اعتماد من منفذ الفحص نفسه عبر نافذة عمل المكونات."
         )
+
+        old_system = getattr(
+            frappe.flags, "bb_group_verification_system_action", False
+        )
+        old_same = getattr(
+            frappe.flags, "bb_group_same_operator_action", False
+        )
+
+        frappe.flags.bb_group_verification_system_action = True
+        frappe.flags.bb_group_same_operator_action = True
+        try:
+            prior.save(ignore_permissions=True)
+        finally:
+            frappe.flags.bb_group_verification_system_action = old_system
+            frappe.flags.bb_group_same_operator_action = old_same
+
+        _set_unit_summary(
+            prior,
+            "Verified",
+            True,
+            review_notes=prior.review_notes,
+        )
+
+        return {
+            "name": prior.name,
+            "status": "Verified",
+            "message": (
+                "تم اعتماد سجل التحقق المعلّق بواسطة منفذ الفحص نفسه. "
+                "تم تحديث حالة التحقق في الوحدة مع حفظ سجل التدقيق."
+            ),
+        }
 
     existing = frappe.db.exists(
         "Blood Group Verification",
@@ -284,7 +371,16 @@ def record_group_test(
             "توجد مراجعة تحقق معلقة أو سجل معتمد لهذه الوحدة."
         )
 
-    status = "Pending Review" if matched else "Discrepancy"
+    # BB_GROUP_SAME_OPERATOR_APPROVAL_V1
+    approve_same_user = frappe.utils.cint(approve_same_user)
+    if approve_same_user and not matched:
+        frappe.throw("لا يمكن اعتماد نتيجة لا تطابق فصيلة المصدر.")
+    status = (
+        "Verified" if matched and approve_same_user
+        else "Pending Review" if matched
+        else "Discrepancy"
+    )
+    recorded_at = frappe.utils.now_datetime()
     doc = frappe.get_doc({
         "doctype": "Blood Group Verification",
         "naming_series": "BGV-.YYYY.-.#####",
@@ -305,33 +401,49 @@ def record_group_test(
         "sample_identity_confirmed": 1,
         "test_notes": test_notes,
         "tested_by": user,
-        "tested_at": frappe.utils.now_datetime(),
+        "tested_at": recorded_at,
+        "reviewed_by": user if status == "Verified" else None,
+        "reviewed_at": recorded_at if status == "Verified" else None,
+        "review_notes": (
+            "سجل الموظف نفسه الفحص واعتمده من نافذة عمل المكونات."
+            if status == "Verified" else None
+        ),
     })
 
     old_flag = getattr(
         frappe.flags, "bb_group_verification_system_action", False
     )
+    old_same = getattr(frappe.flags, "bb_group_same_operator_action", False)
     frappe.flags.bb_group_verification_system_action = True
+    frappe.flags.bb_group_same_operator_action = bool(
+        status == "Verified" and approve_same_user
+    )
     try:
         doc.insert(ignore_permissions=True)
     finally:
         frappe.flags.bb_group_verification_system_action = old_flag
+        frappe.flags.bb_group_same_operator_action = old_same
 
     _set_unit_summary(
         doc,
-        "Pending" if matched else "Discrepancy",
-        False,
+        "Verified" if status == "Verified" else (
+            "Pending" if matched else "Discrepancy"
+        ),
+        status == "Verified",
+        review_notes=doc.review_notes,
     )
 
     return {
         "name": doc.name,
         "status": status,
         "message": (
-            "سُجلت النتيجة وهي بانتظار مراجعة موظف مختبر آخر. "
-            "لم تُعتمد الوحدة بعد."
-            if matched
-            else
-            "النتيجة لا تطابق المصدر؛ سُجل التعارض وبقيت الوحدة غير معتمدة."
+            "سُجلت نتيجة الفصيلة واعتمدها المستخدم الحالي، مع حفظ وقت الفحص والاعتماد."
+            if status == "Verified"
+            else (
+                "سُجلت النتيجة وهي بانتظار المراجعة."
+                if matched
+                else "النتيجة لا تطابق المصدر؛ سُجل التعارض وبقيت الوحدة غير معتمدة."
+            )
         ),
     }
 
@@ -411,4 +523,267 @@ def review_group_test(name, decision, review_notes):
         "name": record.name,
         "status": record.verification_status,
         "message": message,
+    }
+
+# BB_PREVIOUS_GROUP_RESULT_APPROVAL_BUTTON_V1
+@frappe.whitelist()
+def get_pending_group_test(unit_name):
+    user = _require_lab_user()
+    unit = frappe.get_doc("Blood Unit", unit_name)
+    unit.check_permission("write")
+
+    if unit.unit_status != "Quarantine" or unit.blood_group_verified:
+        frappe.throw("حالة الوحدة لا تسمح باعتماد نتيجة فصيلة معلقة.")
+
+    rows = frappe.get_all(
+        "Blood Group Verification",
+        filters={
+            "blood_unit": unit.name,
+            "verification_status": "Pending Review",
+        },
+        fields=["name"],
+        order_by="creation desc",
+        limit=2,
+    )
+    if not rows:
+        frappe.throw("لا توجد نتيجة فصيلة سابقة معلقة لهذه الوحدة.")
+    if len(rows) != 1:
+        frappe.throw("توجد عدة نتائج تحقق معلقة؛ يلزم فحصها أولًا.")
+
+    record = frappe.get_doc("Blood Group Verification", rows[0].name)
+    record.check_permission("write")
+
+    if record.tested_by != user:
+        frappe.throw("يمكن لمنفذ الفحص نفسه اعتماد النتيجة السابقة فقط.")
+    if not record.sample_identity_confirmed:
+        frappe.throw("السجل السابق لا يتضمن تأكيد مطابقة العينة.")
+
+    screening = frappe.get_doc("Blood Screening", record.blood_screening)
+    screening.check_permission("read")
+
+    if (
+        screening.blood_unit != unit.name
+        or screening.sample_id != record.sample_id
+    ):
+        frappe.throw("رقم العينة أو الوحدة لا يطابق السجل السابق.")
+    if screening.overall_result != "Passed":
+        frappe.throw("نتيجة فحص الدم ليست Passed.")
+
+    _assert_not_test_record(unit, screening)
+    donor, source = _get_verified_source(unit)
+
+    if (
+        record.source_abo_group != source.abo_group
+        or record.source_rh_factor != source.rh_factor
+        or record.source_blood_group != source.blood_group
+        or record.tested_abo_group != source.abo_group
+        or record.tested_rh_factor != source.rh_factor
+    ):
+        frappe.throw("النتيجة السابقة لا تطابق فصيلة المصدر.")
+
+    return {
+        "name": record.name,
+        "unit": unit.name,
+        "screening": screening.name,
+        "sample_id": record.sample_id,
+        "abo": record.tested_abo_group,
+        "rh": record.tested_rh_factor,
+        "test_method": record.test_method,
+        "test_reference": record.test_reference,
+        "tested_by": record.tested_by,
+        "tested_at": record.tested_at,
+        "status": record.verification_status,
+    }
+
+
+@frappe.whitelist()
+def approve_pending_group_test(verification_name):
+    user = _require_lab_user()
+    record = frappe.get_doc("Blood Group Verification", verification_name)
+    record.check_permission("write")
+
+    if record.verification_status != "Pending Review":
+        frappe.throw("السجل لم يعد بانتظار الاعتماد.")
+    if record.tested_by != user:
+        frappe.throw("منفذ الفحص نفسه فقط يمكنه اعتماد هذه النتيجة.")
+    if not record.sample_identity_confirmed:
+        frappe.throw("لا يوجد تأكيد موثق لمطابقة العينة.")
+
+    unit = frappe.get_doc("Blood Unit", record.blood_unit)
+    unit.check_permission("write")
+
+    if unit.unit_status != "Quarantine" or unit.blood_group_verified:
+        frappe.throw("حالة الوحدة لا تسمح بهذا الاعتماد.")
+
+    screening = frappe.get_doc("Blood Screening", record.blood_screening)
+    screening.check_permission("read")
+
+    if (
+        screening.blood_unit != unit.name
+        or screening.sample_id != record.sample_id
+    ):
+        frappe.throw("ارتباط العينة أو الوحدة تغيّر؛ أوقف الاعتماد.")
+    if screening.overall_result != "Passed":
+        frappe.throw("يجب أن تكون نتيجة فحص الدم Passed.")
+
+    _assert_not_test_record(unit, screening)
+    donor, source = _get_verified_source(unit)
+
+    if (
+        record.source_abo_group != source.abo_group
+        or record.source_rh_factor != source.rh_factor
+        or record.source_blood_group != source.blood_group
+        or record.tested_abo_group != source.abo_group
+        or record.tested_rh_factor != source.rh_factor
+    ):
+        frappe.throw("النتيجة لا تطابق فصيلة المصدر؛ لا يمكن اعتمادها.")
+
+    now = frappe.utils.now_datetime()
+    note = "اعتماد النتيجة السابقة من منفذ الفحص نفسه عبر نافذة عمل المكونات."
+    record.verification_status = "Verified"
+    record.reviewed_by = user
+    record.reviewed_at = now
+    record.review_notes = "\n".join(
+        x for x in (str(record.review_notes or "").strip(), note) if x
+    )
+
+    old_system = getattr(
+        frappe.flags, "bb_group_verification_system_action", False
+    )
+    old_same = getattr(
+        frappe.flags, "bb_group_same_operator_action", False
+    )
+
+    frappe.flags.bb_group_verification_system_action = True
+    frappe.flags.bb_group_same_operator_action = True
+    try:
+        record.save(ignore_permissions=True)
+    finally:
+        frappe.flags.bb_group_verification_system_action = old_system
+        frappe.flags.bb_group_same_operator_action = old_same
+
+    _set_unit_summary(
+        record,
+        "Verified",
+        True,
+        review_notes=record.review_notes,
+    )
+
+    return {
+        "name": record.name,
+        "status": "Verified",
+        "message": (
+            "تم اعتماد النتيجة السابقة دون إنشاء سجل جديد، "
+            "وحُفظ اسم الموظف ووقت الاعتماد."
+        ),
+    }
+@frappe.whitelist()
+def get_group_verification_button_state(unit_name):
+    user = _require_lab_user()
+    unit = frappe.get_doc("Blood Unit", unit_name)
+    unit.check_permission("write")
+
+    if unit.get("blood_group_verified") and unit.get("group_verification_status") == "Verified":
+        return {"mode": "verified", "label": "الفصيلة معتمدة", "enabled": False}
+
+    rows = frappe.get_all(
+        "Blood Group Verification",
+        filters={"blood_unit": unit.name},
+        fields=[
+            "name", "verification_status", "tested_by",
+            "blood_screening", "sample_id",
+        ],
+        order_by="creation desc",
+        limit=20,
+    )
+
+    pending = [r for r in rows if r.verification_status == "Pending Review"]
+    verified = [r for r in rows if r.verification_status == "Verified"]
+
+    if verified:
+        return {
+            "mode": "blocked",
+            "label": "يوجد سجل معتمد؛ تحقق من حالة الوحدة",
+            "enabled": False,
+        }
+
+    if len(pending) > 1:
+        return {
+            "mode": "blocked",
+            "label": "توجد نتائج معلقة متعددة",
+            "enabled": False,
+        }
+
+    if pending:
+        record = frappe.get_doc("Blood Group Verification", pending[0].name)
+        if record.tested_by != user:
+            return {
+                "mode": "blocked",
+                "label": "النتيجة السابقة تخص منفذ فحص آخر",
+                "enabled": False,
+            }
+
+        if not record.blood_screening or not record.sample_id:
+            return {
+                "mode": "blocked",
+                "label": "النتيجة السابقة غير مكتملة",
+                "enabled": False,
+            }
+
+        screening = frappe.get_doc("Blood Screening", record.blood_screening)
+        if (
+            screening.blood_unit != unit.name
+            or screening.sample_id != record.sample_id
+            or screening.overall_result != "Passed"
+        ):
+            return {
+                "mode": "blocked",
+                "label": "تحقق من العينة ونتيجة فحص الدم",
+                "enabled": False,
+            }
+
+        _assert_not_test_record(unit, screening)
+        donor, source = _get_verified_source(unit)
+        if (
+            record.tested_abo_group != source.abo_group
+            or record.tested_rh_factor != source.rh_factor
+            or record.source_blood_group != source.blood_group
+        ):
+            return {
+                "mode": "blocked",
+                "label": "النتيجة السابقة غير مطابقة للمصدر",
+                "enabled": False,
+            }
+
+        if unit.unit_status != "Quarantine":
+            return {
+                "mode": "blocked",
+                "label": "الوحدة ليست في الحجر",
+                "enabled": False,
+            }
+
+        return {
+            "mode": "approve_previous",
+            "label": "اعتماد النتيجة السابقة",
+            "enabled": True,
+        }
+
+    if rows:
+        return {
+            "mode": "blocked",
+            "label": "يوجد سجل سابق يحتاج إلى معالجة",
+            "enabled": False,
+        }
+
+    if unit.unit_status != "Quarantine":
+        return {
+            "mode": "blocked",
+            "label": "بانتظار دخول الوحدة الحجر",
+            "enabled": False,
+        }
+
+    return {
+        "mode": "register",
+        "label": "تسجيل فحص الفصيلة",
+        "enabled": True,
     }

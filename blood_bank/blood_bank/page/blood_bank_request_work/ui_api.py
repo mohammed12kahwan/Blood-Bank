@@ -11,14 +11,14 @@ STAGES = [
         "status_field": "request_status",
     },
     {
-        "doctype": "Blood Reservation",
-        "label": "الحجز",
-        "status_field": "reservation_status",
-    },
-    {
         "doctype": "Blood Crossmatch",
         "label": "المطابقة",
         "status_field": "crossmatch_status",
+    },
+    {
+        "doctype": "Blood Reservation",
+        "label": "الحجز",
+        "status_field": "reservation_status",
     },
     {
         "doctype": "Blood Issue",
@@ -148,6 +148,17 @@ def _related_rows(doctype, request_name, via=None):
 
 def _names(rows):
     return [row.name for row in rows if row.get("name")]
+
+
+def _copy_stage_values(defaults, target_meta, source, mapping):
+    """Copy populated values only to fields existing on the destination DocType."""
+    if not source:
+        return
+    for target_field, source_field in mapping.items():
+        if target_meta.get_field(target_field):
+            value = source.get(source_field)
+            if value not in (None, ""):
+                defaults[target_field] = value
 
 
 def _add_value(target, value):
@@ -342,6 +353,19 @@ def get_page_schema():
         for field in meta.fields:
             if not field.fieldname or field.hidden:
                 continue
+            # BB_HIDE_NAMING_SERIES_ALL_STAGES_V3
+            if field.fieldname == "naming_series":
+                continue
+
+            # BB_REQUEST_WORK_HIDE_DEFINITION_SECTION_V1
+            # إخفاء عنوان قسم التعريف في جميع نوافذ المراحل.
+            if field.fieldtype == "Section Break":
+                section_label = str(field.label or "").strip().casefold()
+                if section_label.startswith((
+                    "التعريف", "تعريف", "قسم التعريف",
+                    "definition", "identification"
+                )):
+                    continue
             if field.fieldtype in NO_COLUMN_TYPES:
                 fields.append({
                     "fieldname": field.fieldname,
@@ -389,7 +413,7 @@ def load_request_context(request_name):
 
 
 @frappe.whitelist()
-def get_stage_defaults(doctype, request_name):
+def get_stage_defaults(doctype, request_name, source_name=None):
     """Prepare a new, unsaved document using the selected request's context."""
     _stage(doctype)
     context = _context(request_name)
@@ -419,15 +443,83 @@ def get_stage_defaults(doctype, request_name):
             "compatibility_result": "Pending",
         })
 
+        # BB_FIFO_AVAILABLE_STOCK_DEFAULT_V1
+        # Select the oldest eligible stock without reserving or issuing it.
+        from blood_bank.blood_bank.inventory import (
+            get_eligible_available_storages,
+        )
+
+        fifo_rows = get_eligible_available_storages(
+            request.get("blood_group"),
+            request.get("component_type"),
+        )
+
+        if fifo_rows:
+            candidate = fifo_rows[0]
+            candidate_values = {
+                "candidate_storage": candidate.get("name"),
+                "candidate_component": candidate.get("blood_component"),
+                "candidate_blood_unit": candidate.get("blood_unit"),
+                "candidate_blood_group": candidate.get("blood_group"),
+                "candidate_component_type": candidate.get("component_type"),
+                "candidate_component_number": candidate.get("component_number"),
+                "candidate_bag_number": candidate.get("bag_number"),
+            }
+
+            for fieldname, value in candidate_values.items():
+                if meta.get_field(fieldname) and value not in (None, ""):
+                    defaults[fieldname] = value
+
     elif doctype == "Blood Reservation":
         defaults["reservation_date"] = today()
         defaults["reservation_status"] = "Draft"
+        requested_type = (request.get("component_type") or "").strip()
+        requested_group = (request.get("blood_group") or "").strip()
+
         compatible = [
             row for row in context["records"]["Blood Crossmatch"]
             if row.get("crossmatch_status") == "Compatible"
+            and row.get("compatibility_result") == "Compatible"
+            and (row.get("required_component_type") or "").strip()
+                == requested_type
+            and (row.get("candidate_component_type") or "").strip()
+                == requested_type
+            and (row.get("required_blood_group") or "").strip()
+                == requested_group
+            and (row.get("candidate_blood_group") or "").strip()
+                == requested_group
+            and bool(row.get("candidate_storage"))
+            and frappe.db.get_value(
+                "Blood Storage",
+                row.get("candidate_storage"),
+                "storage_status",
+            ) == "Available"
         ]
+
+        if source_name:
+            compatible = [
+                row for row in compatible
+                if row.get("name") == source_name
+            ]
+            if not compatible:
+                frappe.throw(_(
+                    "المطابقة المحددة لا تطابق فصيلة الطلب ونوع المكوّن، "
+                    "أو أن التخزين المرشح لم يعد متاحًا."
+                ))
         if compatible:
-            defaults["blood_crossmatch"] = compatible[0].get("name")
+            match = compatible[0]
+            defaults["blood_crossmatch"] = match.get("name")
+            _copy_stage_values(defaults, meta, match, {
+                "blood_storage": "candidate_storage",
+                "blood_component": "candidate_component",
+                "blood_unit": "candidate_blood_unit",
+                "blood_group": "candidate_blood_group",
+                "component_type": "candidate_component_type",
+                "bag_number": "candidate_bag_number",
+                "patient": "patient",
+                "patient_name": "patient_name",
+                "blood_request": "blood_request",
+            })
 
     elif doctype == "Blood Issue":
         defaults["issue_date"] = today()
@@ -436,9 +528,30 @@ def get_stage_defaults(doctype, request_name):
             row for row in context["records"]["Blood Reservation"]
             if row.get("reservation_status") == "Ready for Issue"
         ]
-        candidates = ready or context["records"]["Blood Reservation"]
+        if source_name:
+            candidates = [
+                row for row in ready
+                if row.get("name") == source_name
+            ]
+            if not candidates:
+                frappe.throw(_("الحجز المحدد لم يصل إلى حالة Ready for Issue."))
+        else:
+            candidates = ready or context["records"]["Blood Reservation"]
+
         if candidates:
-            defaults["blood_reservation"] = candidates[0].get("name")
+            parent = candidates[0]
+            defaults["blood_reservation"] = parent.get("name")
+            _copy_stage_values(defaults, meta, parent, {
+                "blood_storage": "blood_storage",
+                "blood_component": "blood_component",
+                "blood_unit": "blood_unit",
+                "blood_group": "blood_group",
+                "component_type": "component_type",
+                "bag_number": "bag_number",
+                "patient": "patient",
+                "patient_name": "patient_name",
+                "blood_request": "blood_request",
+            })
 
     elif doctype == "Blood Handover":
         defaults["handover_date"] = today()
@@ -449,7 +562,20 @@ def get_stage_defaults(doctype, request_name):
         ]
         candidates = issued or context["records"]["Blood Issue"]
         if candidates:
-            defaults["blood_issue"] = candidates[0].get("name")
+            parent = candidates[0]
+            defaults["blood_issue"] = parent.get("name")
+            _copy_stage_values(defaults, meta, parent, {
+                "blood_reservation": "blood_reservation",
+                "blood_storage": "blood_storage",
+                "blood_component": "blood_component",
+                "blood_unit": "blood_unit",
+                "blood_group": "blood_group",
+                "component_type": "component_type",
+                "bag_number": "bag_number",
+                "patient": "patient",
+                "patient_name": "patient_name",
+                "blood_request": "blood_request",
+            })
 
     elif doctype == "Blood Transfusion":
         defaults["transfusion_date"] = today()
@@ -460,7 +586,21 @@ def get_stage_defaults(doctype, request_name):
         ]
         candidates = handed_over or context["records"]["Blood Handover"]
         if candidates:
-            defaults["blood_handover"] = candidates[0].get("name")
+            parent = candidates[0]
+            defaults["blood_handover"] = parent.get("name")
+            _copy_stage_values(defaults, meta, parent, {
+                "blood_issue": "blood_issue",
+                "blood_reservation": "blood_reservation",
+                "blood_storage": "blood_storage",
+                "blood_component": "blood_component",
+                "blood_unit": "blood_unit",
+                "blood_group": "blood_group",
+                "component_type": "component_type",
+                "bag_number": "bag_number",
+                "patient": "patient",
+                "patient_name": "patient_name",
+                "blood_request": "blood_request",
+            })
 
     elif doctype == "Blood Unit Disposition":
         defaults["disposition_date"] = today()
@@ -609,6 +749,55 @@ def save_stage_document(doctype, request_name, values, name=None):
             ):
                 doc.set(field.fieldname, today())
 
+    # BB_ISSUE_BACKFILL_FROM_RESERVATION_V3
+    # إكمال بيانات الصرف من الحجز ثم المطابقة المرتبطة به.
+    if doctype == "Blood Issue":
+        reservation_name = doc.get("blood_reservation")
+        if not reservation_name:
+            frappe.throw(_("اختر الحجز قبل حفظ مستند الصرف."))
+
+        if reservation_name not in set(context.get("reservation_names") or []):
+            frappe.throw(_("الحجز المحدد غير مرتبط بطلب الدم الحالي."))
+
+        reservation = frappe.get_doc("Blood Reservation", reservation_name)
+        reservation.check_permission("read")
+
+        if is_new and reservation.get("reservation_status") != "Ready for Issue":
+            frappe.throw(_("يجب إكمال الحجز حتى Ready for Issue قبل الصرف."))
+
+        match = None
+        match_name = reservation.get("blood_crossmatch")
+        if match_name and frappe.db.exists("Blood Crossmatch", match_name):
+            match = frappe.get_doc("Blood Crossmatch", match_name)
+
+        sources = {
+            "blood_storage": ("blood_storage", "candidate_storage"),
+            "blood_component": ("blood_component", "candidate_component"),
+            "blood_unit": ("blood_unit", "candidate_blood_unit"),
+            "blood_group": ("blood_group", "candidate_blood_group"),
+            "component_type": ("component_type", "candidate_component_type"),
+            "bag_number": ("bag_number", "candidate_bag_number"),
+            "patient": ("patient", "patient"),
+            "patient_name": ("patient_name", "patient_name"),
+        }
+
+        for target, (reservation_field, match_field) in sources.items():
+            if not meta.get_field(target) or doc.get(target):
+                continue
+            value = reservation.get(reservation_field)
+            if not value and match:
+                value = match.get(match_field)
+            if not value and target in ("patient", "patient_name"):
+                value = context["request"].get(target)
+            if value:
+                doc.set(target, value)
+
+        if meta.get_field("blood_storage") and not doc.get("blood_storage"):
+            frappe.throw(_(
+                "لا يمكن حفظ الصرف: حقل مخزن الدم فارغ في الحجز والمطابقة المرتبطين به. "
+                "افتح المطابقة وتحقق من مخزن الدم المرشح قبل متابعة الصرف."
+            ))
+
     _validate_stage_link(doctype, doc, context)
 
     if is_new:
@@ -659,10 +848,14 @@ def get_stage_actions(doctype, request_name, name):
 
 
 @frappe.whitelist()
-def apply_stage_action(doctype, request_name, name, action):
-    """Apply a verified Frappe Workflow action to a request-linked document."""
-    _stage(doctype)
+def apply_stage_action(doctype, request_name, name, action, values=None):
+    """Save supplied editable fields first, then apply the real Frappe Workflow action."""
+    stage = _stage(doctype)
     context = _context(request_name)
+
+    if isinstance(values, str):
+        values = frappe.parse_json(values)
+    values = values or {}
 
     doc = frappe.get_doc(doctype, name)
     doc.check_permission("write")
@@ -670,24 +863,63 @@ def apply_stage_action(doctype, request_name, name, action):
 
     from frappe.model.workflow import apply_workflow, get_transitions
 
-    allowed = {
-        item.get("action")
-        for item in (get_transitions(doc) or [])
-        if item.get("action")
-    }
-
-    if action not in allowed:
+    transitions = get_transitions(doc) or []
+    selected_transition = next(
+        (item for item in transitions if item.get("action") == action),
+        None,
+    )
+    if not selected_transition:
         frappe.throw(
             _("إجراء Workflow غير متاح لهذا السجل أو للمستخدم الحالي: {0}").format(
                 action
             )
         )
 
+    next_state = str(selected_transition.get("next_state") or "").strip().lower()
+
+    # تحقق من السبب قبل محاولة تغيير حالة Blood Issue إلى Returned.
+    if doctype == "Blood Issue" and next_state == "returned":
+        reason = values.get("return_reason") or doc.get("return_reason")
+        if not str(reason or "").strip():
+            frappe.throw(_("Return Reason is required when an issue is marked Returned."))
+
+    meta = frappe.get_meta(doctype)
+    status_field = stage["status_field"]
+    protected = PROTECTED_FIELDS.get(doctype, {"name", "naming_series"})
+    editable = {
+        field.fieldname
+        for field in meta.fields
+        if field.fieldname
+        and field.fieldtype not in NO_COLUMN_TYPES
+        and not field.read_only
+        and field.fieldname not in protected
+        and field.fieldname != status_field
+    }
+
+    changed = False
+    for fieldname, value in values.items():
+        if fieldname not in editable:
+            continue
+        if doc.get(fieldname) != value:
+            doc.set(fieldname, value)
+            changed = True
+
+    # يحفظ هذا السبب وأي قيم معدّلة قبل تنفيذ الانتقال.
+    if changed:
+        doc.save()
+
+    allowed_after_save = {
+        item.get("action")
+        for item in (get_transitions(doc) or [])
+        if item.get("action")
+    }
+    if action not in allowed_after_save:
+        frappe.throw(
+            _("لم يعد إجراء Workflow متاحًا بعد حفظ الحقول: {0}").format(action)
+        )
+
     updated = apply_workflow(doc, action)
-    status_field = next(
-        item["status_field"] for item in STAGES
-        if item["doctype"] == doctype
-    )
+    status_field = stage["status_field"]
 
     return {
         "doctype": doctype,
@@ -729,3 +961,167 @@ def run_step39c_diagnostic():
     print("STEP 39-C BACKEND CHECK PASS")
     print("No save, insert, update, submit, cancel or delete operation was performed.")
     print("=" * 82)
+
+# BB_REQUEST_CREATE_FROM_WORK_WINDOW_V1
+@frappe.whitelist()
+def get_new_blood_request_defaults():
+    """Return safe initial values for the request-work window."""
+    _stage("Blood Request")
+    if not frappe.has_permission("Blood Request", "create"):
+        frappe.throw(_("ليست لديك صلاحية إنشاء طلب دم."))
+
+    meta = frappe.get_meta("Blood Request")
+    defaults = {}
+
+    for field in meta.fields:
+        if not field.fieldname or field.fieldtype in NO_COLUMN_TYPES:
+            continue
+        if field.read_only:
+            continue
+
+        if field.fieldname == "naming_series":
+            options = [
+                x.strip() for x in (field.options or "").splitlines()
+                if x.strip()
+            ]
+            if options:
+                defaults[field.fieldname] = options[0]
+            continue
+
+        if field.fieldtype == "Date":
+            token = str(field.default or "").strip().lower()
+            if token == "today" or field.reqd or field.fieldname in (
+                "request_date", "transaction_date"
+            ):
+                defaults[field.fieldname] = today()
+            elif field.default:
+                defaults[field.fieldname] = field.default
+            continue
+
+        if field.fieldtype == "Datetime":
+            token = str(field.default or "").strip().lower()
+            if token in ("now", "today", "now_datetime"):
+                defaults[field.fieldname] = (
+                    frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+                )
+            elif field.default:
+                defaults[field.fieldname] = field.default
+            continue
+
+        if field.fieldtype == "Time":
+            token = str(field.default or "").strip().lower()
+            if token in ("now", "today", "now_datetime"):
+                defaults[field.fieldname] = (
+                    frappe.utils.now_datetime().strftime("%H:%M:%S")
+                )
+            elif field.default:
+                defaults[field.fieldname] = field.default
+            continue
+
+        if field.default:
+            defaults[field.fieldname] = field.default
+
+        if (
+            field.fieldtype == "Link"
+            and field.options == "User"
+            and field.fieldname in (
+                "requested_by", "requester", "requesting_user"
+            )
+        ):
+            defaults[field.fieldname] = frappe.session.user
+
+    status_field = next(
+        x["status_field"] for x in STAGES
+        if x["doctype"] == "Blood Request"
+    )
+    status_meta = meta.get_field(status_field)
+    if status_meta and status_meta.options:
+        options = [
+            x.strip() for x in status_meta.options.splitlines()
+            if x.strip()
+        ]
+        if options and not defaults.get(status_field):
+            defaults[status_field] = (
+                "Draft" if "Draft" in options else options[0]
+            )
+
+    return defaults
+
+
+@frappe.whitelist()
+def create_blood_request_in_window(values):
+    """Create a Blood Request from the request-work window only."""
+    _stage("Blood Request")
+
+    if isinstance(values, str):
+        values = frappe.parse_json(values)
+    if not isinstance(values, dict):
+        frappe.throw(_("بيانات طلب الدم غير صالحة."))
+
+    if not frappe.has_permission("Blood Request", "create"):
+        frappe.throw(_("ليست لديك صلاحية إنشاء طلب دم."))
+
+    meta = frappe.get_meta("Blood Request")
+    status_field = next(
+        x["status_field"] for x in STAGES
+        if x["doctype"] == "Blood Request"
+    )
+    protected = PROTECTED_FIELDS.get(
+        "Blood Request", {"name", "naming_series", status_field}
+    )
+    editable = {
+        field.fieldname
+        for field in meta.fields
+        if field.fieldname
+        and field.fieldtype not in NO_COLUMN_TYPES
+        and not field.read_only
+        and field.fieldname not in protected
+        and field.fieldname != status_field
+    }
+
+    doc = frappe.new_doc("Blood Request")
+
+    for fieldname, value in values.items():
+        if fieldname in editable and value not in (None, ""):
+            doc.set(fieldname, value)
+
+    # الترقيم والحالة وتاريخ الطلب تظل تحت تحكم الخادم.
+    series_field = meta.get_field("naming_series")
+    if series_field and not doc.get("naming_series"):
+        options = [
+            x.strip() for x in (series_field.options or "").splitlines()
+            if x.strip()
+        ]
+        if options:
+            doc.set("naming_series", options[0])
+
+    for field in meta.fields:
+        if (
+            field.fieldtype == "Date"
+            and field.reqd
+            and not doc.get(field.fieldname)
+        ):
+            doc.set(field.fieldname, today())
+
+    if status_meta := meta.get_field(status_field):
+        if not doc.get(status_field) and status_meta.options:
+            options = [
+                x.strip() for x in status_meta.options.splitlines()
+                if x.strip()
+            ]
+            if options:
+                doc.set(
+                    status_field,
+                    "Draft" if "Draft" in options else options[0]
+                )
+
+    # لا نستخدم ignore_permissions: قواعد الإنشاء الأصلية تبقى فعالة.
+    doc.insert()
+
+    return {
+        "name": doc.name,
+        "doc": {
+            "name": doc.name,
+            status_field: doc.get(status_field),
+        },
+    }

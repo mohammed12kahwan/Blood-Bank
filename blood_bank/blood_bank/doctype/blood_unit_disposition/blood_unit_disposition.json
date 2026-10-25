@@ -50,7 +50,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Disposition Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0625\u062c\u0631\u0627\u0621",
-   "options": "Draft\nRejected\nDiscarded",
+   "options": "Draft\nRejected\nDiscarded\nTransfused",
    "reqd": 1
   },
   {

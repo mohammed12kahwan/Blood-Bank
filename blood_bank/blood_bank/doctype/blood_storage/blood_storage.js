@@ -108,3 +108,16 @@ function apply_blood_storage_colors(frm) {
         });
     });
 }
+
+
+/* BB_AVAILABLE_STOCK_VIEW_V1
+ * Default operational stock view: only available storage.
+ * Issued records remain stored for audit and history.
+ */
+frappe.listview_settings = frappe.listview_settings || {};
+frappe.listview_settings["Blood Storage"] = Object.assign(
+    frappe.listview_settings["Blood Storage"] || {},
+    {
+        filters: [["storage_status", "=", "Available"]]
+    }
+);

@@ -74,44 +74,93 @@ class BloodIssue(Document):
             return
 
         storage_name = self.get("blood_storage")
+        unit_name = self.get("blood_unit")
+        if not storage_name or not unit_name:
+            frappe.throw("Blood Storage and Blood Unit are required before Issue.")
 
-        if not storage_name:
-            frappe.throw(
-                "Blood Storage is required before confirming Issue."
-            )
+        storage = frappe.db.get_value(
+            "Blood Storage", storage_name,
+            ["storage_status", "blood_unit"], as_dict=True
+        )
+        if not storage:
+            frappe.throw(f"Blood Storage {storage_name} was not found.")
+        if storage.blood_unit != unit_name:
+            frappe.throw("Blood Unit does not match the issued storage.")
 
-        storage_status = frappe.db.get_value(
-            "Blood Storage",
-            storage_name,
-            "storage_status",
+        unit_status = frappe.db.get_value(
+            "Blood Unit", unit_name, "unit_status"
         )
 
-        if storage_status != "Reserved":
+        # Narrow recovery: an earlier eligible-return action incorrectly
+        # reopened inventory after a matching completed transfusion.
+        recovery = False
+        if (
+            storage.storage_status == "Available"
+            and unit_status == "Transfused"
+            and self.get("return_evaluation") == "Eligible"
+            and self.get("returned_at")
+            and self.get("returned_by")
+        ):
+            transfusions = frappe.get_all(
+                "Blood Transfusion",
+                filters={
+                    "blood_issue": self.name,
+                    "blood_unit": unit_name,
+                    "blood_storage": storage_name,
+                    "transfusion_status": "Transfused",
+                    "transfusion_result": "Completed",
+                },
+                fields=["name", "blood_handover"],
+                order_by="modified desc",
+                limit_page_length=20,
+            )
+            for tr in transfusions:
+                if not tr.blood_handover:
+                    continue
+                handover = frappe.db.get_value(
+                    "Blood Handover", tr.blood_handover,
+                    ["handover_status", "blood_issue",
+                     "blood_unit", "blood_storage"], as_dict=True
+                )
+                if (
+                    handover
+                    and handover.handover_status == "Handed Over"
+                    and handover.blood_issue == self.name
+                    and handover.blood_unit == unit_name
+                    and handover.blood_storage == storage_name
+                ):
+                    recovery = True
+                    break
+
+        if storage.storage_status != "Reserved" and not recovery:
             frappe.throw(
                 f"Blood Storage {storage_name} must be Reserved before Issue. "
-                f"Current status: {storage_status}"
+                f"Current status: {storage.storage_status}"
             )
 
-        # IMPORTANT:
-        # Storage is changed only AFTER Blood Issue successfully reaches Issued.
+        allowed_unit_states = ("Accepted", "Available", "Reserved", "Issued")
+        if unit_status == "Transfused" and recovery:
+            pass
+        elif unit_status not in allowed_unit_states:
+            frappe.throw(f"Blood Unit cannot be issued from status: {unit_status}")
+
+        # The normal path and guarded recovery both finish through this
+        # workflow action. A completed transfusion is never reset to Issued.
         frappe.db.set_value(
-            "Blood Storage",
-            storage_name,
-            "storage_status",
-            "Issued",
+            "Blood Storage", storage_name, "storage_status", "Issued",
+            update_modified=True,
         )
+        if not recovery:
+            frappe.db.set_value(
+                "Blood Unit", unit_name, "unit_status", "Issued",
+                update_modified=True,
+            )
 
-        self.db_set(
-            "issued_at",
-            now_datetime(),
-            update_modified=False,
-        )
+        if not self.get("issued_at"):
+            self.db_set("issued_at", now_datetime(), update_modified=False)
+        if not self.get("issued_by"):
+            self.db_set("issued_by", frappe.session.user, update_modified=False)
 
-        self.db_set(
-            "issued_by",
-            frappe.session.user,
-            update_modified=False,
-        )
 
     # ---------------------------------------------------------
     # RETURNED

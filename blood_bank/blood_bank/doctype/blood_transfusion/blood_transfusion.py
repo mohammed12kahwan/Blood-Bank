@@ -61,6 +61,20 @@ class BloodTransfusion(Document):
                     frappe.utils.now_datetime()
                 )
 
+            unit_status = frappe.db.get_value(
+                "Blood Unit", self.blood_unit, "unit_status"
+            )
+            if unit_status not in ("Issued", "Transfused"):
+                frappe.throw(
+                    "Completed transfusion requires the Blood Unit "
+                    f"to be Issued. Current status: {unit_status}"
+                )
+
+            frappe.db.set_value(
+                "Blood Unit", self.blood_unit, "unit_status",
+                "Transfused", update_modified=True,
+            )
+
             if not self.transfused_by:
                 self.transfused_by = (
                     frappe.session.user
@@ -403,6 +417,50 @@ class BloodTransfusion(Document):
         if request.component_type != self.component_type:
             frappe.throw(
                 "Component Type does not match the Blood Request."
+            )
+
+    # DISPOSITION_SYNC_COMPLETED_TRANSFUSION_V1
+    def on_update(self):
+        if self.transfusion_status != "Transfused":
+            return
+        if self.transfusion_result != "Completed":
+            frappe.throw("Transfused requires Completed result.")
+        if not self.blood_unit or not self.blood_issue or not self.blood_handover or not self.blood_storage:
+            frappe.throw("Completed transfusion links are incomplete.")
+
+        issue = frappe.db.get_value(
+            "Blood Issue", self.blood_issue,
+            ["issue_status", "blood_unit", "blood_storage"], as_dict=True
+        )
+        handover = frappe.db.get_value(
+            "Blood Handover", self.blood_handover,
+            ["handover_status", "blood_unit", "blood_issue", "blood_storage"],
+            as_dict=True
+        )
+        storage = frappe.db.get_value(
+            "Blood Storage", self.blood_storage,
+            ["storage_status", "blood_unit"], as_dict=True
+        )
+        if not (
+            issue and issue.issue_status == "Issued"
+            and issue.blood_unit == self.blood_unit
+            and issue.blood_storage == self.blood_storage
+            and handover and handover.handover_status == "Handed Over"
+            and handover.blood_unit == self.blood_unit
+            and handover.blood_issue == self.blood_issue
+            and handover.blood_storage == self.blood_storage
+            and storage and storage.storage_status == "Issued"
+            and storage.blood_unit == self.blood_unit
+        ):
+            frappe.throw("Transfusion links or upstream statuses do not match.")
+
+        current = frappe.db.get_value("Blood Unit", self.blood_unit, "unit_status")
+        if current not in ("Accepted", "Issued", "Transfused"):
+            frappe.throw(f"Unexpected Blood Unit status: {current}")
+        if current != "Transfused":
+            frappe.db.set_value(
+                "Blood Unit", self.blood_unit, "unit_status", "Transfused",
+                update_modified=True
             )
 
     def validate_transfusion_result(self):

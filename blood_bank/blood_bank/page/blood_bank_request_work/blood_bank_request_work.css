@@ -2396,3 +2396,308 @@
     color: #64748B !important;
     border-bottom-color: #64748B !important;
 }
+
+
+/* BB_REQUEST_WORK_COMPACT_STAGE_AND_DROPDOWN_V1 */
+/* تقليل ارتفاع رأس المرحلة لإعطاء مساحة أكبر لحقول العمل. */
+#bb-rw-root .bb-rw-stage-bar {
+    min-height: 0 !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+#bb-rw-root .bb-rw-stage-kicker,
+#bb-rw-root .bb-rw-stage-description {
+    display: none !important;
+}
+
+#bb-rw-root .bb-rw-stage-heading {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#bb-rw-root .bb-rw-stage-title {
+    margin: 0 !important;
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+}
+
+#bb-rw-root .bb-rw-stage-status-box {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: 170px;
+}
+
+#bb-rw-root .bb-rw-stage-status-box label {
+    margin-bottom: 2px !important;
+    font-size: 11px !important;
+}
+
+#bb-rw-root .bb-rw-stage-status-box .form-control {
+    min-height: 28px !important;
+    height: auto !important;
+    padding: 3px 8px !important;
+    font-size: 12px !important;
+}
+
+/* قائمة إجراءات منسدلة بنفس نمط Bootstrap المستعمل في صفحات بنك الدم. */
+#bb-rw-root .bb-rw-workflow-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#bb-rw-root .bb-rw-workflow-dropdown > .dropdown-menu {
+    right: 0;
+    left: auto;
+    min-width: 210px;
+    max-width: min(320px, 85vw);
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 1060;
+    margin-top: 4px;
+    text-align: right;
+}
+
+#bb-rw-root .bb-rw-workflow-dropdown > .dropdown-menu > li > a {
+    padding: 8px 14px;
+    white-space: normal;
+    text-align: right;
+}
+
+@media (max-width: 767px) {
+    #bb-rw-root .bb-rw-stage-bar {
+        align-items: stretch !important;
+    }
+
+    #bb-rw-root .bb-rw-stage-status-box {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+
+/* BB_REQUEST_WORK_INLINE_ACTION_MENU_V1 */
+#bb-rw-root .bb-rw-workflow-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+#bb-rw-root .bb-rw-workflow-dropdown .dropdown-toggle {
+    min-width: 145px;
+    text-align: center;
+    font-weight: 600;
+}
+
+#bb-rw-root .bb-rw-workflow-dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
+    min-width: 220px;
+    max-width: min(340px, 85vw);
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 1060;
+    text-align: right;
+    margin-top: 4px;
+}
+
+#bb-rw-root .bb-rw-workflow-dropdown .dropdown-menu > li > a {
+    padding: 8px 14px;
+    white-space: normal;
+    text-align: right;
+}
+
+#bb-rw-root .bb-rw-stage-message {
+    overflow-wrap: anywhere;
+}
+
+#bb-rw-root .bb-rw-field-error {
+    border-color: #c62828 !important;
+    box-shadow: 0 0 0 2px rgba(198, 40, 40, .12);
+}
+
+
+
+/* BB_SHARED_WORKFLOW_ACTIONS_V1 */
+.bb-workflow-actions-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    overflow: visible !important;
+}
+.bb-cw-toolbar, .bb-cw-toolbar-actions, #bb-cw-workflow-actions,
+.bb-rw-toolbar, .bb-rw-toolbar-actions, #bb-rw-workflow-actions {
+    overflow: visible !important;
+}
+.bb-workflow-actions-toggle {
+    min-width: 145px;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.bb-workflow-actions-menu {
+    position: absolute;
+    inset-inline-start: 0;
+    top: calc(100% + 6px);
+    z-index: 1060;
+    width: min(390px, calc(100vw - 32px));
+    min-width: min(300px, calc(100vw - 32px));
+    max-width: calc(100vw - 24px);
+    max-height: min(68vh, 560px);
+    overflow: auto;
+    padding: 10px;
+    direction: rtl;
+    text-align: right;
+    color: var(--text-color, #202124);
+    background: var(--card-bg, var(--fg-color, #fff));
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 9px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .17);
+}
+.bb-workflow-actions-menu[hidden] {
+    display: none !important;
+}
+.bb-workflow-action-summary {
+    display: grid;
+    gap: 7px;
+    padding: 8px 9px 10px;
+    margin-bottom: 9px;
+    border-bottom: 1px solid var(--border-color, #d1d8dd);
+}
+.bb-workflow-action-summary > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-list {
+    display: grid;
+    gap: 8px;
+}
+.bb-workflow-action-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px;
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 7px;
+}
+.bb-workflow-action-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-info small,
+.bb-workflow-action-info span {
+    color: var(--text-muted, #6c7680);
+    font-size: 11px;
+}
+.bb-workflow-action-row .btn {
+    white-space: nowrap;
+}
+.bb-workflow-action-message {
+    padding: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+#bb-rw-root .bb-rw-workflow-dropdown .bb-workflow-actions-menu {
+    left: auto !important;
+    right: auto !important;
+    inset-inline-start: 0;
+    top: calc(100% + 6px);
+    width: min(390px, calc(100vw - 32px));
+    min-width: min(300px, calc(100vw - 32px));
+    max-width: calc(100vw - 24px);
+    max-height: min(68vh, 560px);
+    padding: 10px;
+    margin: 0 !important;
+    list-style: none;
+    direction: rtl;
+    text-align: right;
+    color: var(--text-color, #202124);
+    background: var(--card-bg, var(--fg-color, #fff));
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 9px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .17);
+}
+#bb-rw-root .bb-workflow-actions-menu > li > a {
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: right;
+    color: var(--text-color, #202124);
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 7px;
+}
+#bb-rw-root .bb-workflow-actions-menu > li:last-child > a {
+    margin-bottom: 0;
+}
+#bb-rw-root .bb-workflow-actions-menu > li > a:hover {
+    background: var(--subtle-fg, #f5f7f8);
+}
+@media (max-width: 480px) {
+    .bb-workflow-actions-menu {
+        width: min(340px, calc(100vw - 24px));
+        min-width: 0;
+    }
+    .bb-workflow-action-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .bb-workflow-action-row .btn {
+        width: 100%;
+    }
+}
+
+
+
+
+/* BB_INLINE_ACTION_CONFIRM_V1 */
+.bb-workflow-action-confirm {
+    margin-top: 8px;
+    padding: 11px;
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 8px;
+    line-height: 1.8;
+    background: var(--card-bg, var(--fg-color, #fff));
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-confirm p {
+    margin: 8px 0 12px;
+}
+.bb-workflow-action-confirm small {
+    display: block;
+    margin: 4px 0 8px;
+    color: var(--text-muted, #6c7680);
+}
+.bb-workflow-action-confirm-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+.bb-workflow-action-confirm-buttons .btn {
+    white-space: nowrap;
+}
+#bb-rw-root .bb-workflow-actions-menu > li {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+
+/* BB_INLINE_ACTION_CONFIRM_FIX_V2 */
+#bb-rw-root .bb-workflow-confirm-item {
+    display: block;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+#bb-rw-root .bb-workflow-actions-menu .bb-workflow-action-confirm {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}

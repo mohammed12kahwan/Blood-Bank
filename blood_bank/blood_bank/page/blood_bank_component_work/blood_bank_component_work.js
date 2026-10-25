@@ -85,6 +85,17 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
      */
     function resolveFieldValue(field, savedValue) {
         if (savedValue !== undefined && savedValue !== null && savedValue !== "") {
+            // BB_DATE_FIELD_STRIP_TIME_V1
+            // Date controls receive YYYY-MM-DD, never a full timestamp.
+            if (field.fieldtype === "Date") {
+                const rawDate = String(savedValue).trim();
+                const dateTimeMatch = rawDate.match(
+                    /^(\d{4}-\d{2}-\d{2})(?:[ T].*)?$/
+                );
+                if (dateTimeMatch) {
+                    return dateTimeMatch[1];
+                }
+            }
             return savedValue;
         }
 
@@ -170,13 +181,72 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
 
 
     /* BB_COMPONENT_GROUP_VERIFICATION_BUTTON_V1 */
+    /* BB_DYNAMIC_SINGLE_GROUP_VERIFICATION_BUTTON_V1 */
     function updateGroupVerificationButton() {
         const wrap = root.find("#bb-cw-screening-actions");
+        const button = root.find("#bb-cw-group-verification");
         const visible = Number(state.index) === 1;
-        if (wrap.length) {
-            wrap.prop("hidden", !visible);
-            wrap.css("display", visible ? "flex" : "none");
+
+        if (!wrap.length || !button.length) return;
+
+        wrap.prop("hidden", !visible);
+        wrap.css("display", visible ? "flex" : "none");
+
+        // إزالة أي زر اعتماد إضافي قديم؛ نستخدم زر HTML الأصلي فقط.
+        wrap.find("#bb-cw-approve-previous-group-test").remove();
+
+        if (!visible) {
+            button.prop("disabled", true);
+            button.attr("data-bb-group-mode", "blocked");
+            return;
         }
+
+        const screening = state.doc || {};
+        const unitName =
+            screening.blood_unit ||
+            state.context?.source_link_check?.unit?.name ||
+            "";
+
+        if (!unitName) {
+            button.text(__("حدد وحدة الدم أولًا"));
+            button.prop("disabled", true);
+            button.attr("data-bb-group-mode", "blocked");
+            return;
+        }
+
+        button.prop("disabled", true);
+        button.text(__("جارٍ التحقق من النتيجة السابقة..."));
+
+        frappe.call({
+            method: "blood_bank.blood_bank.doctype.blood_group_verification.blood_group_verification.get_group_verification_button_state",
+            args: { unit_name: unitName },
+            callback: function (r) {
+                const current = state.doc || {};
+                const currentUnit =
+                    current.blood_unit ||
+                    state.context?.source_link_check?.unit?.name ||
+                    "";
+
+                // تجاهل نتيجة طلب قديم إذا تغير السجل أو المرحلة.
+                if (Number(state.index) !== 1 || currentUnit !== unitName) return;
+
+                if (!r.message) {
+                    button.text(__("تعذر تحديد حالة النتيجة"));
+                    button.prop("disabled", true);
+                    button.attr("data-bb-group-mode", "blocked");
+                    return;
+                }
+
+                button.text(__(r.message.label));
+                button.attr("data-bb-group-mode", r.message.mode);
+                button.prop("disabled", !r.message.enabled);
+            },
+            error: function () {
+                button.text(__("تعذر التحقق؛ أعد المحاولة"));
+                button.prop("disabled", true);
+                button.attr("data-bb-group-mode", "blocked");
+            }
+        });
     }
 
     function openGroupVerificationDialog() {
@@ -253,6 +323,12 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
                     fieldname: "test_notes",
                     fieldtype: "Small Text",
                     label: __("Test Notes / ملاحظات الفحص")
+                },
+                {
+                    fieldname: "confirm_same_user_approval",
+                    fieldtype: "Check",
+                    label: __("أؤكد مطابقة العينة وأعتمد نتيجة الفصيلة بنفسي"),
+                    default: 0
                 }
             ],
             function (values) {
@@ -260,6 +336,11 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
                     frappe.msgprint(
                         __("يجب تأكيد مطابقة بطاقة العينة الفعلية قبل التسجيل.")
                     );
+                    return;
+                }
+
+                if (!values.confirm_same_user_approval) {
+                    frappe.msgprint(__("يجب تأكيد اعتماد النتيجة بواسطة المستخدم الحالي."));
                     return;
                 }
 
@@ -273,12 +354,14 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
                         test_method: values.test_method,
                         test_reference: values.test_reference,
                         sample_identity_confirmed: values.sample_identity_confirmed,
-                        test_notes: values.test_notes
+                        test_notes: values.test_notes,
+                        approve_same_user: values.confirm_same_user_approval ? 1 : 0
                     },
                     freeze: true,
                     callback: function (r) {
                         if (!r.message) return;
                         frappe.msgprint(r.message.message);
+                        if (state.donation) loadDonation(state.donation);
                     }
                 });
             },
@@ -287,7 +370,58 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
         );
     }
 
-    /* BB_COMPONENT_TABS_NATIVE_V3 */
+
+    // BB_PREVIOUS_GROUP_RESULT_APPROVAL_BUTTON_V1
+    function openPreviousGroupVerificationDialog() {
+        if (Number(state.index) !== 1) return;
+
+        const screening = state.doc || {};
+        const unitName =
+            screening.blood_unit ||
+            state.context?.source_link_check?.unit?.name ||
+            "";
+
+        if (!unitName) {
+            frappe.msgprint(__("حدد سجل فحص مرتبطًا بوحدة الدم أولًا."));
+            return;
+        }
+
+        frappe.call({
+            method: "blood_bank.blood_bank.doctype.blood_group_verification.blood_group_verification.get_pending_group_test",
+            args: { unit_name: unitName },
+            freeze: true,
+            callback: function (r) {
+                if (!r.message) return;
+                const record = r.message;
+                const message = [
+                    "سجل التحقق السابق: " + record.name,
+                    "الوحدة: " + record.unit,
+                    "رقم العينة: " + record.sample_id,
+                    "سجل فحص الدم: " + record.screening,
+                    "النتيجة المحفوظة: " + record.abo + " " + record.rh,
+                    "طريقة الفحص: " + (record.test_method || "—"),
+                    "منفذ الفحص: " + record.tested_by,
+                    "",
+                    "سيتم اعتماد هذا السجل نفسه دون إنشاء سجل جديد."
+                ].join("\n");
+
+                frappe.confirm(message, function () {
+                    frappe.call({
+                        method: "blood_bank.blood_bank.doctype.blood_group_verification.blood_group_verification.approve_pending_group_test",
+                        args: { verification_name: record.name },
+                        freeze: true,
+                        callback: function (result) {
+                            if (!result.message) return;
+                            frappe.msgprint(result.message.message);
+                            if (state.donation) loadDonation(state.donation);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+/* BB_COMPONENT_TABS_NATIVE_V3 */
     function renderTabs() {
         root.find("#bb-cw-stage-tabs [data-stage]").each(function () {
             const index = Number(this.dataset.stage);
@@ -327,18 +461,153 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
         renderTabs();
     }
 
+    // BB_COMPONENT_UI_SOURCE_AUTOFILL_V3
+    function deriveSourceFieldValue(fieldname, doc = {}) {
+        const context = state.context || {};
+        const source = context.source_link_check || {};
+        const doctype = STAGES[state.index]?.doctype || "";
+        const donation = context.donation || {};
+        const components = context.component_records || [];
+        const units = context.unit_records || [];
+        const processingRows = context.processing_records || [];
+        const screenings = context.screening_records || [];
+
+        const componentName =
+            root.find("#bb-cw-source-component").val() ||
+            doc.blood_component ||
+            state.doc?.blood_component ||
+            "";
+
+        const component = components.find(
+            row => row.name === componentName
+        ) || {};
+
+        const unitName =
+            (doctype === "Blood Screening"
+                ? root.find("#bb-cw-source-unit").val()
+                : "") ||
+            component.blood_unit ||
+            doc.blood_unit ||
+            state.doc?.blood_unit ||
+            source.unit?.name ||
+            "";
+
+        const unit = units.find(row => row.name === unitName) ||
+            (source.unit?.name === unitName ? source.unit : {}) ||
+            {};
+
+        const processing = processingRows.find(row =>
+            row.name === component.blood_processing ||
+            row.name === unit.blood_processing ||
+            row.name === source.processing?.name
+        ) || source.processing || {};
+
+        const screening = screenings.find(row =>
+            row.name === component.blood_screening
+        ) || screenings.find(row =>
+            row.blood_unit === unitName &&
+            row.screening_status === "Accepted" &&
+            row.overall_result === "Passed"
+        ) || screenings.find(row => row.blood_unit === unitName) || {};
+
+        const derived = {
+            blood_processing:
+                component.blood_processing ||
+                unit.blood_processing ||
+                processing.name || "",
+            blood_unit:
+                component.blood_unit || unit.name || unitName || "",
+            blood_screening:
+                component.blood_screening ||
+                screening.name ||
+                processing.blood_screening || "",
+            donor:
+                component.donor || unit.donor ||
+                processing.donor || donation.donor || "",
+            donor_name:
+                component.donor_name || unit.donor_name ||
+                processing.donor_name || donation.donor_name || "",
+            blood_group:
+                component.blood_group || unit.blood_group ||
+                processing.blood_group || "",
+            bag_number:
+                component.bag_number || unit.bag_number ||
+                processing.bag_number || donation.bag_number || "",
+            component_type: component.component_type || "",
+            component_number: component.component_number || "",
+            component_volume: component.volume ?? "",
+            sample_id: screening.sample_id || ""
+        };
+
+        return derived[fieldname] ?? "";
+    }
+
     function makeFieldControl(parent, field, doc = {}) {
+        const doctype = STAGES[state.index].doctype;
+        const actorField = {
+            "Blood Component": "prepared_by",
+            "Blood Screening": "screened_by",
+            "Blood Component Quality Check": "inspected_by",
+            "Blood Storage": "stored_by"
+        }[doctype];
+
+        const controlledActor =
+            field.fieldname === actorField ||
+            (doctype === "Blood Storage" && field.fieldname === "available_by");
+
         const df = {
             fieldname: field.fieldname,
             label: field.label,
             fieldtype: field.fieldtype || "Data",
             options: field.options || "",
             reqd: Boolean(field.reqd),
-            read_only: Boolean(field.read_only),
+            read_only: Boolean(field.read_only) || controlledActor,
             description: field.description || ""
         };
 
         let value = resolveFieldValue(field, doc[field.fieldname]);
+
+        if (value === null || value === undefined || value === "") {
+            const derived = deriveSourceFieldValue(field.fieldname, doc);
+            if (derived !== null && derived !== undefined && derived !== "") {
+                value = derived;
+            }
+        }
+
+        if (state.isNew && controlledActor && !value) {
+            value = frappe.session.user || "";
+        }
+
+        // BB_STORAGE_UNIT_VISIBLE_IN_STORAGE_V1
+        // Display the unit belonging to the selected component in storage.
+        if (
+            STAGES[state.index].doctype === "Blood Storage" &&
+            field.fieldname === "blood_unit" &&
+            !value
+        ) {
+            const selectedComponentName =
+                root.find("#bb-cw-source-component").val() ||
+                doc.blood_component ||
+                state.doc?.blood_component ||
+                "";
+
+            const components = state.context?.component_records || [];
+            const selectedComponent = components.find(
+                row => row.name === selectedComponentName
+            ) || (components.length === 1 ? components[0] : null);
+
+            value = selectedComponent?.blood_unit || "";
+        }
+
+        // BB_STORAGE_REFERENCE_CURRENT_USER_V1
+        // Fill the storage reference from the logged-in account on new records.
+        if (
+            STAGES[state.index].doctype === "Blood Storage" &&
+            field.fieldname === "storage_reference" &&
+            !value
+        ) {
+            value = frappe.session.user || "";
+        }
 
         if (
             STAGES[state.index].doctype === "Blood Component" &&
@@ -477,6 +746,48 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
         }
     }
 
+    // BB_STORAGE_UNIT_VISIBLE_IN_STORAGE_V1
+    // Keep the read-only Blood Unit field synchronized with component selection.
+    root.off("change.bbStorageUnit", "#bb-cw-source-component");
+    root.on("change.bbStorageUnit", "#bb-cw-source-component", function () {
+        if (Number(state.index) !== 3) return;
+
+        const selectedName = $(this).val();
+        const components = state.context?.component_records || [];
+        const component = components.find(row => row.name === selectedName);
+
+        if (state.controls.blood_unit) {
+            state.controls.blood_unit.set_value(component?.blood_unit || "");
+        }
+    });
+
+    // BB_COMPONENT_UI_SOURCE_AUTOFILL_V3
+    const SOURCE_DISPLAY_FIELDS = new Set([
+        "blood_processing", "blood_unit", "blood_screening",
+        "donor", "donor_name", "blood_group", "bag_number",
+        "component_type", "component_number", "component_volume", "sample_id"
+    ]);
+
+    function syncSourceDisplayFields() {
+        Object.keys(state.controls || {}).forEach(fieldname => {
+            if (!SOURCE_DISPLAY_FIELDS.has(fieldname)) return;
+            const control = state.controls[fieldname];
+            if (!control) return;
+            const value = deriveSourceFieldValue(fieldname, state.doc || {});
+            control.set_value(value || "");
+        });
+    }
+
+    root.off(
+        "change.bbComponentSourceFields",
+        "#bb-cw-source-component, #bb-cw-source-unit"
+    );
+    root.on(
+        "change.bbComponentSourceFields",
+        "#bb-cw-source-component, #bb-cw-source-unit",
+        syncSourceDisplayFields
+    );
+
     function renderFields(doc = {}) {
         const host = root.find("#bb-cw-stage-fields").empty();
         state.controls = {};
@@ -516,38 +827,171 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
 
     async function renderActions() {
         const host = root.find("#bb-cw-workflow-actions").empty();
+        const wrap = $('<div class="bb-workflow-actions-wrap"></div>');
+        const toggle = $(
+            '<button type="button" id="bb-cw-actions-toggle" ' +
+            'class="btn btn-default bb-workflow-actions-toggle" ' +
+            'aria-haspopup="menu" aria-expanded="false" ' +
+            'aria-controls="bb-cw-actions-menu">' +
+            '⚙ الإجراءات | Actions <span aria-hidden="true">▾</span></button>'
+        );
+        const menu = $(
+            '<div id="bb-cw-actions-menu" class="bb-workflow-actions-menu" ' +
+            'role="menu" aria-label="إجراءات سير العمل" hidden></div>'
+        );
+
+        wrap.append(toggle, menu);
+        host.append(wrap);
+
+        toggle.on("click", function (event) {
+            event.preventDefault();
+            const opening = menu.prop("hidden");
+            menu.prop("hidden", !opening);
+            toggle.attr("aria-expanded", opening ? "true" : "false");
+        });
+
+        const rootEl = root && root.length ? root[0] : null;
+        if (rootEl && !rootEl.__bbCwActionsOutsideHandler) {
+            rootEl.__bbCwActionsOutsideHandler = true;
+            document.addEventListener("click", function (event) {
+                if (
+                    event.target &&
+                    event.target.closest(".bb-workflow-actions-wrap") &&
+                    rootEl.contains(event.target)
+                ) return;
+
+                const liveMenu = rootEl.querySelector("#bb-cw-actions-menu");
+                const liveToggle = rootEl.querySelector("#bb-cw-actions-toggle");
+                if (liveMenu && !liveMenu.hidden) {
+                    liveMenu.hidden = true;
+                    if (liveToggle) liveToggle.setAttribute("aria-expanded", "false");
+                }
+            });
+        }
+
+        const showMessage = text => {
+            menu.empty().append(
+                $("<div>").addClass("bb-workflow-action-message").text(text)
+            );
+        };
 
         if (!state.donation || !state.name || state.isNew) {
-            host.text("احفظ السجل أولًا لعرض إجراءات سير العمل.");
+            showMessage("احفظ السجل أولًا لعرض إجراءات سير العمل.");
             return;
         }
 
+        const stage = STAGES[state.index];
+        menu.append(
+            $('<div class="bb-workflow-action-summary"></div>').append(
+                $("<div>").append($("<strong>").text(stage.title || stage.doctype)),
+                $("<div>").append(
+                    $("<span>").text("رقم السجل: "),
+                    $("<strong>").text(state.name)
+                )
+            )
+        );
+
         try {
             const actions = await call(API.transitions, {
-                doctype: STAGES[state.index].doctype,
+                doctype: stage.doctype,
                 name: state.name,
                 donation_name: state.donation
             });
 
             if (!Array.isArray(actions) || !actions.length) {
-                host.text("لا توجد إجراءات متاحة للحالة الحالية أو للمستخدم.");
+                showMessage("لا توجد إجراءات متاحة للحالة الحالية أو للمستخدم.");
                 return;
             }
 
+            const list = $('<div class="bb-workflow-action-list"></div>');
             actions.forEach(item => {
                 const action = typeof item === "string" ? item : item.action;
                 if (!action) return;
 
-                const button = $(
-                    `<button type="button" class="btn btn-default btn-sm">${esc(action)}</button>`
-                ).css("margin", "0 0 6px 6px");
+                const row = $('<div class="bb-workflow-action-row"></div>');
+                const info = $('<div class="bb-workflow-action-info"></div>');
+                info.append($("<strong>").text(action));
 
-                button.on("click", () => runAction(action));
-                host.append(button);
+                if (item && typeof item === "object" && item.next_state) {
+                    info.append(
+                        $("<small>").text("الحالة التالية: " + item.next_state)
+                    );
+                }
+
+                /* BB_INLINE_ACTION_CONFIRM_V1 */
+                const choose = $(
+                    '<button type="button" class="btn btn-default btn-sm">' +
+                    'اختيار</button>'
+                );
+
+                choose.on("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (state.busy) return;
+
+                    menu.find(".bb-workflow-action-confirm").remove();
+                    menu.prop("hidden", false);
+                    toggle.attr("aria-expanded", "true");
+                    const panel = $(
+                        '<div class="bb-workflow-action-confirm" role="group"></div>'
+                    );
+                    panel.append($("<strong>").text("تأكيد تنفيذ الإجراء"));
+                    panel.append($("<p>").text(
+                        `هل تريد تنفيذ «${action}» على السجل ${state.name}؟`
+                    ));
+                    // BB_CW_NEXT_STATE_SCOPE_FIX_V1
+                    const nextState = item && typeof item === "object"
+                        ? (item.next_state || item.nextState || "")
+                        : "";
+                    if (nextState) {
+                        panel.append($("<small>").text(
+                            "الحالة التالية: " + nextState
+                        ));
+                    }
+
+                    const buttons = $(
+                        '<div class="bb-workflow-action-confirm-buttons"></div>'
+                    );
+                    const yes = $(
+                        '<button type="button" class="btn btn-primary btn-sm">' +
+                        'تأكيد التنفيذ</button>'
+                    );
+                    const no = $(
+                        '<button type="button" class="btn btn-default btn-sm">' +
+                        'رجوع</button>'
+                    );
+
+                    yes.on("click", async function (confirmEvent) {
+                        confirmEvent.preventDefault();
+                        confirmEvent.stopPropagation();
+                        if (state.busy) return;
+                        yes.prop("disabled", true).text("جارٍ التنفيذ...");
+                        await runAction(action);
+                    });
+
+                    no.on("click", function (cancelEvent) {
+                        cancelEvent.preventDefault();
+                        cancelEvent.stopPropagation();
+                        panel.remove();
+                    });
+
+                    buttons.append(yes, no);
+                    panel.append(buttons);
+                    menu.append(panel);
+                });
+
+                row.append(info, choose);
+                list.append(row);
             });
+
+            if (!list.children().length) {
+                showMessage("لا توجد إجراءات متاحة للحالة الحالية أو للمستخدم.");
+                return;
+            }
+            menu.append(list);
         } catch (error) {
             console.error(error);
-            host.text("تعذر تحميل إجراءات سير العمل.");
+            showMessage("تعذر تحميل إجراءات سير العمل.");
         }
     }
 
@@ -855,77 +1299,62 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
     async function runAction(action) {
         if (!state.name || !state.donation) return;
 
-        frappe.confirm(
-            `هل تريد تنفيذ الإجراء "${action}" على ${state.name}؟`,
-            async () => {
-                try {
-                    await call(API.action, {
-                        doctype: STAGES[state.index].doctype,
-                        name: state.name,
-                        donation_name: state.donation,
-                        action
-                    });
+        try {
+            await call(API.action, {
+                doctype: STAGES[state.index].doctype,
+                name: state.name,
+                donation_name: state.donation,
+                action
+            });
 
-                    const oldIndex = state.index;
+            const oldIndex = state.index;
+            state.context = await call(API.context, {
+                donation_name: state.donation
+            });
+            renderDonationSummary();
 
-                    state.context = await call(API.context, {
-                        donation_name: state.donation
-                    });
+            let actionNotice = `تم تنفيذ الإجراء: ${action}`;
+            let actionNoticeColor = "green";
 
-                    renderDonationSummary();
+            if (oldIndex === 1 && action === "Accept Screening") {
+                state.index = 2;
+                state.name = "";
+                state.doc = null;
+                state.isNew = false;
+                actionNotice =
+                    "تم قبول فحص الدم والانتقال تلقائيًا إلى نافذة فحص الجودة.";
+            }
 
-                    let actionNotice = `تم تنفيذ الإجراء: ${action}`;
-                    let actionNoticeColor = "green";
+            if (oldIndex === 2 && action === "Pass Quality Check") {
+                const passedRecord = (
+                    state.context?.quality_records || []
+                ).some(qc =>
+                    qc.name === state.name &&
+                    qc.qc_status === "Passed" &&
+                    qc.overall_result === "Passed"
+                );
 
-                    // BB_AUTO_QUALITY_NAV_AFTER_SCREENING_ACCEPT_V2
-                    if (
-                        oldIndex === 1 &&
-                        action === "Accept Screening"
-                    ) {
-                        state.index = 2;
-                        state.name = "";
-                        state.doc = null;
-                        state.isNew = false;
-                        actionNotice =
-                            "تم قبول فحص الدم والانتقال تلقائيًا إلى نافذة فحص الجودة.";
-                    }
-
-                    /* BB_AUTO_STORAGE_NAV_AFTER_QUALITY_PASS_V1 */
-                    if (
-                        oldIndex === 2 &&
-                        action === "Pass Quality Check"
-                    ) {
-                        const passedRecord = (
-                            state.context?.quality_records || []
-                        ).some(qc =>
-                            qc.name === state.name &&
-                            qc.qc_status === "Passed" &&
-                            qc.overall_result === "Passed"
-                        );
-
-                        if (passedRecord && canOpenStage(3)) {
-                            state.index = 3;
-                            state.name = "";
-                            state.doc = null;
-                            state.isNew = false;
-
-                            actionNotice =
-                                "نجح فحص الجودة، وتم الانتقال تلقائيًا إلى نافذة التخزين.";
-                        } else {
-                            actionNotice =
-                                "تم تنفيذ الإجراء، لكن شروط فتح التخزين لم تكتمل. تحقق من حالة الجودة وفحص الدم.";
-                            actionNoticeColor = "orange";
-                        }
-                    }
-
-                    await renderStage();
-                    notify(actionNotice, actionNoticeColor);
-                } catch (error) {
-                    console.error(error);
-                    notify(error?.message || `تعذر تنفيذ ${action}.`, "red");
+                if (passedRecord && canOpenStage(3)) {
+                    state.index = 3;
+                    state.name = "";
+                    state.doc = null;
+                    state.isNew = false;
+                    actionNotice =
+                        "نجح فحص الجودة، وتم الانتقال تلقائيًا إلى نافذة التخزين.";
+                } else {
+                    actionNotice =
+                        "تم تنفيذ الإجراء، لكن شروط فتح التخزين لم تكتمل. تحقق من حالة الجودة وفحص الدم.";
+                    actionNoticeColor = "orange";
                 }
             }
-        );
+
+            await renderStage();
+            notify(actionNotice, actionNoticeColor);
+        } catch (error) {
+            console.error(error);
+            notify(error?.message || `تعذر تنفيذ ${action}.`, "red");
+            await renderActions();
+        }
     }
 
     async function setStage(index) {
@@ -1054,7 +1483,17 @@ frappe.pages["blood-bank-component-work"].on_page_load = function (wrapper) {
 
     root.on("click", "#bb-cw-group-verification", function (event) {
         event.preventDefault();
-        openGroupVerificationDialog();
+
+        const mode = $(this).attr("data-bb-group-mode");
+        if (mode === "register") {
+            openGroupVerificationDialog();
+        } else if (mode === "approve_previous") {
+            openPreviousGroupVerificationDialog();
+        } else if (mode === "verified") {
+            frappe.msgprint(__("فصيلة الوحدة معتمدة بالفعل."));
+        } else if (!$(this).prop("disabled")) {
+            frappe.msgprint(__("حالة النتيجة لا تسمح بهذا الإجراء."));
+        }
     });
 
     root.on("click", "[data-stage]", function (event) {

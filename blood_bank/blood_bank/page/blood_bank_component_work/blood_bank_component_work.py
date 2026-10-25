@@ -308,6 +308,15 @@ def get_donation_context(donation_name):
             "component_number",
             "bag_number",
             "donor_name",
+            "donor",
+            "blood_group",
+            "volume",
+            "volume_unit",
+            "preparation_date",
+            "prepared_at",
+            "prepared_by",
+            "separation_method",
+            "remarks",
         ],
     )
 
@@ -323,6 +332,14 @@ def get_donation_context(donation_name):
             "donor_name",
             "blood_group",
             "bag_number",
+            "sample_id",
+            "screened_by",
+            "screened_at",
+            "result_summary",
+            "reviewer",
+            "review_date",
+            "rejection_reason",
+            "remarks",
         ],
     )
 
@@ -338,6 +355,23 @@ def get_donation_context(donation_name):
             "overall_result",
             "inspection_date",
             "discard_reason",
+            "inspected_by",
+            "blood_processing",
+            "blood_screening",
+            "blood_unit",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
+            "component_type",
+            "component_number",
+            "component_volume",
+            "volume_unit",
+            "visual_condition",
+            "label_condition",
+            "container_condition",
+            "failure_reason",
+            "remarks",
         ],
     )
 
@@ -356,17 +390,49 @@ def get_donation_context(donation_name):
             "storage_location",
             "storage_date",
             "discard_reason",
+            "blood_unit",
+            "blood_processing",
+            "blood_screening",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
+            "component_type",
+            "component_number",
+            "component_volume",
+            "volume_unit",
+            "stored_at",
+            "stored_by",
+            "temperature",
+            "temperature_unit",
+            "storage_reference",
+            "available_at",
+            "available_by",
+            "remarks",
         ],
     )
-
-    eligible_processing = [
-        row for row in processing_rows
-        if row.processing_status == "Component Separation"
-    ]
 
     quarantined_units = [
         row for row in unit_rows
         if row.unit_status == "Quarantine"
+    ]
+
+    # BB_QUARANTINE_UNIT_MATCHED_PROCESSING_V1
+    # اختر المعالجة المرتبطة بالوحدة قيد الحجر فقط.
+    # لا نعدّ المعالجات التاريخية المرتبطة بوحدات مقبولة.
+    eligible_processing = [
+        row for row in processing_rows
+        if (
+            row.processing_status == "Component Separation"
+            and len(quarantined_units) == 1
+            and (
+                row.blood_unit == quarantined_units[0].name
+                or (
+                    not row.blood_unit
+                    and quarantined_units[0].blood_processing == row.name
+                )
+            )
+        )
     ]
 
     linkage = {
@@ -379,16 +445,17 @@ def get_donation_context(donation_name):
         "mismatches": [],
     }
 
-    if len(eligible_processing) != 1:
-        linkage["reason"] = (
-            "يجب تحديد سجل معالجة واحد بحالة Component Separation. "
-            f"العدد الحالي: {len(eligible_processing)}."
-        )
-
-    elif len(quarantined_units) != 1:
+    if len(quarantined_units) != 1:
         linkage["reason"] = (
             "يجب تحديد وحدة دم واحدة بحالة Quarantine. "
             f"العدد الحالي: {len(quarantined_units)}."
+        )
+
+    elif len(eligible_processing) != 1:
+        linkage["reason"] = (
+            "يجب تحديد سجل معالجة واحد بحالة Component Separation "
+            "مرتبط بوحدة الدم الموجودة في الحجر. "
+            f"العدد المطابق الحالي: {len(eligible_processing)}."
         )
 
     else:

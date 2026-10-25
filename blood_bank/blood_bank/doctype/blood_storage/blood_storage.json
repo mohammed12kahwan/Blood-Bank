@@ -55,12 +55,12 @@
   {
    "fieldname": "identification_section",
    "fieldtype": "Section Break",
-   "label": "Identification / \u0627\u0644\u062a\u0639\u0631\u064a\u0641"
+   "label": "Identification / التعريف"
   },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Storage ID / \u0631\u0642\u0645 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Storage ID / رقم التخزين",
    "options": "STO-.YYYY.-.#####",
    "reqd": 1
   },
@@ -70,7 +70,7 @@
    "fieldname": "storage_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Storage Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Storage Status / حالة التخزين",
    "no_copy": 1,
    "options": "Draft\nStorage\nAvailable\nReserved\nIssued\nExpired\nDiscarded",
    "reqd": 1
@@ -78,13 +78,13 @@
   {
    "fieldname": "source_section",
    "fieldtype": "Section Break",
-   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645"
+   "label": "Blood Component / مكوّن الدم"
   },
   {
    "fieldname": "blood_component",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Blood Component / \u0645\u0643\u0648\u0651\u0646 \u0627\u0644\u062f\u0645",
+   "label": "Blood Component / مكوّن الدم",
    "options": "Blood Component",
    "reqd": 1
   },
@@ -92,63 +92,63 @@
    "fieldname": "quality_check",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Quality Check / \u0641\u062d\u0635 \u0627\u0644\u062c\u0648\u062f\u0629",
+   "label": "Quality Check / فحص الجودة",
    "options": "Blood Component Quality Check",
    "reqd": 1
   },
   {
    "fieldname": "blood_processing",
    "fieldtype": "Link",
-   "label": "Blood Processing / \u0645\u0639\u0627\u0644\u062c\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Processing / معالجة الدم",
    "options": "Blood Processing",
    "read_only": 1
   },
   {
    "fieldname": "blood_screening",
    "fieldtype": "Link",
-   "label": "Blood Screening / \u0641\u062d\u0635 \u0627\u0644\u062f\u0645",
+   "label": "Blood Screening / فحص الدم",
    "options": "Blood Screening",
    "read_only": 1
   },
   {
    "fieldname": "blood_unit",
    "fieldtype": "Link",
-   "label": "Blood Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Unit / وحدة الدم",
    "options": "Blood Unit",
    "read_only": 1
   },
   {
    "fieldname": "donor",
    "fieldtype": "Link",
-   "label": "Donor / \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor / المتبرع",
    "options": "Blood Donor",
    "read_only": 1
   },
   {
    "fieldname": "donor_name",
    "fieldtype": "Data",
-   "label": "Donor Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u062a\u0628\u0631\u0639",
+   "label": "Donor Name / اسم المتبرع",
    "read_only": 1
   },
   {
    "fieldname": "blood_group",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645",
+   "label": "Blood Group / فصيلة الدم",
    "read_only": 1
   },
   {
    "fieldname": "bag_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Bag Number / \u0631\u0642\u0645 \u0627\u0644\u0643\u064a\u0633",
+   "label": "Bag Number / رقم الكيس",
    "read_only": 1
   },
   {
    "fieldname": "component_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "label": "Component Type / نوع المكوّن",
    "options": "Packed Red Cells\nFresh Frozen Plasma\nPlatelets\nCryoprecipitate\nOther",
    "read_only": 1
   },
@@ -156,117 +156,124 @@
    "fieldname": "component_number",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Component Number / \u0631\u0642\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "label": "Component Number / رقم المكوّن",
    "read_only": 1
   },
   {
    "fieldname": "component_volume",
    "fieldtype": "Float",
-   "label": "Component Volume / \u062d\u062c\u0645 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "label": "Component Volume / حجم المكوّن",
    "read_only": 1
   },
   {
    "fieldname": "volume_unit",
    "fieldtype": "Select",
-   "label": "Volume Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u062c\u0645",
+   "label": "Volume Unit / وحدة الحجم",
    "options": "mL\nL",
    "read_only": 1
   },
   {
    "fieldname": "storage_section",
    "fieldtype": "Section Break",
-   "label": "Storage / \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+   "label": "Storage / التخزين"
   },
   {
    "fieldname": "storage_location",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Storage Location / \u0645\u0648\u0642\u0639 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Storage Location / موقع التخزين",
    "options": "Warehouse",
    "reqd": 1
   },
   {
    "fieldname": "storage_date",
    "fieldtype": "Date",
-   "label": "Storage Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Storage Date / تاريخ التخزين",
    "reqd": 1
   },
   {
    "fieldname": "stored_at",
    "fieldtype": "Datetime",
-   "label": "Stored At / \u0648\u0642\u062a \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+   "label": "Stored At / وقت التخزين"
   },
   {
    "fieldname": "stored_by",
    "fieldtype": "Link",
-   "label": "Stored By / \u0645\u0646\u0641\u0630 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Stored By / منفذ التخزين",
    "options": "User"
   },
   {
    "fieldname": "temperature",
    "fieldtype": "Float",
-   "label": "Storage Temperature / \u062f\u0631\u062c\u0629 \u062d\u0631\u0627\u0631\u0629 \u0627\u0644\u062a\u062e\u0632\u064a\u0646",
+   "label": "Storage Temperature / درجة حرارة التخزين",
    "precision": "2"
   },
   {
-   "default": "\u00b0C",
+   "default": "°C",
    "fieldname": "temperature_unit",
    "fieldtype": "Select",
-   "label": "Temperature Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u062d\u0631\u0627\u0631\u0629",
-   "options": "\u00b0C\n\u00b0F"
+   "label": "Temperature Unit / وحدة الحرارة",
+   "options": "°C\n°F"
   },
   {
    "fieldname": "storage_reference",
    "fieldtype": "Data",
-   "label": "Storage Reference / \u0645\u0631\u062c\u0639 \u0627\u0644\u062a\u062e\u0632\u064a\u0646"
+   "label": "Storage Reference / مرجع التخزين"
   },
   {
    "fieldname": "availability_section",
    "fieldtype": "Section Break",
-   "label": "Availability / \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+   "label": "Availability / الإتاحة"
   },
   {
    "fieldname": "available_date",
    "fieldtype": "Date",
-   "label": "Available Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+   "label": "Available Date / تاريخ الإتاحة",
+   "hidden": 1,
+   "read_only": 1,
+   "reqd": 0,
+   "in_list_view": 0
   },
   {
    "fieldname": "available_at",
    "fieldtype": "Datetime",
-   "label": "Available At / \u0648\u0642\u062a \u0627\u0644\u0625\u062a\u0627\u062d\u0629"
+   "label": "Available At / تاريخ ووقت الإتاحة",
+   "hidden": 0,
+   "read_only": 1,
+   "reqd": 0
   },
   {
    "fieldname": "available_by",
    "fieldtype": "Link",
-   "label": "Available By / \u0645\u0639\u062a\u0645\u062f \u0627\u0644\u0625\u062a\u0627\u062d\u0629",
+   "label": "Available By / معتمد الإتاحة",
    "options": "User"
   },
   {
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / الملاحظات"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / ملاحظات"
   },
   {
    "fieldname": "discard_reason",
    "fieldtype": "Small Text",
-   "label": "Discard Reason / \u0633\u0628\u0628 \u0627\u0644\u062a\u062e\u0644\u0635"
+   "label": "Discard Reason / سبب التخلص"
   },
   {
    "fieldname": "discarded_at",
    "fieldtype": "Datetime",
-   "label": "Discarded At / \u0648\u0642\u062a \u0627\u0644\u062a\u062e\u0644\u0635",
+   "label": "Discarded At / وقت التخلص",
    "no_copy": 1,
    "read_only": 1
   },
   {
    "fieldname": "discarded_by",
    "fieldtype": "Link",
-   "label": "Discarded By / \u0628\u0648\u0627\u0633\u0637\u0629",
+   "label": "Discarded By / بواسطة",
    "no_copy": 1,
    "options": "User",
    "read_only": 1

@@ -1,5 +1,8 @@
 frappe.ui.form.on("Blood Request", {
     refresh(frm) {
+        // BB_REQUEST_OPEN_CROSSMATCH_V1
+        bb_request_open_crossmatch_v1(frm);
+
         apply_blood_request_colors(frm);
         setTimeout(() => apply_blood_request_colors(frm), 150);
         setTimeout(() => apply_blood_request_colors(frm), 600);
@@ -111,4 +114,58 @@ function apply_blood_request_colors(frm) {
             );
         });
     });
+}
+
+
+
+// BB_REQUEST_OPEN_CROSSMATCH_HELPER_V1
+function bb_request_open_crossmatch_v1(frm) {
+    if (
+        !frm ||
+        frm.is_new() ||
+        !frm.doc.name ||
+        frm.doc.request_status !== "Approved"
+    ) {
+        return;
+    }
+
+    frm.add_custom_button(
+        __("الخطوة التالية: المطابقة"),
+        () => {
+            frappe.db.get_list("Blood Crossmatch", {
+                filters: { blood_request: frm.doc.name },
+                fields: ["name", "crossmatch_status", "modified"],
+                order_by: "modified desc",
+                limit: 1
+            }).then(rows => {
+                // Reuse an existing attempt instead of duplicating it.
+                if (rows && rows.length) {
+                    frappe.set_route(
+                        "Form",
+                        "Blood Crossmatch",
+                        rows[0].name
+                    );
+                    return;
+                }
+
+                frappe.new_doc("Blood Crossmatch", {
+                    blood_request: frm.doc.name,
+                    crossmatch_status: "Draft",
+                    crossmatch_date: frappe.datetime.get_today(),
+                    performed_by: frappe.session.user,
+                    compatibility_result: "Pending"
+                });
+            }).catch(error => {
+                console.error("Could not open crossmatch:", error);
+                frappe.msgprint({
+                    title: __("تعذر فتح المطابقة"),
+                    indicator: "red",
+                    message: __(
+                        "تعذر البحث عن سجل المطابقة. حدّث الصفحة وحاول مجددًا."
+                    )
+                });
+            });
+        },
+        __("سير العمل")
+    );
 }

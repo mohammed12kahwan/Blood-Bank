@@ -400,6 +400,54 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
                 read_only_depends_on: field.read_only_depends_on || undefined
             };
 
+            // BB_CUSTOM_CROSSMATCH_STORAGE_QUERY_V1
+            // Filter storage candidates in the custom workflow window.
+            // Never offer issued or otherwise unavailable storage.
+            if (
+                field.fieldname === "candidate_storage" &&
+                (field.options === "Blood Storage" || df.options === "Blood Storage")
+            ) {
+                df.get_query = function () {
+                    const filters = {
+                        storage_status: "Available"
+                    };
+
+                    function readCurrentValue(fieldname) {
+                        const control = state.controls &&
+                            state.controls[fieldname];
+
+                        let value = "";
+                        if (control && typeof control.get_value === "function") {
+                            value = control.get_value();
+                        }
+
+                        if (
+                            value === null ||
+                            value === undefined ||
+                            value === ""
+                        ) {
+                            value = (state.currentValues || {})[fieldname] || "";
+                        }
+
+                        return String(value || "").trim();
+                    }
+
+                    const group = readCurrentValue("required_blood_group");
+                    const componentType = readCurrentValue(
+                        "required_component_type"
+                    );
+
+                    if (group) {
+                        filters.blood_group = group;
+                    }
+                    if (componentType) {
+                        filters.component_type = componentType;
+                    }
+
+                    return { filters: filters };
+                };
+            }
+
             const control = frappe.ui.form.make_control({
                 parent: $column,
                 render_input: true,
@@ -422,12 +470,108 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         });
     }
 
+    async function activateWorkflowStage(doctype, sourceName) {
+        const index = state.schema.findIndex(function (item) {
+            return item.doctype === doctype;
+        });
+        if (index < 0 || !state.requestName) {
+            return;
+        }
+
+        state.index = index;
+        const records = stageRecords(doctype);
+        const sourceRecords = (
+            doctype === "Blood Reservation" && sourceName
+        ) ? records.filter(function (row) {
+            return row.blood_crossmatch === sourceName;
+        }) : (
+            doctype === "Blood Issue" && sourceName
+        ) ? records.filter(function (row) {
+            return row.blood_reservation === sourceName;
+        }) : records;
+
+        const selectedName = state.selectedNames[doctype];
+        const existing = sourceRecords.find(function (row) {
+            return row.name === selectedName;
+        }) || sourceRecords[0];
+
+        if (existing) {
+            state.selectedNames[doctype] = existing.name;
+            state.currentName = existing.name;
+            state.currentIsNew = false;
+            state.currentValues = Object.assign({}, existing);
+        } else {
+            const defaults = await call("get_stage_defaults", {
+                doctype: doctype,
+                request_name: state.requestName,
+                source_name: sourceName || null
+            });
+            state.selectedNames[doctype] = null;
+            state.currentName = null;
+            state.currentIsNew = true;
+            state.currentValues = Object.assign({}, defaults || {});
+        }
+
+        renderStage();
+    }
+
     function renderWorkflowActions(item, record) {
         const $actions = page.main.find("#bb-rw-workflow-actions");
         $actions.empty();
 
+        // BB_REQUEST_ACTION_MENU_ALWAYS_VISIBLE_V1
+        // Keep the actions button visible for saved records.
+        function renderActionMessage(message) {
+            const $dropdown = $(
+                '<div class="dropdown bb-rw-workflow-dropdown bb-workflow-actions-wrap"></div>'
+            );
+
+            const $toggle = $('<button type="button"></button>')
+                .addClass(
+                    "btn btn-default dropdown-toggle bb-rw-btn " +
+                    "bb-workflow-actions-toggle"
+                )
+                .attr({
+                    "data-toggle": "dropdown",
+                    "aria-haspopup": "true",
+                    "aria-expanded": "false",
+                    "aria-controls": "bb-rw-actions-menu"
+                })
+                .append(
+                    document.createTextNode(
+                        "⚙ " + __("الإجراءات | Actions") + " "
+                    )
+                )
+                .append('<span aria-hidden="true">▾</span>');
+
+            const $menu = $(
+                '<ul id="bb-rw-actions-menu" ' +
+                'class="dropdown-menu dropdown-menu-right ' +
+                'bb-workflow-actions-menu" role="menu" ' +
+                'aria-label="إجراءات سير العمل"></ul>'
+            );
+
+            const $message = $("<li>")
+                .attr("role", "presentation")
+                .append(
+                    $("<span>")
+                        .text(message)
+                        .css({
+                            display: "block",
+                            padding: "10px 12px",
+                            whiteSpace: "normal",
+                            color: "var(--text-muted)"
+                        })
+                );
+
+            $menu.append($message);
+            $dropdown.append($toggle, $menu);
+            $actions.append($dropdown);
+        }
+
+
         if (!record || !record.name) {
-            $actions.text(__("احفظ السجل أولًا لعرض إجراءات Workflow المتاحة."));
+            $actions.text(__("احفظ السجل أولًا لعرض إجراءات سير العمل."));
             return;
         }
 
@@ -436,9 +580,9 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         const doctypeAtStart = item.doctype;
 
         call("get_stage_actions", {
-            doctype: item.doctype,
-            request_name: state.requestName,
-            name: record.name
+            doctype: doctypeAtStart,
+            request_name: requestAtStart,
+            name: nameAtStart
         }).then(function (result) {
             if (
                 stage().doctype !== doctypeAtStart ||
@@ -449,75 +593,375 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             }
 
             $actions.empty();
-
             const actions = (result && result.actions) || [];
+
             if (!actions.length) {
-                $actions.text(__("لا توجد إجراءات Workflow متاحة لهذا السجل حاليًا."));
+                renderActionMessage(
+                    __("لا توجد إجراءات انتقال متاحة للحالة الحالية أو للمستخدم.")
+                );
                 return;
             }
 
+            const $dropdown = $('<div class="dropdown bb-rw-workflow-dropdown bb-workflow-actions-wrap"></div>');
+            const $toggle = $('<button type="button"></button>')
+                .addClass("btn btn-default dropdown-toggle bb-rw-btn bb-workflow-actions-toggle")
+                .attr({
+                    "data-toggle": "dropdown",
+                    "aria-haspopup": "true",
+                    "aria-expanded": "false",
+                    "aria-controls": "bb-rw-actions-menu"
+                })
+                .append(document.createTextNode("⚙ " + __("الإجراءات | Actions") + " "))
+                .append('<span aria-hidden="true">▾</span>');
+
+            const $menu = $('<ul id="bb-rw-actions-menu" class="dropdown-menu dropdown-menu-right bb-workflow-actions-menu" role="menu" aria-label="إجراءات سير العمل"></ul>');
+
             actions.forEach(function (actionInfo) {
-                const $button = $("<button>", {
-                    type: "button",
-                    class: "btn btn-default btn-sm",
+                const $item = $("<li>");
+                const $link = $("<a>", {
+                    href: "#",
                     text: actionInfo.action
                 });
 
                 if (actionInfo.next_state) {
-                    $button.attr(
+                    $link.attr(
                         "title",
                         __("الحالة التالية: {0}", [actionInfo.next_state])
                     );
                 }
 
-                $button.on("click", function () {
-                    frappe.confirm(
-                        __("هل تريد تنفيذ الإجراء {0} على السجل {1}؟", [
-                            actionInfo.action,
-                            nameAtStart
-                        ]),
-                        function () {
-                            setBusy(true);
-                            call("apply_stage_action", {
-                                doctype: doctypeAtStart,
-                                request_name: requestAtStart,
-                                name: nameAtStart,
-                                action: actionInfo.action
-                            }).then(function (response) {
-                                frappe.show_alert({
-                                    message: __(
-                                        "تم تنفيذ الإجراء. الحالة الحالية: {0}",
-                                        [response.status || "—"]
-                                    ),
-                                    indicator: "green"
-                                });
-                                return refreshContext(true);
-                            }).catch(function (error) {
-                                frappe.msgprint({
-                                    title: __("تعذر تنفيذ Workflow"),
-                                    message: (error && error.message) ||
-                                        __("لم يكتمل الإجراء.")
-                                });
-                            }).finally(function () {
-                                setBusy(false);
-                            });
-                        }
-                    );
-                });
+                /* BB_INLINE_ACTION_CONFIRM_V1 */
+                async function executeWorkflowAction(actionInfo) {
+                    if (state.busy) return;
 
-                $actions.append($button);
+                    // جمع قيم الحقول الحالية دون إظهار نافذة تأكيد.
+                    const values = {};
+                    item.fields.forEach(function (field) {
+                        const control = state.controls[field.fieldname];
+                        if (control && typeof control.get_value === "function") {
+                            values[field.fieldname] = control.get_value();
+                        }
+                    });
+
+                    // إذا كان الإجراء يحوّل الصرف إلى Returned،
+                    // اطلب السبب داخل النافذة الحالية قبل الاتصال بالخادم.
+                    const transitionText = [
+                        actionInfo.action,
+                        actionInfo.next_state,
+                        actionInfo.state
+                    ].join(" ").toLowerCase();
+
+                    const isReturnAction =
+                        doctypeAtStart === "Blood Issue" &&
+                        (
+                            /\breturned\b|\breturn\b/.test(transitionText) ||
+                            transitionText.includes("إرجاع") ||
+                            transitionText.includes("مرتجع")
+                        );
+
+                    if (
+                        isReturnAction &&
+                        !String(values.return_reason || "").trim()
+                    ) {
+                        showMessage(
+                            "#bb-rw-stage-message",
+                            __("أدخل سبب الإرجاع في حقل «سبب الإرجاع» قبل تنفيذ الإجراء."),
+                            "text-danger"
+                        );
+                        const reasonControl = state.controls.return_reason;
+                        if (reasonControl && reasonControl.$input) {
+                            reasonControl.$input.focus();
+                            reasonControl.$input.addClass("bb-rw-field-error");
+                        }
+                        return;
+                    }
+
+                    setBusy(true);
+                    showMessage(
+                        "#bb-rw-stage-message",
+                        __("جارٍ تنفيذ الإجراء..."),
+                        "text-muted"
+                    );
+
+                    try {
+                        const response = await call("apply_stage_action", {
+                            doctype: doctypeAtStart,
+                            request_name: requestAtStart,
+                            name: nameAtStart,
+                            action: actionInfo.action,
+                            values: values
+                        });
+
+                        const status = String(response.status || "").trim();
+                        const normalized = status.toLowerCase();
+                        let nextDoctype = null;
+                        let sourceName = null;
+
+                        if (
+                            doctypeAtStart === "Blood Request" &&
+                            normalized === "approved"
+                        ) {
+                            nextDoctype = "Blood Crossmatch";
+                            state.autoRoutedApprovedRequest = requestAtStart;
+                        } else if (
+                            doctypeAtStart === "Blood Crossmatch" &&
+                            normalized === "compatible"
+                        ) {
+                            nextDoctype = "Blood Reservation";
+                            sourceName = nameAtStart;
+                            state.routingCompatibleCrossmatch = sourceName;
+                        } else if (
+                            doctypeAtStart === "Blood Reservation" &&
+                            normalized === "ready for issue"
+                        ) {
+                            nextDoctype = "Blood Issue";
+                            sourceName = nameAtStart;
+                            state.routingReadyReservation = sourceName;
+                        } else if (
+                            doctypeAtStart === "Blood Issue" &&
+                            normalized === "issued"
+                        ) {
+                            nextDoctype = "Blood Handover";
+                        } else if (
+                            doctypeAtStart === "Blood Handover" &&
+                            normalized === "handed over"
+                        ) {
+                            nextDoctype = "Blood Transfusion";
+                        } else if (
+                            doctypeAtStart === "Blood Transfusion" &&
+                            [
+                                "completed", "complete", "transfused",
+                                "finished", "successful"
+                            ].includes(normalized)
+                        ) {
+                            nextDoctype = "Blood Unit Disposition";
+                        }
+
+                        if (nextDoctype) {
+                            // تحديث السياق محاولة مستقلة؛ لا نمنع التنقل
+                            // إذا تعذر تحديث قائمة السجلات.
+                            try {
+                                await refreshContext(true);
+                            } catch (refreshError) {
+                                console.warn(
+                                    "تعذر تحديث سياق الطلب:",
+                                    refreshError
+                                );
+                            }
+
+                            await activateWorkflowStage(nextDoctype, sourceName);
+
+                            if (doctypeAtStart === "Blood Crossmatch" && sourceName) {
+                                state.autoRoutedCompatibleCrossmatch = sourceName;
+                                state.routingCompatibleCrossmatch = null;
+                            }
+                            if (doctypeAtStart === "Blood Reservation" && sourceName) {
+                                state.autoRoutedReadyReservation = sourceName;
+                                state.routingReadyReservation = null;
+                            }
+
+                            showMessage(
+                                "#bb-rw-stage-message",
+                                __("تم تنفيذ الإجراء وفتح المرحلة التالية."),
+                                "text-success"
+                            );
+                        } else {
+                            await refreshContext(true);
+                            showMessage(
+                                "#bb-rw-stage-message",
+                                __("تم تنفيذ الإجراء بنجاح. الحالة الحالية: {0}", [status || "—"]),
+                                "text-success"
+                            );
+                        }
+                    } catch (error) {
+                        // لا نفتح نافذة منبثقة عند الخطأ.
+                        showMessage(
+                            "#bb-rw-stage-message",
+                            (error && error.message) ||
+                                __("تعذر تنفيذ الإجراء. راجع الحقول المطلوبة."),
+                            "text-danger"
+                        );
+
+                        if (
+                            error &&
+                            String(error.message || "").toLowerCase().includes("return reason")
+                        ) {
+                            const reasonControl = state.controls.return_reason;
+                            if (reasonControl && reasonControl.$input) {
+                                reasonControl.$input.focus();
+                                reasonControl.$input.addClass("bb-rw-field-error");
+                            }
+                        }
+                    } finally {
+                        setBusy(false);
+                    }
+                }
+
+                $link.on("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (state.busy) return;
+
+                    $menu.find(".bb-workflow-confirm-item").remove();
+                    $menu.find("li > a").hide();
+                    $dropdown.addClass("open");
+                    $toggle.attr("aria-expanded", "true");
+                    const $confirmItem = $('<li class="bb-workflow-confirm-item"></li>');
+                    const $confirm = $(
+                        '<div class="bb-workflow-action-confirm" role="group"></div>'
+                    );
+                    $confirm.append($("<strong>").text("تأكيد تنفيذ الإجراء"));
+                    $confirm.append($("<p>").text(
+                        `هل تريد تنفيذ «${actionInfo.action}» على السجل ${nameAtStart}؟`
+                    ));
+                    if (actionInfo.next_state) {
+                        $confirm.append($("<small>").text(
+                            "الحالة التالية: " + actionInfo.next_state
+                        ));
+                    }
+
+                    const $buttons = $(
+                        '<div class="bb-workflow-action-confirm-buttons"></div>'
+                    );
+                    const $yes = $(
+                        '<button type="button" class="btn btn-primary btn-sm">' +
+                        'تأكيد التنفيذ</button>'
+                    );
+                    const $no = $(
+                        '<button type="button" class="btn btn-default btn-sm">' +
+                        'رجوع</button>'
+                    );
+
+                    $yes.on("click", async function (confirmEvent) {
+                        confirmEvent.preventDefault();
+                        confirmEvent.stopPropagation();
+                        if (state.busy) return;
+                        $yes.prop("disabled", true).text("جارٍ التنفيذ...");
+                        await executeWorkflowAction(actionInfo);
+
+                        if (document.body.contains($confirm[0])) {
+                            $yes.prop("disabled", false).text("تأكيد التنفيذ");
+                        }
+                    });
+
+                    $no.on("click", function (cancelEvent) {
+                        cancelEvent.preventDefault();
+                        cancelEvent.stopPropagation();
+                        $confirmItem.remove();
+                        $menu.find("li > a").show();
+                        $dropdown.addClass("open");
+                        $toggle.attr("aria-expanded", "true");
+                    });
+
+                    $buttons.append($yes, $no);
+                    $confirm.append($buttons);
+                    $confirmItem.append($confirm);
+                    $menu.append($confirmItem);
+                });
+                $item.append($link);
+                $menu.append($item);
             });
+
+            $dropdown.append($toggle, $menu);
+            $actions.append($dropdown);
         }).catch(function (error) {
-            $actions.text(
-                __("تعذر جلب إجراءات Workflow: {0}", [
-                    (error && error.message) || ""
-                ])
+            if (
+                stage().doctype !== doctypeAtStart ||
+                state.currentName !== nameAtStart ||
+                state.requestName !== requestAtStart
+            ) {
+                return;
+            }
+
+            const message = __("تعذر تحميل الإجراءات: {0}", [
+                (error && error.message) || ""
+            ]);
+
+            renderActionMessage(message);
+            showMessage(
+                "#bb-rw-stage-message",
+                message,
+                "text-danger"
             );
         });
     }
 
     function renderStage() {
         if (!state.schema.length) {
+            return;
+        }
+
+        const activeStage = stage();
+        if (
+            activeStage.doctype === "Blood Request" &&
+            state.request &&
+            state.request.request_status === "Approved" &&
+            state.autoRoutedApprovedRequest !== state.request.name
+        ) {
+            state.autoRoutedApprovedRequest = state.request.name;
+            activateWorkflowStage("Blood Crossmatch").catch(function (error) {
+                frappe.msgprint({
+                    title: __("تعذر فتح المطابقة"),
+                    message: (error && error.message) ||
+                        __("تعذر تحميل بيانات المطابقة من طلب الدم.")
+                });
+            });
+            return;
+        }
+
+        // BB_CROSSMATCH_RESERVATION_FALLBACK_V7
+        const activeCrossmatch = activeStage.doctype === "Blood Crossmatch"
+            ? selectedRecord("Blood Crossmatch")
+            : null;
+
+        if (
+            activeCrossmatch &&
+            String(activeCrossmatch.crossmatch_status || "").trim().toLowerCase() === "compatible" &&
+            state.autoRoutedCompatibleCrossmatch !== activeCrossmatch.name &&
+            state.routingCompatibleCrossmatch !== activeCrossmatch.name
+        ) {
+            const sourceName = activeCrossmatch.name;
+            state.routingCompatibleCrossmatch = sourceName;
+
+            activateWorkflowStage("Blood Reservation", sourceName).then(function () {
+                state.autoRoutedCompatibleCrossmatch = sourceName;
+                state.routingCompatibleCrossmatch = null;
+            }).catch(function (error) {
+                state.routingCompatibleCrossmatch = null;
+                frappe.msgprint({
+                    title: __("تعذر فتح الحجز"),
+                    message: (error && error.message) ||
+                        __("تعذر فتح الحجز المرتبط بالمطابقة المتوافقة.")
+                });
+            });
+            return;
+        }
+
+        // BB_RESERVATION_READY_AUTO_ROUTE_V1
+        const activeReservation = activeStage.doctype === "Blood Reservation"
+            ? selectedRecord("Blood Reservation")
+            : null;
+
+        if (
+            activeReservation &&
+            String(activeReservation.reservation_status || "").trim().toLowerCase() === "ready for issue" &&
+            state.autoRoutedReadyReservation !== activeReservation.name &&
+            state.routingReadyReservation !== activeReservation.name
+        ) {
+            const reservationName = activeReservation.name;
+            state.routingReadyReservation = reservationName;
+
+            activateWorkflowStage("Blood Issue", reservationName).then(function () {
+                state.autoRoutedReadyReservation = reservationName;
+                state.routingReadyReservation = null;
+            }).catch(function (error) {
+                state.routingReadyReservation = null;
+                frappe.msgprint({
+                    title: __("تعذر فتح الصرف"),
+                    message: (error && error.message) ||
+                        __("تعذر فتح نافذة الصرف المرتبطة بالحجز.")
+                });
+            });
             return;
         }
 
@@ -739,15 +1183,34 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
     async function newRecord() {
         const item = stage();
 
-        if (!state.requestName) {
+        if (!state.requestName && item.doctype !== "Blood Request") {
             frappe.msgprint(__("اختر طلب دم أولًا."));
             return;
         }
 
         if (item.doctype === "Blood Request") {
-            frappe.msgprint(
-                __("هذه الصفحة لمتابعة طلب موجود؛ استخدم قائمة طلبات الدم لإنشاء طلب جديد.")
-            );
+            setBusy(true);
+            try {
+                const defaults = await call("get_new_blood_request_defaults", {});
+                state.requestName = null;
+                state.request = null;
+                state.records = {};
+                state.units = [];
+                state.selectedNames[item.doctype] = null;
+                state.currentName = null;
+                state.currentIsNew = true;
+                state.currentValues = Object.assign({}, defaults || {});
+                updateRequestSummary();
+                renderStage();
+            } catch (error) {
+                frappe.msgprint({
+                    title: __("تعذر بدء طلب جديد"),
+                    message: (error && error.message) ||
+                        __("تعذر تحميل القيم الافتراضية للطلب.")
+                });
+            } finally {
+                setBusy(false);
+            }
             return;
         }
 
@@ -776,7 +1239,11 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
     }
 
     async function saveCurrentStage() {
-        if (!state.requestName) {
+        const item = stage();
+        const creatingRequest =
+            item.doctype === "Blood Request" && state.currentIsNew;
+
+        if (!state.requestName && !creatingRequest) {
             frappe.msgprint(__("اختر طلب دم أولًا."));
             return;
         }
@@ -785,9 +1252,8 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             return;
         }
 
-        const item = stage();
-
         if (item.doctype === "Blood Request" &&
+            !creatingRequest &&
             state.currentName !== state.requestName) {
             frappe.msgprint(__("لا يمكن تبديل الطلب الحالي من خلال زر الحفظ."));
             return;
@@ -828,12 +1294,23 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         showMessage("#bb-rw-save-message", __("جارٍ الحفظ..."), "text-muted");
 
         try {
-            const result = await call("save_stage_document", {
-                doctype: item.doctype,
-                request_name: state.requestName,
-                name: state.currentIsNew ? null : state.currentName,
-                values: values
-            });
+            let result;
+
+            if (creatingRequest) {
+                result = await call("create_blood_request_in_window", {
+                    values: values
+                });
+                // اربط النافذة بالطلب الذي أنشئ للتو قبل تحميل السياق.
+                state.requestName = result.name;
+                state.request = null;
+            } else {
+                result = await call("save_stage_document", {
+                    doctype: item.doctype,
+                    request_name: state.requestName,
+                    name: state.currentIsNew ? null : state.currentName,
+                    values: values
+                });
+            }
 
             state.currentName = result.name;
             state.currentIsNew = false;

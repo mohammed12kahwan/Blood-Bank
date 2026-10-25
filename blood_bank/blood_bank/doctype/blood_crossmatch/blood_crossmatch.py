@@ -108,14 +108,101 @@ class BloodCrossmatch(Document):
 
     def validate_result(self):
 
-        if self.crossmatch_status in [
-            "Compatible",
-        ]:
+        if self.crossmatch_status == "Compatible":
 
             if self.compatibility_result != "Compatible":
                 frappe.throw(
                     "Compatible status requires "
                     "a Compatible result."
+                )
+
+            if not self.blood_request or not self.candidate_storage:
+                frappe.throw(
+                    "A Blood Request and candidate Blood Storage "
+                    "are required for a Compatible crossmatch."
+                )
+
+            request = frappe.db.get_value(
+                "Blood Request",
+                self.blood_request,
+                ["blood_group", "component_type"],
+                as_dict=True,
+            )
+
+            storage = frappe.db.get_value(
+                "Blood Storage",
+                self.candidate_storage,
+                [
+                    "storage_status",
+                    "blood_group",
+                    "component_type",
+                ],
+                as_dict=True,
+            )
+
+            if not request or not storage:
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "the request or candidate storage was not found."
+                )
+
+            if storage.storage_status != "Available":
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "candidate Blood Storage must be Available."
+                )
+
+            requested_type = (request.component_type or "").strip()
+            actual_type = (storage.component_type or "").strip()
+
+            if not requested_type or not actual_type:
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "the requested and candidate component types "
+                    "must both be specified."
+                )
+
+            if requested_type != actual_type:
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "candidate component type does not match "
+                    "the Blood Request."
+                )
+
+            requested_group = (request.blood_group or "").strip()
+            actual_group = (storage.blood_group or "").strip()
+
+            if not requested_group or requested_group != actual_group:
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "candidate blood group does not match "
+                    "the Blood Request."
+                )
+
+            # BB_FIFO_CROSSMATCH_SERVER_ENFORCEMENT_V1
+            # A UI filter alone is insufficient: enforce FIFO on the server.
+            from blood_bank.blood_bank.inventory import (
+                get_eligible_available_storages,
+            )
+
+            fifo_rows = get_eligible_available_storages(
+                requested_group,
+                requested_type,
+            )
+
+            if not fifo_rows:
+                frappe.throw(
+                    "Cannot mark crossmatch Compatible: "
+                    "no eligible Available stock matches the request. "
+                    "Verify storage status, unit acceptance, blood-group "
+                    "verification, and expiry."
+                )
+
+            oldest_storage = fifo_rows[0].get("name")
+            if self.candidate_storage != oldest_storage:
+                frappe.throw(
+                    "FIFO rule: select the oldest eligible Available "
+                    "storage first: " + str(oldest_storage)
                 )
 
         if self.crossmatch_status in [

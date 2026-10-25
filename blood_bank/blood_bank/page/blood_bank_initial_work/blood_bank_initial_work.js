@@ -13,6 +13,30 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         return;
     }
 
+    // BB_INITIAL_WORK_COMBINED_BLOOD_GROUP_V1
+    // Same eight canonical values as Blood Request.
+    const BLOOD_GROUP_OPTIONS = [
+        "A Positive",
+        "A Negative",
+        "B Positive",
+        "B Negative",
+        "AB Positive",
+        "AB Negative",
+        "O Positive",
+        "O Negative"
+    ];
+
+    const BLOOD_GROUP_PARTS = {
+        "A Positive":  { abo: "A",  rh: "Positive" },
+        "A Negative":  { abo: "A",  rh: "Negative" },
+        "B Positive":  { abo: "B",  rh: "Positive" },
+        "B Negative":  { abo: "B",  rh: "Negative" },
+        "AB Positive": { abo: "AB", rh: "Positive" },
+        "AB Negative": { abo: "AB", rh: "Negative" },
+        "O Positive":  { abo: "O",  rh: "Positive" },
+        "O Negative":  { abo: "O",  rh: "Negative" }
+    };
+
     const doctypes = [
         "Blood Donor",
         "Blood Donation",
@@ -30,7 +54,7 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
     const visible = [
         new Set([
             "full_name", "date_of_birth", "mobile_no", "gender",
-            "eligibility_status", "abo_group", "rh_factor",
+            "eligibility_status", "abo_group",
             "blood_group_verified", "eligibility_review_date",
             "deferral_reason"
         ]),
@@ -221,13 +245,25 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         }
 
         // نستخدم عنصر التحكم الأصلي في Frappe بدل input/select HTML يدوي.
+        const isCombinedBloodGroup =
+            i === 0 && fieldname === "abo_group";
+
         const df = {
             ...field,
             fieldname,
-            fieldtype: field.fieldtype,
+            fieldtype: isCombinedBloodGroup
+                ? "Select"
+                : field.fieldtype,
+            options: isCombinedBloodGroup
+                ? BLOOD_GROUP_OPTIONS.join("\n")
+                : field.options,
             label: field.label || fieldname,
-            reqd: isTrue(field.reqd) ? 1 : 0,
-            read_only: isTrue(field.read_only) ? 1 : 0,
+            reqd: isCombinedBloodGroup
+                ? 1
+                : (isTrue(field.reqd) ? 1 : 0),
+            read_only: isCombinedBloodGroup
+                ? 0
+                : (isTrue(field.read_only) ? 1 : 0),
             hidden: 0
         };
 
@@ -237,9 +273,53 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             render_input: true
         });
 
+        // BB_INITIAL_WORK_ABO_FULL_GROUP_FIELD_V2
+        // The ABO control displays all eight complete blood groups.
+        if (i === 0 && fieldname === "abo_group" && control.$input) {
+            control.$input.on("change.bbIwCombinedBloodGroupV2", function () {
+                const selected = String(control.get_value() || "").trim();
+                const parts = BLOOD_GROUP_PARTS[selected];
+
+                if (!parts) {
+                    return;
+                }
+
+                const donorModel = models[0];
+                donorModel._syncingBloodGroup = true;
+                donorModel.values = donorModel.values || {};
+                donorModel.values.abo_group = parts.abo;
+                donorModel.values.rh_factor = parts.rh;
+                donorModel.values.blood_group = selected;
+                donorModel.dirty = true;
+                donorModel._syncingBloodGroup = false;
+            });
+        }
+
+        // Full blood-group selection is handled by ABO control above.
+
         control.refresh();
 
-        const initialValue = model.values[fieldname];
+        let initialValue = model.values[fieldname];
+
+        if (i === 0 && fieldname === "abo_group") {
+            const saved = model.values || {};
+            const fullGroup = String(saved.blood_group || "").trim();
+            const derivedGroup =
+                String(saved.abo_group || "").trim() &&
+                String(saved.rh_factor || "").trim()
+                    ? String(saved.abo_group).trim() + " " +
+                      String(saved.rh_factor).trim()
+                    : "";
+
+            if (BLOOD_GROUP_OPTIONS.includes(fullGroup)) {
+                initialValue = fullGroup;
+            } else if (BLOOD_GROUP_OPTIONS.includes(derivedGroup)) {
+                initialValue = derivedGroup;
+            } else {
+                initialValue = "";
+            }
+        }
+
         if (initialValue !== undefined && initialValue !== null) {
             control.set_value(initialValue);
         }
@@ -1089,6 +1169,38 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         }
 
         const payload = getDocumentPayload(i);
+
+        // BB_INITIAL_WORK_ABO_FULL_GROUP_FIELD_V2
+        // Translate the visible full group into the canonical stored ABO/Rh.
+        if (i === 0) {
+            const groupControl = model.controls.abo_group;
+            const selectedGroup = String(
+                (groupControl && groupControl.get_value()) ||
+                model.values.blood_group ||
+                ""
+            ).trim();
+
+            const groupParts = BLOOD_GROUP_PARTS[selectedGroup];
+
+            if (!groupParts) {
+                notify(
+                    "اختر فصيلة دم كاملة وصحيحة من قائمة ABO قبل الحفظ.",
+                    "warning"
+                );
+                if (groupControl && groupControl.$input) {
+                    groupControl.$input.focus();
+                }
+                return;
+            }
+
+            payload.abo_group = groupParts.abo;
+            payload.rh_factor = groupParts.rh;
+            payload.blood_group = selectedGroup;
+
+            model.values.abo_group = groupParts.abo;
+            model.values.rh_factor = groupParts.rh;
+            model.values.blood_group = selectedGroup;
+        }
 
         /* BB_PRESERVE_BLOOD_PROCESSING_LINK_V1 */
         if (i === 3) {

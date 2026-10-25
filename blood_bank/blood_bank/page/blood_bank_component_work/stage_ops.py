@@ -3,6 +3,7 @@ from frappe.utils import today
 from frappe.model.workflow import apply_workflow, get_transitions
 
 
+# BB_STORAGE_HIDE_SYSTEM_AVAILABILITY_FIELDS_V1
 STAGES = {
     "Blood Component": {
         "status_field": "component_status",
@@ -10,6 +11,13 @@ STAGES = {
             "component_type", "component_number", "volume",
             "volume_unit", "preparation_date", "prepared_at",
             "prepared_by", "separation_method", "remarks",
+            "blood_processing",
+            "blood_unit",
+            "blood_screening",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
         ],
     },
     "Blood Screening": {
@@ -18,6 +26,11 @@ STAGES = {
             "screening_date", "screened_at",
             "screened_by", "overall_result", "result_summary",
             "reviewer", "review_date", "rejection_reason", "remarks",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
+            "sample_id",
         ],
     },
     "Blood Component Quality Check": {
@@ -26,15 +39,37 @@ STAGES = {
             "inspection_date", "inspected_by",
             "visual_condition", "label_condition", "container_condition",
             "overall_result", "failure_reason", "remarks", "discard_reason",
+            "blood_processing",
+            "blood_screening",
+            "blood_unit",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
+            "component_type",
+            "component_number",
+            "component_volume",
+            "volume_unit",
         ],
     },
     "Blood Storage": {
         "status_field": "storage_status",
         "fields": [
-            "storage_location",
+            # BB_STORAGE_UNIT_VISIBLE_IN_STORAGE_V1
+            "blood_unit", "storage_location",
             "storage_date", "stored_at", "stored_by", "temperature",
-            "temperature_unit", "storage_reference", "available_date",
-            "available_at", "available_by", "remarks", "discard_reason",
+            "temperature_unit", "storage_reference",
+              "remarks", "discard_reason",
+            "blood_processing",
+            "blood_screening",
+            "donor",
+            "donor_name",
+            "blood_group",
+            "bag_number",
+            "component_type",
+            "component_number",
+            "component_volume",
+            "volume_unit",
         ],
     },
 }
@@ -181,8 +216,22 @@ def _populate_sources(doc, context, values):
         if not source.get("ready_for_component"):
             frappe.throw(source.get("reason") or "مصدر المكوّن غير جاهز.")
 
-        doc.blood_processing = source["processing"]["name"]
-        doc.blood_unit = source["unit"]["name"]
+        # BB_COMPONENT_CONTEXT_FIELD_COMPLETENESS_V3
+        processing = source["processing"]
+        unit = source["unit"]
+
+        doc.blood_processing = processing["name"]
+        doc.blood_unit = unit["name"]
+
+        source_values = {
+            "donor": unit.get("donor") or processing.get("donor"),
+            "donor_name": unit.get("donor_name") or processing.get("donor_name"),
+            "blood_group": unit.get("blood_group") or processing.get("blood_group"),
+            "bag_number": unit.get("bag_number") or processing.get("bag_number"),
+        }
+        for field, value in source_values.items():
+            if doc.meta.has_field(field) and value not in (None, ""):
+                doc.set(field, value)
 
     elif doc.doctype == "Blood Screening":
         unit_name = values.get("blood_unit")
@@ -297,6 +346,53 @@ def _verify_existing_doc(doc, context):
         frappe.throw("المستند المحدد لا يرتبط برقم التبرع المختار.")
 
 
+# BB_COMPONENT_SERVER_ACTOR_AND_READONLY_GUARD_V3
+ACTOR_FIELDS = {
+    "Blood Component": "prepared_by",
+    "Blood Screening": "screened_by",
+    "Blood Component Quality Check": "inspected_by",
+    "Blood Storage": "stored_by",
+}
+
+SERVER_CONTROLLED_FIELDS = {
+    "Blood Component": {
+        "blood_processing", "blood_unit", "blood_screening",
+        "donor", "donor_name", "blood_group", "bag_number",
+    },
+    "Blood Screening": {
+        "donor", "donor_name", "blood_group", "bag_number", "sample_id",
+    },
+    "Blood Component Quality Check": {
+        "blood_processing", "blood_screening", "blood_unit",
+        "donor", "donor_name", "blood_group", "bag_number",
+        "component_type", "component_number", "component_volume", "volume_unit",
+    },
+    "Blood Storage": {
+        "blood_unit", "blood_processing", "blood_screening",
+        "donor", "donor_name", "blood_group", "bag_number",
+        "component_type", "component_number", "component_volume", "volume_unit",
+        "available_at", "available_by",
+    },
+}
+
+
+def _is_server_controlled(doc, fieldname):
+    if fieldname in SERVER_CONTROLLED_FIELDS.get(doc.doctype, set()):
+        return True
+    if fieldname == ACTOR_FIELDS.get(doc.doctype):
+        return True
+    if doc.doctype == "Blood Storage" and fieldname == "available_by":
+        return True
+    df = doc.meta.get_field(fieldname)
+    return bool(df and df.read_only)
+
+
+def _set_current_actor(doc):
+    fieldname = ACTOR_FIELDS.get(doc.doctype)
+    if fieldname and doc.meta.has_field(fieldname):
+        doc.set(fieldname, frappe.session.user)
+
+
 def _result(doc):
     status_field = STAGES[doc.doctype]["status_field"]
     return {
@@ -323,8 +419,9 @@ def save_stage_document(doctype, donation_name, values, name=None):
         _verify_existing_doc(doc, context)
 
         for field in allowed_fields:
-            if field in values:
-                doc.set(field, values[field])
+            if field not in values or _is_server_controlled(doc, field):
+                continue
+            doc.set(field, values[field])
 
         doc.save()
     else:
@@ -334,10 +431,12 @@ def save_stage_document(doctype, donation_name, values, name=None):
         doc = frappe.new_doc(doctype)
 
         for field in allowed_fields:
-            if field in values:
-                doc.set(field, values[field])
+            if field not in values or _is_server_controlled(doc, field):
+                continue
+            doc.set(field, values[field])
 
         _populate_sources(doc, context, values)
+        _set_current_actor(doc)
 
         if doctype == "Blood Component" and not doc.preparation_date:
             doc.preparation_date = today()
@@ -348,8 +447,13 @@ def save_stage_document(doctype, donation_name, values, name=None):
             and not doc.inspection_date
         ):
             doc.inspection_date = today()
-        elif doctype == "Blood Storage" and not doc.storage_date:
-            doc.storage_date = today()
+        elif doctype == "Blood Storage":
+            # BB_STORAGE_REFERENCE_CURRENT_USER_V1
+            # Preserve existing values; default new/blank records to current user.
+            if not doc.storage_date:
+                doc.storage_date = today()
+            if not doc.get("storage_reference"):
+                doc.storage_reference = frappe.session.user
 
         doc.insert()
 
@@ -380,13 +484,14 @@ def apply_stage_action(doctype, name, donation_name, action):
     _verify_existing_doc(doc, context)
 
     if doctype == "Blood Component":
-        # BB_SCREENING_GATED_QC_AND_AUTO_ADVANCE_V2
+        # BB_COMPONENT_PRE_SCREENING_FLOW_V1
+        # إعداد المكوّن يسبق فحص الدم.
+        # تبقى متطلبات الفحص المقبول قائمة في مرحلة الجودة والتخزين.
         if action == "Send to Quality Check":
             if not doc.blood_unit or not doc.blood_processing:
                 frappe.throw(
                     "يجب ربط المكوّن بوحدة الدم والمعالجة أولًا."
                 )
-            _passed_screening(context, doc.blood_unit)
 
     elif doctype == "Blood Screening":
         if not context["component_records"]:
@@ -440,6 +545,13 @@ def apply_stage_action(doctype, name, donation_name, action):
                 frappe.throw(
                     "لا يمكن إتاحة التخزين دون فحص جودة ناجح."
                 )
+
+    if (
+        doctype == "Blood Storage"
+        and action == "Make Available"
+        and doc.meta.has_field("available_by")
+    ):
+        doc.available_by = frappe.session.user
 
     updated = apply_workflow(doc, action)
 

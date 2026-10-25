@@ -43,12 +43,12 @@
   {
    "fieldname": "identification_section",
    "fieldtype": "Section Break",
-   "label": "Request Identification / \u062a\u0639\u0631\u064a\u0641 \u0627\u0644\u0637\u0644\u0628"
+   "label": "Request Identification / تعريف الطلب"
   },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
-   "label": "Request ID / \u0631\u0642\u0645 \u0627\u0644\u0637\u0644\u0628",
+   "label": "Request ID / رقم الطلب",
    "options": "REQ-.YYYY.-.#####",
    "reqd": 1
   },
@@ -57,7 +57,7 @@
    "fieldname": "request_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Request Status / \u062d\u0627\u0644\u0629 \u0627\u0644\u0637\u0644\u0628",
+   "label": "Request Status / حالة الطلب",
    "options": "Draft\nSubmitted\nApproved",
    "reqd": 1
   },
@@ -65,27 +65,27 @@
    "fieldname": "request_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Request Date / \u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0637\u0644\u0628",
+   "label": "Request Date / تاريخ الطلب",
    "reqd": 1
   },
   {
    "fieldname": "request_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Request Type / \u0646\u0648\u0639 \u0627\u0644\u0637\u0644\u0628",
+   "label": "Request Type / نوع الطلب",
    "options": "Routine\nUrgent\nEmergency",
    "reqd": 1
   },
   {
    "fieldname": "patient_section",
    "fieldtype": "Section Break",
-   "label": "Patient / \u0627\u0644\u0645\u0631\u064a\u0636"
+   "label": "Patient / المريض"
   },
   {
    "fieldname": "patient",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Patient / \u0627\u0644\u0645\u0631\u064a\u0636",
+   "label": "Patient / المريض",
    "options": "Patient",
    "reqd": 1
   },
@@ -93,32 +93,33 @@
    "fieldname": "patient_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Patient Name / \u0627\u0633\u0645 \u0627\u0644\u0645\u0631\u064a\u0636",
+   "label": "Patient Name / اسم المريض",
    "read_only": 1
   },
   {
    "fieldname": "patient_encounter",
    "fieldtype": "Link",
-   "label": "Patient Encounter / \u0632\u064a\u0627\u0631\u0629 \u0627\u0644\u0645\u0631\u064a\u0636",
+   "label": "Patient Encounter / زيارة المريض",
    "options": "Patient Encounter"
   },
   {
    "fieldname": "clinical_section",
    "fieldtype": "Section Break",
-   "label": "Blood Requirement / \u0627\u062d\u062a\u064a\u0627\u062c \u0627\u0644\u062f\u0645"
+   "label": "Blood Requirement / احتياج الدم"
   },
   {
    "fieldname": "blood_group",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Required Blood Group / \u0641\u0635\u064a\u0644\u0629 \u0627\u0644\u062f\u0645 \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629",
-   "reqd": 1
+   "label": "Required Blood Group / فصيلة الدم المطلوبة",
+   "reqd": 1,
+   "options": "A Positive\nA Negative\nB Positive\nB Negative\nAB Positive\nAB Negative\nO Positive\nO Negative"
   },
   {
    "fieldname": "component_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Component Type / \u0646\u0648\u0639 \u0627\u0644\u0645\u0643\u0648\u0651\u0646",
+   "label": "Component Type / نوع المكوّن",
    "options": "Whole Blood\nPacked Red Cells\nFresh Frozen Plasma\nPlatelets\nCryoprecipitate\nOther",
    "reqd": 1
   },
@@ -126,7 +127,7 @@
    "fieldname": "requested_quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Requested Quantity / \u0627\u0644\u0643\u0645\u064a\u0629 \u0627\u0644\u0645\u0637\u0644\u0648\u0628\u0629",
+   "label": "Requested Quantity / الكمية المطلوبة",
    "precision": "2",
    "reqd": 1
   },
@@ -134,64 +135,64 @@
    "default": "Units",
    "fieldname": "quantity_unit",
    "fieldtype": "Select",
-   "label": "Quantity Unit / \u0648\u062d\u062f\u0629 \u0627\u0644\u0643\u0645\u064a\u0629",
+   "label": "Quantity Unit / وحدة الكمية",
    "options": "Units\nmL\nL",
    "reqd": 1
   },
   {
    "fieldname": "clinical_indication",
    "fieldtype": "Small Text",
-   "label": "Clinical Indication / \u0633\u0628\u0628 \u0627\u0644\u0637\u0644\u0628 \u0627\u0644\u0633\u0631\u064a\u0631\u064a",
+   "label": "Clinical Indication / سبب الطلب السريري",
    "reqd": 1
   },
   {
    "fieldname": "request_section",
    "fieldtype": "Section Break",
-   "label": "Request Details / \u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0637\u0644\u0628"
+   "label": "Request Details / تفاصيل الطلب"
   },
   {
    "fieldname": "requested_by",
    "fieldtype": "Link",
-   "label": "Requested By / \u0637\u0627\u0644\u0628 \u0627\u0644\u062f\u0645",
+   "label": "Requested By / طالب الدم",
    "options": "User",
    "reqd": 1
   },
   {
    "fieldname": "requesting_department",
    "fieldtype": "Data",
-   "label": "Requesting Department / \u0627\u0644\u0642\u0633\u0645 \u0627\u0644\u0637\u0627\u0644\u0628",
+   "label": "Requesting Department / القسم الطالب",
    "reqd": 1
   },
   {
    "fieldname": "required_by",
    "fieldtype": "Datetime",
-   "label": "Required By / \u0645\u0637\u0644\u0648\u0628 \u0642\u0628\u0644"
+   "label": "Required By / مطلوب قبل"
   },
   {
    "fieldname": "special_requirements",
    "fieldtype": "Small Text",
-   "label": "Special Requirements / \u0645\u062a\u0637\u0644\u0628\u0627\u062a \u062e\u0627\u0635\u0629"
+   "label": "Special Requirements / متطلبات خاصة"
   },
   {
    "fieldname": "crossmatch_section",
    "fieldtype": "Section Break",
-   "label": "Crossmatch / \u0627\u0644\u0645\u0637\u0627\u0628\u0642\u0629"
+   "label": "Crossmatch / المطابقة"
   },
   {
    "default": "1",
    "fieldname": "crossmatch_required",
    "fieldtype": "Check",
-   "label": "Crossmatch Required / \u062a\u062a\u0637\u0644\u0628 \u0645\u0637\u0627\u0628\u0642\u0629"
+   "label": "Crossmatch Required / تتطلب مطابقة"
   },
   {
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks / \u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / الملاحظات"
   },
   {
    "fieldname": "remarks",
    "fieldtype": "Small Text",
-   "label": "Remarks / \u0645\u0644\u0627\u062d\u0638\u0627\u062a"
+   "label": "Remarks / ملاحظات"
   },
   {
    "fieldname": "column_break_identification_2",

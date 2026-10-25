@@ -270,31 +270,9 @@ app_include_js = list(dict.fromkeys(
     ]
 ))
 
-# === BLOOD DONOR FORM UI ASSETS ===
-
-_bb_form_css = globals().get("app_include_css", [])
-if isinstance(_bb_form_css, str):
-    _bb_form_css = [_bb_form_css]
-
-app_include_css = list(dict.fromkeys(
-    _bb_form_css + [
-        "/assets/blood_bank/css/blood_donor_form.css?v=6",
-        "/assets/blood_bank/css/blood_unit_disposition_form.css?v=1",
-        "/assets/blood_bank/css/blood_transfusion_form.css?v=1",
-        "/assets/blood_bank/css/blood_handover_form.css?v=1",
-        "/assets/blood_bank/css/blood_issue_form.css?v=1",
-        "/assets/blood_bank/css/blood_crossmatch_form.css?v=1",
-        "/assets/blood_bank/css/blood_reservation_form.css?v=1",
-        "/assets/blood_bank/css/blood_request_form.css?v=1",
-        "/assets/blood_bank/css/blood_storage_form.css?v=1",
-        "/assets/blood_bank/css/blood_component_form.css?v=1",
-        "/assets/blood_bank/css/blood_component_quality_check_form.css?v=1",
-        "/assets/blood_bank/css/blood_screening_form.css?v=1",
-        "/assets/blood_bank/css/blood_unit_form.css?v=1",
-        "/assets/blood_bank/css/blood_processing_form.css?v=1",
-        "/assets/blood_bank/css/blood_donation_form.css?v=4",
-    ]
-))
+# === BLOOD BANK FORM CSS ROUTING ===
+# Individual form CSS is loaded only on its matching DocType route.
+# The CSS files themselves are intentionally unchanged.
 
 # === BLOOD BANK NAVIGATION ASSETS ===
 
@@ -361,3 +339,17 @@ _bb_action_theme_asset = (
 )
 if _bb_action_theme_asset not in app_include_js:
     app_include_js.append(_bb_action_theme_asset)
+
+
+# BB_FORM_CSS_ROUTING_V1
+_bb_form_css_router_asset = "/assets/blood_bank/js/blood_bank_form_css_router.js?v=1"
+_bb_form_css_router_js = globals().get("app_include_js", []) or []
+if isinstance(_bb_form_css_router_js, str):
+    _bb_form_css_router_js = [_bb_form_css_router_js]
+else:
+    _bb_form_css_router_js = list(_bb_form_css_router_js)
+
+if _bb_form_css_router_asset not in _bb_form_css_router_js:
+    _bb_form_css_router_js.append(_bb_form_css_router_asset)
+
+app_include_js = _bb_form_css_router_js
