@@ -1,46 +1,56 @@
-<div id="bb-cw-root" class="bb-cw-root form-layout" dir="rtl">
+<div id="bb-cw-root" class="bb-cw-root bb-iw-root form-layout" dir="rtl">
 
-  <header class="bb-cw-header">
-    <div class="bb-cw-brand-mark" aria-hidden="true">🩸</div>
-    <div class="bb-cw-brand-copy">
+  <header class="bb-cw-header bb-iw-header">
+    <div class="bb-cw-brand-mark bb-iw-logo" aria-hidden="true">🩸</div>
+    <div class="bb-cw-brand-copy bb-iw-header-copy">
       <h2>نظام بنك الدم</h2>
       <p>متابعة مكوّنات الدم وفحصها وضبط جودتها وتخزينها</p>
     </div>
   </header>
 
-  <nav class="bb-cw-toolbar" aria-label="أدوات العمل">
-    <div class="bb-cw-toolbar-actions">
-      <button type="button" id="bb-cw-save"
-              class="btn btn-primary bb-cw-btn bb-cw-btn-save">
-        💾 حفظ
-      </button>
-      <div id="bb-cw-workflow-actions" class="bb-cw-workflow-actions">
-        احفظ السجل أولًا لعرض إجراءات سير العمل.
-      </div>
-    </div>
+  <nav class="bb-cw-toolbar bb-iw-toolbar" aria-label="أدوات العمل">
+  <div class="bb-cw-toolbar-main bb-iw-toolbar-main">
+    <button type="button" id="bb-cw-new"
+            class="btn btn-default bb-cw-btn">＋ إضافة جديد</button>
+    <button type="button" id="bb-cw-refresh"
+            class="btn btn-default bb-cw-btn">↻ تحديث البيانات</button>
+    <button type="button" id="bb-cw-prev"
+            class="btn btn-default bb-cw-btn">◀ السابق</button>
+    <button type="button" id="bb-cw-next"
+            class="btn btn-default bb-cw-btn">التالي ▶</button>
+  </div>
+</nav>
 
-    <div class="bb-cw-toolbar-main">
-      <button type="button" id="bb-cw-new"
-              class="btn btn-default bb-cw-btn">＋ إضافة جديد</button>
-      <button type="button" id="bb-cw-refresh"
-              class="btn btn-default bb-cw-btn">↻ تحديث البيانات</button>
-      <button type="button" id="bb-cw-prev"
-              class="btn btn-default bb-cw-btn">◀ السابق</button>
-      <button type="button" id="bb-cw-next"
-              class="btn btn-default bb-cw-btn">التالي ▶</button>
-    </div>
+<nav class="bb-bb-global-navigation bb-cw-toolbar-navigation"
+     aria-label="التنقل بين صفحات وتقارير بنك الدم"
+     style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px;">
+  <button type="button" class="btn btn-default bb-iw-nav-button bb-bb-nav-button"
+          data-bb-target="workspace">⌂ قائمة عمل بنك الدم</button>
+  <button type="button" class="btn btn-default bb-iw-nav-button bb-bb-nav-button"
+          data-bb-target="donation_report">🩸 قائمة مكونات الدم</button>
+  <button type="button" class="btn btn-default bb-iw-nav-button bb-bb-nav-button"
+          data-bb-target="request_report">📋 قائمة طلبات الدم</button>
+  <button type="button" class="btn btn-default bb-iw-nav-button bb-bb-nav-button"
+          data-bb-target="component_work">🧪 قوائم بنك الدم</button>
+  <button type="button" class="btn btn-default bb-iw-nav-button bb-bb-nav-button"
+          data-bb-target="request_work">🩸 متابعة طلبات الدم</button>
+</nav>
 
-    <div class="bb-cw-toolbar-navigation" bb-bb-global-navigation" aria-label="التنقل بين صفحات وتقارير بنك الدم" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px;">
-        <button type="button" class="btn btn-default bb-cw-btn bb-bb-nav-button" data-bb-target="workspace">⌂ قائمة عمل بنك الدم</button>
-        <button type="button" class="btn btn-default bb-cw-btn bb-bb-nav-button" data-bb-target="donation_report">🩸 قائمة مكونات الدم</button>
-        <button type="button" class="btn btn-default bb-cw-btn bb-bb-nav-button" data-bb-target="request_report">📋 قائمة طلبات الدم</button>
-        <button type="button" class="btn btn-default bb-cw-btn bb-bb-nav-button" data-bb-target="component_work">🧪 قوائم بنك الدم</button>
-        <button type="button" class="btn btn-default bb-cw-btn bb-bb-nav-button" data-bb-target="request_work">🩸 متابعة طلبات الدم</button>
+<div class="bb-iw-shared-bar bb-cw-shared-bar">
+  <span id="bb-cw-active-window-title">المكوّن | Blood Component</span>
+  <div class="bb-iw-shared-buttons bb-cw-shared-buttons">
+    <div id="bb-cw-workflow-actions" class="bb-cw-workflow-actions">
+      ستظهر إجراءات السجل هنا حسب حالته وصلاحية المستخدم.
     </div>
-  </nav>
+    <button type="button" id="bb-cw-save"
+            class="btn btn-primary bb-cw-btn bb-cw-btn-save">
+      💾 حفظ | Save
+    </button>
+  </div>
+</div>
 
-  <section class="form-section bb-cw-panel bb-cw-source-panel">
-    <div class="section-head bb-cw-panel-head">
+  <section class="form-section bb-cw-panel bb-cw-source-panel bb-iw-card">
+    <div class="section-head bb-cw-panel-head bb-iw-card-head">
       <span>التبرع المحدد</span>
       <span class="bb-cw-english-label">SELECTED DONATION</span>
     </div>
@@ -86,72 +96,146 @@
       <span class="bb-cw-workspace-code">WORKFLOW · 01–04</span>
     </div>
 
-    <nav class="bb-cw-tabs bb-cw-tabs-native"
-         id="bb-cw-stage-tabs" role="tablist"
-         aria-label="مراحل متابعة مكونات الدم">
-      <button type="button" class="bb-cw-tab is-active" data-stage="0"
-              role="tab" aria-selected="true">
-        <span class="bb-cw-tab-number">١</span>
-        <span class="bb-cw-tab-label">المكوّن | Blood Component</span>
+    <nav id="bb-cw-stage-groups" class="bb-cw-stage-groups bb-iw-tabs"
+         aria-label="مجموعات مراحل العمل">
+      <button type="button" class="bb-cw-stage-group bb-iw-tab is-active"
+              data-stage-group="0" aria-selected="true">
+        ١. المكوّن وفحص الدم | Component & Screening
       </button>
-      <button type="button" class="bb-cw-tab" data-stage="1"
-              role="tab" aria-selected="false">
-        <span class="bb-cw-tab-number">٢</span>
-        <span class="bb-cw-tab-label">فحص الدم | Blood Screening</span>
-      </button>
-      <button type="button" class="bb-cw-tab" data-stage="2"
-              role="tab" aria-selected="false">
-        <span class="bb-cw-tab-number">٣</span>
-        <span class="bb-cw-tab-label">فحص الجودة | Quality Check</span>
-      </button>
-      <button type="button" class="bb-cw-tab" data-stage="3"
-              role="tab" aria-selected="false">
-        <span class="bb-cw-tab-number">٤</span>
-        <span class="bb-cw-tab-label">التخزين | Blood Storage</span>
+      <button type="button" class="bb-cw-stage-group bb-iw-tab"
+              data-stage-group="1" aria-selected="false">
+        ٢. فحص الجودة والتخزين | Quality & Storage
       </button>
     </nav>
 
-    <div id="bb-cw-screening-actions" style="display:none;justify-content:flex-end;margin:8px 0;" hidden>
-      <button type="button" id="bb-cw-group-verification" class="btn btn-warning">
+    <div id="bb-cw-screening-actions"
+         class="bb-cw-screening-actions" hidden>
+      <button type="button" id="bb-cw-group-verification"
+              class="btn btn-warning">
         🧪 تسجيل فحص الفصيلة | Record Blood Group Test
       </button>
     </div>
 
-    <section class="form-section bb-cw-panel bb-cw-stage-panel">
-      <div class="bb-cw-stage-bar">
-        <div class="bb-cw-stage-heading">
-          <div class="bb-cw-stage-kicker">المرحلة النشطة</div>
-          <div id="bb-cw-stage-title" class="bb-cw-stage-title">
-            Blood Component
-          </div>
-          <p id="bb-cw-stage-description" class="text-muted"></p>
-        </div>
-        <div class="bb-cw-stage-status-box">
-          <label>السجل والحالة الحالية</label>
-          <div id="bb-cw-stage-status" class="form-control bb-cw-summary-value">—</div>
-        </div>
-      </div>
+    <section class="bb-cw-stage-screen bb-iw-screen" data-stage-screen="0">
+      <div class="bb-cw-stage-grid bb-iw-grid">
 
-      <div class="bb-cw-fields-area">
-        <div class="section-head bb-cw-subsection-head">بيانات السجل</div>
-
-        <div class="row">
-          <div class="col-md-8">
-            <div class="form-group">
-              <label for="bb-cw-record">السجل الحالي في هذه المرحلة</label>
-              <select id="bb-cw-record" class="form-control">
-                <option value="">لا يوجد سجل محدد</option>
+        <article class="bb-cw-stage-card bb-iw-card is-active" data-stage-card="0">
+          <header class="bb-cw-stage-card-head bb-iw-card-head">
+            <button type="button" class="bb-cw-stage-card-activate"
+                    data-activate-stage="0">
+              <span class="bb-cw-stage-icon">🧪</span>
+              <span><strong data-stage-title>المكوّن | Blood Component</strong>
+                <small data-stage-description>إنشاء مكوّن مرتبط بالمعالجة ووحدة الدم.</small>
+              </span>
+            </button>
+            <div class="bb-cw-card-status">
+              <label>السجل والحالة</label>
+              <div class="form-control" data-stage-status>—</div>
+            </div>
+          </header>
+          <div class="bb-cw-stage-card-body bb-iw-card-body">
+            <div class="form-group bb-cw-record-picker">
+              <label>السجل الحالي في نافذة المكوّن</label>
+              <select class="form-control" data-stage-record="0">
+                <option value="">— اختر سجلًا أو أنشئ جديدًا —</option>
               </select>
             </div>
+            <div class="row bb-cw-source-controls"
+                 data-stage-source-controls></div>
+            <div class="bb-cw-fields-area bb-iw-fields" data-stage-fields></div>
           </div>
-        </div>
+        </article>
 
-        <div class="row" id="bb-cw-source-controls"></div>
-        <div class="row" id="bb-cw-stage-fields"></div>
-        <div id="bb-cw-stage-message" class="alert alert-info hidden"></div>
+        <article class="bb-cw-stage-card bb-iw-card" data-stage-card="1">
+          <header class="bb-cw-stage-card-head bb-iw-card-head">
+            <button type="button" class="bb-cw-stage-card-activate"
+                    data-activate-stage="1">
+              <span class="bb-cw-stage-icon">🔬</span>
+              <span><strong data-stage-title>فحص الدم | Blood Screening</strong>
+                <small data-stage-description>تسجيل الفحص ومراجعة النتائج.</small>
+              </span>
+            </button>
+            <div class="bb-cw-card-status">
+              <label>السجل والحالة</label>
+              <div class="form-control" data-stage-status>—</div>
+            </div>
+          </header>
+          <div class="bb-cw-stage-card-body bb-iw-card-body">
+            <div class="form-group bb-cw-record-picker">
+              <label>السجل الحالي في نافذة فحص الدم</label>
+              <select class="form-control" data-stage-record="1">
+                <option value="">— اختر سجلًا أو أنشئ جديدًا —</option>
+              </select>
+            </div>
+            <div class="row bb-cw-source-controls"
+                 data-stage-source-controls></div>
+            <div class="bb-cw-fields-area bb-iw-fields" data-stage-fields></div>
+          </div>
+        </article>
+
       </div>
     </section>
 
-    
+    <section class="bb-cw-stage-screen bb-iw-screen" data-stage-screen="1" hidden>
+      <div class="bb-cw-stage-grid bb-iw-grid">
+
+        <article class="bb-cw-stage-card bb-iw-card" data-stage-card="2">
+          <header class="bb-cw-stage-card-head bb-iw-card-head">
+            <button type="button" class="bb-cw-stage-card-activate"
+                    data-activate-stage="2">
+              <span class="bb-cw-stage-icon">✅</span>
+              <span><strong data-stage-title>فحص الجودة | Quality Check</strong>
+                <small data-stage-description>فحص المكوّن بعد قبول فحص الدم.</small>
+              </span>
+            </button>
+            <div class="bb-cw-card-status">
+              <label>السجل والحالة</label>
+              <div class="form-control" data-stage-status>—</div>
+            </div>
+          </header>
+          <div class="bb-cw-stage-card-body bb-iw-card-body">
+            <div class="form-group bb-cw-record-picker">
+              <label>السجل الحالي في نافذة فحص الجودة</label>
+              <select class="form-control" data-stage-record="2">
+                <option value="">— اختر سجلًا أو أنشئ جديدًا —</option>
+              </select>
+            </div>
+            <div class="row bb-cw-source-controls"
+                 data-stage-source-controls></div>
+            <div class="bb-cw-fields-area bb-iw-fields" data-stage-fields></div>
+          </div>
+        </article>
+
+        <article class="bb-cw-stage-card bb-iw-card" data-stage-card="3">
+          <header class="bb-cw-stage-card-head bb-iw-card-head">
+            <button type="button" class="bb-cw-stage-card-activate"
+                    data-activate-stage="3">
+              <span class="bb-cw-stage-icon">🏥</span>
+              <span><strong data-stage-title>التخزين | Blood Storage</strong>
+                <small data-stage-description>تسجيل التخزين بعد نجاح فحص الجودة.</small>
+              </span>
+            </button>
+            <div class="bb-cw-card-status">
+              <label>السجل والحالة</label>
+              <div class="form-control" data-stage-status>—</div>
+            </div>
+          </header>
+          <div class="bb-cw-stage-card-body bb-iw-card-body">
+            <div class="form-group bb-cw-record-picker">
+              <label>السجل الحالي في نافذة التخزين</label>
+              <select class="form-control" data-stage-record="3">
+                <option value="">— اختر سجلًا أو أنشئ جديدًا —</option>
+              </select>
+            </div>
+            <div class="row bb-cw-source-controls"
+                 data-stage-source-controls></div>
+            <div class="bb-cw-fields-area bb-iw-fields" data-stage-fields></div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+
   </section>
 </div>

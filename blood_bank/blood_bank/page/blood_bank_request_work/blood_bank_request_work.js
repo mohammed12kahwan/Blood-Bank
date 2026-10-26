@@ -21,7 +21,15 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         controls: {},
         requestPicker: null,
         busy: false,
-        initializing: true
+        initializing: true,
+
+        // BB_UNIFIED_WORKFLOW_V2
+        combinedControls: {},
+        combinedValues: {},
+        combinedFormMeta: {},
+        combinedDefaults: {},
+        combinedRequestKey: null,
+        combinedRenderToken: 0
     };
 
     const API = "blood_bank.blood_bank.page.blood_bank_request_work.ui_api.";
@@ -297,8 +305,8 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         return normalizeFieldValue(field, field.default);
     }
 
-    function makeFieldContainerLayout(fields) {
-        const $root = page.main.find("#bb-rw-stage-fields");
+    function makeFieldContainerLayout(fields, targetRoot) {
+        const $root = targetRoot ? $(targetRoot) : page.main.find("#bb-rw-stage-fields");
         $root.empty();
 
         state.controls = {};
@@ -478,6 +486,7 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             return;
         }
 
+        bbUnifiedCaptureDrafts();
         state.index = index;
         const records = stageRecords(doctype);
         const sourceRecords = (
@@ -513,6 +522,28 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
         }
 
         renderStage();
+    }
+
+
+    // BB_REQUEST_COMPACT_COLOR_FIX_V2
+    // ألوان إجراءات سير العمل وفق طبيعة الإجراء.
+    function styleRequestActionButton($button, actionName) {
+        const action = String(actionName || "").trim().toLowerCase();
+        let color = "btn-primary";
+
+        if (/reject|cancel|abort|discard|fail|void|revoke/.test(action)) {
+            color = "btn-danger";
+        } else if (/quarantin|hold|pending|defer|review|return/.test(action)) {
+            color = "btn-warning";
+        } else if (/accept|approve|pass|complete|release|issue|handover|transfus|available|eligible|submit/.test(action)) {
+            color = "btn-success";
+        } else if (/start|begin|schedule|check.?in|collect|screen|inspect|prepare|bleed|match|reserve/.test(action)) {
+            color = "btn-info";
+        }
+
+        $button
+            .removeClass("btn-default btn-primary btn-success btn-warning btn-danger btn-info")
+            .addClass(color);
     }
 
     function renderWorkflowActions(item, record) {
@@ -583,7 +614,7 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             doctype: doctypeAtStart,
             request_name: requestAtStart,
             name: nameAtStart
-        }).then(function (result) {
+        }).then(async function (result) {
             if (
                 stage().doctype !== doctypeAtStart ||
                 state.currentName !== nameAtStart ||
@@ -594,8 +625,23 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
 
             $actions.empty();
             const actions = (result && result.actions) || [];
+            let catalogActions = [];
 
-            if (!actions.length) {
+            try {
+                const catalogResponse = await call("get_workflow_action_catalog", {
+                    doctype: doctypeAtStart
+                });
+                catalogActions = Array.isArray(
+                    catalogResponse && catalogResponse.actions
+                ) ? catalogResponse.actions : [];
+            } catch (catalogError) {
+                console.warn(
+                    "تعذر تحميل كتالوج إجراءات طلبات الدم:",
+                    catalogError
+                );
+            }
+
+            if (!actions.length && !catalogActions.length) {
                 renderActionMessage(
                     __("لا توجد إجراءات انتقال متاحة للحالة الحالية أو للمستخدم.")
                 );
@@ -618,10 +664,13 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
 
             actions.forEach(function (actionInfo) {
                 const $item = $("<li>");
-                const $link = $("<a>", {
-                    href: "#",
+                const $link = $("<button>", {
+                    type: "button",
                     text: actionInfo.action
-                });
+                }).addClass(
+                    "btn btn-primary btn-sm bb-rw-workflow-action-button"
+                );
+        styleRequestActionButton($link, actionInfo.action);
 
                 if (actionInfo.next_state) {
                     $link.attr(
@@ -862,6 +911,39 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
                 $menu.append($item);
             });
 
+
+            const enabledRequestNames = new Set(
+                actions.map(function (actionInfo) {
+                    return String(
+                        actionInfo && actionInfo.action || ""
+                    ).trim();
+                }).filter(Boolean)
+            );
+
+            catalogActions.forEach(function (knownItem) {
+                const actionName = String(
+                    (typeof knownItem === "string"
+                        ? knownItem
+                        : knownItem && knownItem.action) || ""
+                ).trim();
+
+                if (!actionName || enabledRequestNames.has(actionName)) return;
+
+                const $item = $("<li>").addClass("bb-rw-disabled-action-item");
+                const $button = $("<button>", {
+                    type: "button",
+                    text: actionName
+                }).addClass(
+                    "btn btn-default btn-sm bb-rw-workflow-action-button"
+                ).prop("disabled", true).attr({
+                    "aria-disabled": "true",
+                    title: "غير متاح للحالة أو للصلاحية الحالية"
+                });
+
+                $item.append($button);
+                $menu.append($item);
+            });
+
             $dropdown.append($toggle, $menu);
             $actions.append($dropdown);
         }).catch(function (error) {
@@ -884,6 +966,523 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
                 "text-danger"
             );
         });
+    }
+
+
+    // BB_UNIFIED_WORKFLOW_V2
+    // عرض الصرف والتسليم ونقل الدم في واجهة مشتركة.
+    const BB_UNIFIED_INDICES = [3, 4, 5];
+
+    function bbUnifiedCaptureDrafts() {
+        const $root = page.main.find("#bb-rw-root");
+        if (!$root.hasClass("bb-rw-unified-mode")) return;
+
+        BB_UNIFIED_INDICES.forEach(function (index) {
+            const item = state.schema[index];
+            if (!item) return;
+
+            const doctype = item.doctype;
+            const meta = state.combinedFormMeta[doctype];
+            const controls = state.combinedControls[doctype] || {};
+            if (!meta) return;
+
+            const base = meta.isNew
+                ? (state.combinedDefaults[doctype] || {})
+                : (stageRecords(doctype).find(
+                    row => row.name === meta.name
+                  ) || {});
+
+            const protectedFields = PROTECTED_FIELDS[doctype] || [];
+            const draft = {};
+
+            (item.fields || []).forEach(function (field) {
+                const name = field.fieldname;
+                const control = controls[name];
+                if (!name || !control ||
+                    ["Section Break", "Column Break", "Tab Break",
+                     "Heading", "Fold", "HTML", "Button"].includes(field.fieldtype)) {
+                    return;
+                }
+
+                if (field.read_only || protectedFields.includes(name) ||
+                    name === item.status_field) {
+                    return;
+                }
+
+                try {
+                    const value = control.get_value();
+                    if (String(value ?? "") !== String(base[name] ?? "")) {
+                        draft[name] = value;
+                    }
+                } catch (e) {
+                    // تجاهل عناصر التحكم التي أزيلت أثناء إعادة العرض.
+                }
+            });
+
+            state.combinedValues[doctype] = draft;
+        });
+    }
+
+    function bbUnifiedInstallStyle() {
+        if (document.getElementById("bb-rw-unified-style-v2")) return;
+
+        const style = document.createElement("style");
+        style.id = "bb-rw-unified-style-v2";
+        style.textContent = `
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-record-column {
+                display: none !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-content-row {
+                display: block !important;
+                margin: 0 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-editor-column {
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                padding: 0 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode #bb-rw-stage-fields {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                align-items: start !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-card {
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 7px !important;
+                border: 1px solid var(--border-color, #d9e0e7) !important;
+                border-radius: 7px !important;
+                background: var(--card-bg, #fff) !important;
+                box-sizing: border-box !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-card.is-active {
+                border-color: var(--primary, #922638) !important;
+                box-shadow: inset 0 2px 0 var(--primary, #922638) !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-card-header {
+                margin: 0 0 6px !important;
+                padding: 0 0 5px !important;
+                border-bottom: 1px solid var(--border-color, #d9e0e7) !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-title {
+                margin: 0 0 4px !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-select {
+                width: 100% !important;
+                min-width: 0 !important;
+                height: 27px !important;
+                min-height: 27px !important;
+                padding: 3px 5px !important;
+                font-size: 10px !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .bb-rw-field-section {
+                margin: 0 0 5px !important;
+                padding: 5px 6px !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .bb-rw-field-section > .row {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 5px 7px !important;
+                margin: 0 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .bb-rw-field-section > .row::before,
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .bb-rw-field-section > .row::after {
+                display: none !important;
+                content: none !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .bb-rw-field-column {
+                float: none !important;
+                width: auto !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .control-label,
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .form-group > label {
+                min-height: 0 !important;
+                margin: 0 0 2px !important;
+                font-size: 10px !important;
+                line-height: 1.25 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            input.form-control:not([type="checkbox"]):not([type="radio"]),
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            select.form-control,
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .link-field input,
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .input-with-feedback {
+                width: 100% !important;
+                min-width: 0 !important;
+                height: 28px !important;
+                min-height: 28px !important;
+                padding: 3px 5px !important;
+                font-size: 10px !important;
+                box-sizing: border-box !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .form-group,
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            .frappe-control {
+                min-width: 0 !important;
+                margin: 0 !important;
+            }
+            #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-fields
+            textarea.form-control {
+                min-height: 42px !important;
+                padding: 4px 5px !important;
+            }
+            @media (max-width: 1200px) {
+                #bb-rw-root.bb-rw-unified-mode #bb-rw-stage-fields {
+                    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                }
+                #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-card:last-child {
+                    grid-column: 1 / -1;
+                }
+            }
+            @media (max-width: 760px) {
+                #bb-rw-root.bb-rw-unified-mode #bb-rw-stage-fields {
+                    grid-template-columns: minmax(0, 1fr) !important;
+                }
+                #bb-rw-root.bb-rw-unified-mode .bb-rw-unified-card:last-child {
+                    grid-column: auto;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    async function bbRenderUnifiedStages() {
+        const activeIndex = Number(state.index);
+        if (!BB_UNIFIED_INDICES.includes(activeIndex) || !state.requestName) {
+            return;
+        }
+
+        const requestKey = String(state.requestName);
+        const token = ++state.combinedRenderToken;
+
+        if (state.combinedRequestKey !== requestKey) {
+            state.combinedControls = {};
+            state.combinedValues = {};
+            state.combinedFormMeta = {};
+            state.combinedDefaults = {};
+            state.combinedRequestKey = requestKey;
+        } else {
+            bbUnifiedCaptureDrafts();
+        }
+
+        const activeItem = state.schema[activeIndex];
+        const activeType = activeItem.doctype;
+        let activeMeta = state.combinedFormMeta[activeType];
+
+        if (state.currentIsNew) {
+            if (!activeMeta || !activeMeta.isNew) {
+                state.combinedValues[activeType] = {};
+                state.combinedControls[activeType] = {};
+                activeMeta = { name: null, isNew: true };
+                state.combinedFormMeta[activeType] = activeMeta;
+            }
+            if (state.currentValues &&
+                Object.keys(state.currentValues).length) {
+                state.combinedDefaults[activeType] =
+                    Object.assign({}, state.currentValues);
+            }
+        } else if (state.currentName) {
+            if (!activeMeta || activeMeta.name !== state.currentName) {
+                state.combinedValues[activeType] = {};
+                state.combinedControls[activeType] = {};
+                activeMeta = {
+                    name: state.currentName,
+                    isNew: false
+                };
+                state.combinedFormMeta[activeType] = activeMeta;
+            }
+        }
+
+        const descriptors = [];
+        for (const index of BB_UNIFIED_INDICES) {
+            const item = state.schema[index];
+            if (!item) continue;
+
+            const doctype = item.doctype;
+            const rows = stageRecords(doctype);
+            let meta = state.combinedFormMeta[doctype];
+
+            if (!meta) {
+                const selected = rows.find(
+                    row => row.name === state.selectedNames[doctype]
+                ) || (index === activeIndex && state.currentName
+                    ? rows.find(row => row.name === state.currentName)
+                    : null) || rows[0] || null;
+
+                meta = selected
+                    ? { name: selected.name, isNew: false }
+                    : { name: null, isNew: true };
+
+                state.combinedFormMeta[doctype] = meta;
+            }
+
+            if (meta.name && !rows.some(row => row.name === meta.name)) {
+                meta = { name: null, isNew: true };
+                state.combinedFormMeta[doctype] = meta;
+                state.combinedValues[doctype] = {};
+            }
+
+            if (index === activeIndex) {
+                if (state.currentIsNew) {
+                    meta.name = null;
+                    meta.isNew = true;
+                } else if (state.currentName) {
+                    meta.name = state.currentName;
+                    meta.isNew = false;
+                }
+                state.combinedFormMeta[doctype] = meta;
+            }
+
+            state.selectedNames[doctype] = meta.name || null;
+            descriptors.push({
+                index,
+                item,
+                doctype,
+                rows,
+                meta,
+                record: meta.name
+                    ? rows.find(row => row.name === meta.name) || null
+                    : null
+            });
+        }
+
+        await Promise.all(descriptors.map(async function (d) {
+            if (!d.meta.isNew ||
+                Object.prototype.hasOwnProperty.call(
+                    state.combinedDefaults, d.doctype
+                )) return;
+
+            try {
+                state.combinedDefaults[d.doctype] =
+                    await call("get_stage_defaults", {
+                        doctype: d.doctype,
+                        request_name: state.requestName
+                    }) || {};
+            } catch (error) {
+                state.combinedDefaults[d.doctype] = {};
+                console.warn("تعذر تحميل القيم الافتراضية:", d.doctype, error);
+            }
+        }));
+
+        if (token !== state.combinedRenderToken ||
+            String(state.requestName) !== requestKey) return;
+
+        bbUnifiedInstallStyle();
+        page.main.find("#bb-rw-root").addClass("bb-rw-unified-mode");
+
+        const $host = page.main.find("#bb-rw-stage-fields");
+        $host.empty();
+
+        const cards = [];
+
+        for (const d of descriptors) {
+            const base = d.record ||
+                state.combinedDefaults[d.doctype] || {};
+            const values = Object.assign(
+                {},
+                base,
+                state.combinedValues[d.doctype] || {}
+            );
+
+            state.index = d.index;
+            state.currentName = d.meta.name || null;
+            state.currentIsNew = !!d.meta.isNew;
+            state.currentValues = values;
+
+            // إرفاق نوع المستند بكل حقل كي تبقى الحقول المحمية صحيحة.
+            const fields = (d.item.fields || []).map(
+                field => Object.assign({}, field, { doctype: d.doctype })
+            );
+
+            // BB_UNIFIED_RENDER_ROOT_FIX_V1
+            // ابنِ النموذج في حاوية مستقلة كي لا تُحذف البطاقة السابقة.
+            const $buildHost = $('<div class="bb-rw-unified-build-host"></div>');
+            makeFieldContainerLayout(fields, $buildHost);
+
+            const controls = Object.assign({}, state.controls || {});
+            state.combinedControls[d.doctype] = controls;
+
+            // انقل حقول هذا النموذج وحده إلى بطاقته.
+            const $fieldNodes = $buildHost.children().detach();
+            const $card = $('<section class="bb-rw-unified-card"></section>');
+            if (d.index === activeIndex) $card.addClass("is-active");
+
+            const $header = $('<div class="bb-rw-unified-card-header"></div>');
+            $('<h4 class="bb-rw-unified-title"></h4>')
+                .text(d.item.label + " | " + d.doctype)
+                .appendTo($header);
+
+            const $select = $('<select class="form-control bb-rw-unified-select"></select>');
+            $select.append($("<option>").val("__new__").text("سجل جديد"));
+
+            d.rows.forEach(function (row) {
+                const status = row[d.item.status_field] || "";
+                $select.append(
+                    $("<option>")
+                        .val(row.name)
+                        .text([row.name, status].filter(Boolean).join(" — "))
+                );
+            });
+
+            $select.val(d.meta.name || "__new__");
+            $header.append($select);
+            $card.append($header);
+
+            const $fields = $('<div class="bb-rw-unified-fields"></div>');
+            $fields.append($fieldNodes);
+            $card.append($fields);
+            $host.append($card);
+            cards.push({ descriptor: d, card: $card });
+
+            // النقر داخل أي بطاقة يجعلها هدف الحفظ والإجراءات المشتركة
+            // دون إعادة إنشاء الحقول أو فقدان التركيز.
+            $card.on("focusin", ".frappe-control input, .frappe-control select, .frappe-control textarea", function () {
+                if (state.index === d.index) return;
+
+                bbUnifiedCaptureDrafts();
+                state.index = d.index;
+                state.currentName = d.meta.name || null;
+                state.currentIsNew = !!d.meta.isNew;
+                state.currentValues = Object.assign(
+                    {},
+                    d.record || state.combinedDefaults[d.doctype] || {},
+                    state.combinedValues[d.doctype] || {}
+                );
+                state.controls = state.combinedControls[d.doctype] || {};
+
+                cards.forEach(x => x.card.removeClass("is-active"));
+                $card.addClass("is-active");
+
+                page.main.find("#bb-rw-stage-title").text(
+                    "الصرف والتسليم ونقل الدم | " + d.item.label
+                );
+                page.main.find("#bb-rw-stage-status").text(
+                    d.record
+                        ? d.record.name + " — " +
+                          (d.record[d.item.status_field] || "—")
+                        : "سجل جديد — " + d.item.label
+                );
+
+                renderTabs();
+                renderWorkflowActions(d.item, d.record);
+            });
+
+            $select.on("change", async function () {
+                bbUnifiedCaptureDrafts();
+
+                const chosen = String($select.val() || "__new__");
+                const oldKey = d.meta.isNew ? "__new__" : d.meta.name;
+
+                const switchRecord = async function () {
+                    state.index = d.index;
+                    state.combinedValues[d.doctype] = {};
+                    state.combinedControls[d.doctype] = {};
+
+                    if (chosen === "__new__") {
+                        state.combinedFormMeta[d.doctype] = {
+                            name: null,
+                            isNew: true
+                        };
+                        delete state.combinedDefaults[d.doctype];
+
+                        try {
+                            state.combinedDefaults[d.doctype] =
+                                await call("get_stage_defaults", {
+                                    doctype: d.doctype,
+                                    request_name: state.requestName
+                                }) || {};
+                        } catch (error) {
+                            state.combinedDefaults[d.doctype] = {};
+                            frappe.msgprint(
+                                (error && error.message) ||
+                                __("تعذر تحميل القيم الافتراضية.")
+                            );
+                        }
+
+                        state.selectedNames[d.doctype] = null;
+                        state.currentName = null;
+                        state.currentIsNew = true;
+                        state.currentValues =
+                            Object.assign({}, state.combinedDefaults[d.doctype]);
+                    } else {
+                        const row = stageRecords(d.doctype)
+                            .find(x => x.name === chosen);
+                        if (!row) {
+                            frappe.msgprint(__("السجل المختار غير موجود في طلب الدم الحالي."));
+                            $select.val(oldKey || "__new__");
+                            return;
+                        }
+
+                        state.combinedFormMeta[d.doctype] = {
+                            name: chosen,
+                            isNew: false
+                        };
+                        state.selectedNames[d.doctype] = chosen;
+                        state.currentName = chosen;
+                        state.currentIsNew = false;
+                        state.currentValues = Object.assign({}, row);
+                    }
+
+                    renderStage();
+                };
+
+                if (Object.keys(state.combinedValues[d.doctype] || {}).length &&
+                    chosen !== oldKey) {
+                    frappe.confirm(
+                        __("توجد تغييرات غير محفوظة في هذا القسم. هل تريد التخلص منها وتغيير السجل؟"),
+                        switchRecord,
+                        function () { $select.val(oldKey || "__new__"); }
+                    );
+                } else {
+                    await switchRecord();
+                }
+            });
+        }
+
+        state.index = activeIndex;
+        const active = descriptors.find(d => d.index === activeIndex);
+        if (active) {
+            state.currentName = active.meta.name || null;
+            state.currentIsNew = !!active.meta.isNew;
+            state.controls = state.combinedControls[active.doctype] || {};
+            state.currentValues = Object.assign(
+                {},
+                active.record || state.combinedDefaults[active.doctype] || {},
+                state.combinedValues[active.doctype] || {}
+            );
+
+            page.main.find("#bb-rw-stage-title").text(
+                "الصرف والتسليم ونقل الدم | " + active.item.label
+            );
+            page.main.find("#bb-rw-stage-status").text(
+                active.record
+                    ? active.record.name + " — " +
+                      (active.record[active.item.status_field] || "—")
+                    : "سجل جديد — " + active.item.label
+            );
+            renderWorkflowActions(active.item, active.record);
+        }
+
+        page.main.find("#bb-rw-records").empty();
+        renderTabs();
     }
 
     function renderStage() {
@@ -964,6 +1563,22 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             });
             return;
         }
+
+        // BB_UNIFIED_WORKFLOW_V2
+        if (BB_UNIFIED_INDICES.includes(Number(state.index)) && state.requestName) {
+            bbRenderUnifiedStages().catch(function (error) {
+                console.error("Unified blood workflow render failed:", error);
+                showMessage(
+                    "#bb-rw-stage-message",
+                    (error && error.message) ||
+                        __("تعذر عرض نماذج الصرف والتسليم ونقل الدم."),
+                    "text-danger"
+                );
+            });
+            return;
+        }
+
+        page.main.find("#bb-rw-root").removeClass("bb-rw-unified-mode");
 
         const item = stage();
         const records = stageRecords(item.doctype);
@@ -1332,6 +1947,17 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
                 saved || result.doc || {}
             );
 
+            // BB_UNIFIED_WORKFLOW_V2
+            // إعادة قراءة السجل المحفوظ بدل إعادة تطبيق مسودة قديمة عليه.
+            if (BB_UNIFIED_INDICES.includes(Number(state.index))) {
+                state.combinedValues[item.doctype] = {};
+                state.combinedControls[item.doctype] = {};
+                state.combinedFormMeta[item.doctype] = {
+                    name: result.name,
+                    isNew: false
+                };
+            }
+
             renderStage();
 
             showMessage(
@@ -1360,6 +1986,7 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
             return;
         }
 
+        bbUnifiedCaptureDrafts();
         state.index = nextIndex;
         const item = stage();
 
@@ -1458,6 +2085,178 @@ frappe.pages["blood-bank-request-work"].on_page_load = function (wrapper) {
 
     async function boot() {
         page.main.html(frappe.render_template("blood_bank_request_work"));
+
+        // BB_REQUEST_SEPARATE_ACTIONS_SECTION_V3
+        // فصل إجراءات سير العمل عن أزرار التنقل العامة.
+        (function separateWorkflowActionsSection() {
+            const styleId = "bb-rw-separated-actions-style-v3";
+            if (!document.getElementById(styleId)) {
+                const style = document.createElement("style");
+                style.id = styleId;
+                style.textContent = `
+                    #bb-rw-root #bb-rw-workflow-actions-section {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        align-items: stretch !important;
+                        gap: 4px !important;
+                        width: 100% !important;
+                        min-width: 0 !important;
+                        margin: 0 0 7px !important;
+                        padding: 5px 8px !important;
+                        border: 1px solid var(--border-color, #d9e0e7) !important;
+                        border-radius: 7px !important;
+                        background: var(--card-bg, #fff) !important;
+                        box-sizing: border-box !important;
+                    }
+                    #bb-rw-root .bb-rw-actions-section-title {
+                        display: block !important;
+                        margin: 0 !important;
+                        padding: 0 0 3px !important;
+                        border-bottom: 1px solid var(--border-color, #e1e5ea) !important;
+                        color: var(--text-muted, #687483) !important;
+                        font-size: 10px !important;
+                        font-weight: 700 !important;
+                        line-height: 1.2 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section > #bb-rw-workflow-actions {
+                        display: flex !important;
+                        flex-flow: row nowrap !important;
+                        align-items: center !important;
+                        justify-content: flex-start !important;
+                        gap: 5px !important;
+                        width: 100% !important;
+                        min-width: 0 !important;
+                        min-height: 0 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section .bb-rw-workflow-dropdown {
+                        display: inline-flex !important;
+                        flex: 0 1 auto !important;
+                        flex-flow: row nowrap !important;
+                        align-items: center !important;
+                        gap: 4px !important;
+                        min-width: 0 !important;
+                        margin: 0 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section .bb-workflow-actions-toggle {
+                        flex: 0 0 auto !important;
+                        min-height: 26px !important;
+                        margin: 0 !important;
+                        padding: 3px 8px !important;
+                        font-size: 10px !important;
+                        line-height: 1.2 !important;
+                        white-space: nowrap !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-dropdown.open > .bb-workflow-actions-menu {
+                        display: flex !important;
+                        flex-flow: row nowrap !important;
+                        align-items: center !important;
+                        justify-content: flex-start !important;
+                        gap: 5px !important;
+                        width: max-content !important;
+                        max-width: 90vw !important;
+                        max-height: 45vh !important;
+                        overflow-x: auto !important;
+                        overflow-y: auto !important;
+                        padding: 5px !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-workflow-actions-menu > li {
+                        display: block !important;
+                        flex: 0 0 auto !important;
+                        float: none !important;
+                        width: auto !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button {
+                        flex: 0 0 auto !important;
+                        width: auto !important;
+                        min-height: 27px !important;
+                        margin: 0 !important;
+                        padding: 3px 8px !important;
+                        font-size: 10px !important;
+                        line-height: 1.2 !important;
+                        white-space: nowrap !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button.btn-primary {
+                        color: #fff !important;
+                        background: #922638 !important;
+                        border-color: #922638 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button.btn-success {
+                        color: #fff !important;
+                        background: #218653 !important;
+                        border-color: #218653 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button.btn-info {
+                        color: #fff !important;
+                        background: #147fa3 !important;
+                        border-color: #147fa3 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button.btn-warning {
+                        color: #302400 !important;
+                        background: #f2c94c !important;
+                        border-color: #e1b837 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button.btn-danger {
+                        color: #fff !important;
+                        background: #c93c45 !important;
+                        border-color: #c93c45 !important;
+                    }
+                    #bb-rw-root #bb-rw-workflow-actions-section
+                    .bb-rw-workflow-action-button:disabled {
+                        opacity: .6 !important;
+                        cursor: not-allowed !important;
+                        filter: grayscale(.5) !important;
+                    }
+                    #bb-rw-root .bb-rw-toolbar-main,
+                    #bb-rw-root .bb-rw-toolbar-navigation {
+                        justify-content: center !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            const $main = page.main;
+            const $toolbar = $main.find(".bb-rw-toolbar").first();
+            const $actions = $main.find("#bb-rw-workflow-actions").first();
+
+            if (!$toolbar.length || !$actions.length) {
+                console.warn(
+                    "Blood Request: تعذر فصل الإجراءات؛ عنصر الشريط أو الإجراءات غير موجود."
+                );
+                return;
+            }
+
+            let $section = $main.find(
+                "#bb-rw-workflow-actions-section"
+            ).first();
+
+            if (!$section.length) {
+                $section = $(
+                    '<section id="bb-rw-workflow-actions-section" ' +
+                    'aria-label="إجراءات سير العمل"></section>'
+                );
+                $section.append(
+                    $('<div class="bb-rw-actions-section-title"></div>')
+                        .text("إجراءات سير العمل")
+                );
+                $toolbar.after($section);
+            }
+
+            // نقل نفس العنصر يحافظ على هويته ومعالجات الأحداث المفوضة.
+            $actions.appendTo($section);
+        })();
+
 
         buildRequestPicker("");
         bindEvents();

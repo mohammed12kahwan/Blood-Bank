@@ -511,15 +511,152 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
     }
 
 
+    function renderTransferredReferences(i, holder) {
+        const configurations = {
+            2: {
+                title: "بيانات مرجعية من التبرع",
+                hide: [
+                    "blood_donation", "donor", "donor_name",
+                    "bag_number", "volume_collected",
+                    "collection_unit", "processing_date"
+                ],
+                items: [
+                    { field: "blood_donation", label: "رقم التبرع" },
+                    { field: "donor_name", fallback: "donor", label: "المتبرع" },
+                    { field: "bag_number", label: "رقم كيس الدم" },
+                    { field: "volume_collected", label: "الحجم المجمع" },
+                    { field: "collection_unit", label: "وحدة القياس" },
+                    { field: "processing_date", label: "تاريخ المعالجة" }
+                ]
+            },
+            3: {
+                title: "بيانات مرجعية من المعالجة والتبرع",
+                hide: [
+                    "blood_processing", "blood_donation", "donor",
+                    "donor_name", "donation_date", "bag_number",
+                    "volume", "volume_unit", "blood_group"
+                ],
+                items: [
+                    { field: "blood_processing", label: "رقم المعالجة" },
+                    { field: "blood_donation", label: "رقم التبرع" },
+                    { field: "donor_name", fallback: "donor", label: "المتبرع" },
+                    { field: "donation_date", label: "تاريخ التبرع" },
+                    { field: "bag_number", label: "رقم كيس الدم" },
+                    { field: "volume", label: "الحجم" },
+                    { field: "volume_unit", label: "وحدة القياس" },
+                    { field: "blood_group", label: "فصيلة الدم" }
+                ]
+            }
+        };
+
+        const config = configurations[i];
+        if (!config) return;
+
+        const model = models[i];
+        const card = holder.closest(".bb-iw-card");
+        if (!card) return;
+
+        let summary = Array.from(card.children).find(element =>
+            element.dataset &&
+            element.dataset.bbTransferSummary === String(i)
+        );
+
+        if (!summary) {
+            summary = document.createElement("section");
+            summary.className = "bb-iw-transfer-summary";
+            summary.dataset.bbTransferSummary = String(i);
+            holder.parentNode.insertBefore(summary, holder);
+        }
+
+        function readValue(fieldname) {
+            let value = model.values ? model.values[fieldname] : undefined;
+            const control = model.controls ? model.controls[fieldname] : null;
+
+            if (control) {
+                try {
+                    const liveValue = getControlValue(control);
+                    if (liveValue !== undefined && liveValue !== null
+                        && String(liveValue).trim() !== "") {
+                        value = liveValue;
+                    }
+                } catch (_) {}
+            }
+            return value;
+        }
+
+        function hasValue(value) {
+            return value !== undefined && value !== null
+                && String(value).trim() !== "";
+        }
+
+        config.hide.forEach(fieldname => {
+            const value = readValue(fieldname);
+            const fieldNode = holder.querySelector(
+                `[data-bb-fieldname="${fieldname}"]`
+            );
+            if (fieldNode) fieldNode.hidden = hasValue(value);
+        });
+
+        const items = [];
+        config.items.forEach(item => {
+            let value = readValue(item.field);
+            if (!hasValue(value) && item.fallback) {
+                value = readValue(item.fallback);
+            }
+            if (hasValue(value)) {
+                items.push({ label: item.label, value: String(value) });
+            }
+        });
+
+        if (!items.length) {
+            summary.hidden = true;
+            summary.replaceChildren();
+            return;
+        }
+
+        summary.hidden = false;
+        summary.innerHTML = `
+            <div class="bb-iw-transfer-summary-title">${esc(config.title)}</div>
+            <div class="bb-iw-transfer-summary-grid">
+                ${items.map(item => `
+                    <div class="bb-iw-transfer-summary-item">
+                        <span>${esc(item.label)}</span>
+                        <strong dir="auto">${esc(item.value)}</strong>
+                    </div>
+                `).join("")}
+            </div>`;
+    }
+
     function renderFields(i) {
         const holder = root.querySelector(`#iw-fields-${i}`);
         holder.replaceChildren();
 
         models[i].controls = {};
         fieldsFor(i).forEach(field => {
-            holder.appendChild(renderOneField(i, field));
+            let displayField = field;
+
+            if (i === 0 && field.fieldname === "blood_group_verified") {
+                displayField = {
+                    ...field,
+                    read_only: 0,
+                    read_only_depends_on: null
+                };
+            }
+
+            const fieldNode = renderOneField(i, displayField);
+
+            if (fieldNode && fieldNode.nodeType === 1) {
+                fieldNode.dataset.bbFieldname = displayField.fieldname;
+
+                if (i === 0 && displayField.fieldname === "blood_group_verified") {
+                    fieldNode.classList.add("bb-iw-blood-group-verified", "wide");
+                }
+            }
+
+            holder.appendChild(fieldNode);
         });
 
+        renderTransferredReferences(i, holder);
         updateRecordId(i);
         if (i === 0) setupDonorProfileAutocomplete();
     }
@@ -1039,23 +1176,79 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
     function transferValues(target, values) {
         const model = models[target];
 
-        if (model.name || model.dirty) {
+        if (!model) {
+            notify("تعذر العثور على نموذج الوجهة.", "error");
+            return false;
+        }
+
+        if (model.name) {
             notify(
-                `لم تُستبدل بيانات بطاقة ${doctypes[target]} لأن بها سجلًا محفوظًا أو تعديلات غير محفوظة.`,
+                `لم تُنقل البيانات إلى ${doctypes[target]} لأن الوجهة سجل محفوظ بالفعل.`,
                 "warning"
             );
             return false;
         }
 
-        const targetFields = new Set(getFields(doctypes[target]).map(f => f.fieldname));
+        const targetFields = new Set(
+            getFields(doctypes[target]).map(field => field.fieldname)
+        );
+
+        const toApply = [];
+        const referenceConflicts = [];
+
+        const hasValue = value =>
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== "";
+
+        const sameValue = (left, right) =>
+            String(left ?? "").trim() === String(right ?? "").trim();
 
         Object.entries(values).forEach(([fieldname, value]) => {
-            if (!targetFields.has(fieldname)) return;
-            if (value === undefined || value === null || value === "") return;
-            setFieldValue(target, fieldname, value);
+            if (!targetFields.has(fieldname) || !hasValue(value)) return;
+
+            const control = model.controls?.[fieldname];
+            let current = model.values?.[fieldname];
+
+            if (control) {
+                try {
+                    const liveValue = getControlValue(control);
+                    if (liveValue !== undefined && liveValue !== null) {
+                        current = liveValue;
+                    }
+                } catch (_) {}
+            }
+
+            if (hasValue(current)) {
+                if (!sameValue(current, value)) {
+                    if (["blood_donation", "blood_processing"].includes(fieldname)) {
+                        referenceConflicts.push(fieldname);
+                    }
+                }
+                return;
+            }
+
+            toApply.push([fieldname, value]);
         });
 
-        model.dirty = false;
+        if (referenceConflicts.length) {
+            notify(
+                "لم يُستبدل مرجع التبرع أو المعالجة الموجود في الوجهة؛ " +
+                "تحقق من ارتباط السجلات قبل المتابعة.",
+                "warning"
+            );
+            return false;
+        }
+
+        const wasDirty = Boolean(model.dirty);
+
+        toApply.forEach(([fieldname, value]) => {
+            setFieldValue(target, fieldname, value);
+            model.values[fieldname] = value;
+        });
+
+        // أبقِ تعديلات الموظف غير المحفوظة كما هي.
+        model.dirty = wasDirty || toApply.length > 0;
         return true;
     }
 
@@ -1113,15 +1306,48 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         if (status !== "Component Separation") {
             notify(
                 `تم تحديث المعالجة. حالتها الحالية: ${status || "غير محددة"}. ` +
-                "لن تُنقل البيانات إلى وحدة الدم حتى تصل إلى حالة Component Separation عبر سير العمل.",
+                "لن يتم الانتقال حتى تصل الحالة إلى Component Separation عبر سير العمل.",
                 "success"
+            );
+            return false;
+        }
+
+        let donationReference = String(processing.blood_donation || "").trim();
+
+        // إذا كان المرجع ناقصًا، استعده من سجل التبرع الحالي فقط
+        // عندما يتطابق رقم الكيس أو هوية المتبرع.
+        if (!donationReference) {
+            const donationModel = models[1];
+            const donation = donationModel?.values || {};
+
+            const sameValue = (left, right) =>
+                Boolean(String(left ?? "").trim()) &&
+                String(left).trim() === String(right ?? "").trim();
+
+            const sameBag =
+                sameValue(processing.bag_number, donation.bag_number);
+
+            const sameDonor =
+                sameValue(processing.donor, donation.donor) ||
+                sameValue(processing.donor_name, donation.donor_name);
+
+            if (donationModel?.name && (sameBag || sameDonor)) {
+                donationReference = donationModel.name;
+            }
+        }
+
+        if (!donationReference) {
+            notify(
+                "تعذر تحديد رقم التبرع المرتبط بالمعالجة. " +
+                "لم يتم الانتقال إلى وحدة الدم حتى لا يُربط سجل خاطئ.",
+                "error"
             );
             return false;
         }
 
         const moved = transferValues(3, {
             blood_processing: models[2].name,
-            blood_donation: processing.blood_donation,
+            blood_donation: donationReference,
             donor: processing.donor,
             donor_name: processing.donor_name,
             bag_number: processing.bag_number,
@@ -1132,8 +1358,8 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
 
         if (!moved) {
             notify(
-                "اكتمل فصل المكونات، لكن نافذة وحدة الدم تحتوي على سجل محفوظ " +
-                "أو تعديلات غير محفوظة. لم تُستبدل بياناتها ولم يتم الانتقال تلقائيًا.",
+                "اكتملت المعالجة، لكن تعذر تحديث مراجع وحدة الدم بأمان. " +
+                "راجِع بيانات الوجهة قبل المتابعة.",
                 "warning"
             );
             return false;
@@ -1143,7 +1369,7 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         activateWindow(3);
 
         notify(
-            "تم نقل بيانات المعالجة ورقمها المرجعي والانتقال تلقائيًا إلى نافذة وحدة الدم.",
+            "تم نقل رقم التبرع ورقم المعالجة والبيانات المتاحة إلى وحدة الدم.",
             "success"
         );
         return true;
@@ -1158,14 +1384,40 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         const doctype = doctypes[i];
         const model = models[i];
 
-        if (i === 1) {
-            if (!selectedDonor?.name && !model.values.donor) {
+        if (i === 1 && !model.name) {
+            const donorName = selectedDonor?.name || model.values?.donor;
+            if (!donorName) {
+                notify("اختر متبرعًا محفوظًا أولًا وأكمل إجراءات أهليته.", "warning");
+                return;
+            }
+
+            let donorDoc = null;
+            try {
+                const donorResponse = await frappe.call({
+                    method: "frappe.client.get",
+                    args: { doctype: doctypes[0], name: donorName }
+                });
+                donorDoc = donorResponse.message;
+            } catch (error) {
+                console.error("Unable to verify donor before donation:", error);
+                notify("تعذر التحقق من حالة المتبرع. لم يتم إنشاء سجل التبرع.", "error");
+                return;
+            }
+
+            if (!donorDoc || donorDoc.donor_status !== "Ready for Donation") {
                 notify(
-                    "اختر متبرعًا من قائمة الاسم الكامل أولًا. لإنشاء متبرع جديد، اكتب اسمه واضغط «إضافة جديد»، ثم احفظ بطاقة المتبرع.",
+                    "لا يمكن إنشاء التبرع قبل اعتماد جاهزية المتبرع عبر سير العمل.",
                     "warning"
                 );
                 return;
             }
+
+            model.values.donor = donorDoc.name;
+            model.values.donor_name = donorDoc.full_name || "";
+            selectedDonor = {
+                name: donorDoc.name,
+                full_name: donorDoc.full_name || ""
+            };
         }
 
         const payload = getDocumentPayload(i);
@@ -1301,6 +1553,9 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
             } else {
                 notify(`تم حفظ وحدة الدم بنجاح. رقم السجل: ${saved.name}`, "success");
             }
+            // BB_IW_REFRESH_ACTIONS_AFTER_SAVE_V4
+            // إعادة تحميل إجراءات السجل الذي تم حفظه بنجاح.
+            await openCardActions(i);
         } catch (error) {
             console.error(`Failed saving ${doctype}:`, error);
             notify(`تعذر حفظ ${doctype}: ${readableError(error)}`, "error");
@@ -1546,46 +1801,20 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         const button = root.querySelector("#iw-actions-active");
         const menu = root.querySelector("#iw-actions-menu");
 
-        if (!button || !menu) {
-            notify("تعذر العثور على قائمة إجراءات سير العمل.", "error");
-            return;
-        }
-
-        if (!menu.hidden && Number(menu.dataset.window) === i) {
-            menu.hidden = true;
-            button.setAttribute("aria-expanded", "false");
+        if (!menu) {
+            notify("تعذر العثور على منطقة إجراءات سير العمل.", "error");
             return;
         }
 
         menu.dataset.window = String(i);
         menu.hidden = false;
-        button.setAttribute("aria-expanded", "true");
+
+        if (button) {
+            button.setAttribute("aria-expanded", "false");
+        }
 
         const $menu = $(menu);
         $menu.off(".bbIwWorkflowDropdown");
-
-        // أغلق القائمة عند النقر خارجها، دون استخدام نافذة منبثقة.
-        if (!root.__bbIwActionsOutsideHandler) {
-            root.__bbIwActionsOutsideHandler = true;
-            root.addEventListener("click", function (event) {
-                if (
-                    event.target &&
-                    event.target.closest(".bb-iw-actions-wrap")
-                ) {
-                    return;
-                }
-
-                const liveMenu = root.querySelector("#iw-actions-menu");
-                const liveButton = root.querySelector("#iw-actions-active");
-
-                if (liveMenu && !liveMenu.hidden) {
-                    liveMenu.hidden = true;
-                    if (liveButton) {
-                        liveButton.setAttribute("aria-expanded", "false");
-                    }
-                }
-            }, true);
-        }
 
         const model = models[i];
 
@@ -1625,32 +1854,82 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         const translateAction = action =>
             (actionLabels[i] || {})[action] || action;
 
-        if (!model || !model.name) {
+        const knownActionNames = Object.keys(actionLabels[i] || {});
+
+        function renderReadOnlyActions(message) {
+            const buttonsHtml = knownActionNames.map(action => `
+                <button
+                  type="button"
+                  class="btn btn-default btn-sm bb-iw-workflow-action"
+                  disabled
+                  aria-disabled="true"
+                  title="${esc(message)}">
+                  ${esc(translateAction(action))}
+                </button>
+            `).join("");
+
+            menu.hidden = false;
             menu.innerHTML = `
-                <div class="bb-iw-actions-menu-message">
-                    <strong>لا يوجد سجل محفوظ في هذه النافذة.</strong>
-                    <div class="text-muted">
-                      اختر سجلًا أو احفظ السجل الحالي أولًا.
-                    </div>
-                </div>`;
+                <div class="bb-iw-action-toolbar-buttons">
+                  ${buttonsHtml}
+                </div>
+                <div class="bb-iw-actions-menu-message">${esc(message)}</div>
+            `;
+        }
+
+        if (i === 1 && !model?.name) {
+            const donorName = model?.values?.donor || selectedDonor?.name;
+
+            if (!donorName) {
+                menu.innerHTML = `
+                    <div class="bb-iw-actions-menu-message">
+                        احفظ المتبرع أولًا وأكمل إجراءات أهليته واعتماد جاهزيته.
+                    </div>`;
+                return;
+            }
+
+            let donorDoc = null;
+            try {
+                const donorResponse = await frappe.call({
+                    method: "frappe.client.get",
+                    args: { doctype: doctypes[0], name: donorName }
+                });
+                donorDoc = donorResponse.message;
+            } catch (error) {
+                console.error("Unable to verify donor readiness:", error);
+                menu.innerHTML = `
+                    <div class="bb-iw-actions-menu-message">
+                        تعذر التحقق من حالة المتبرع المحفوظة. حدّث البيانات وحاول مجددًا.
+                    </div>`;
+                return;
+            }
+
+            if (!donorDoc || donorDoc.donor_status !== "Ready for Donation") {
+                menu.innerHTML = `
+                    <div class="bb-iw-actions-menu-message">
+                        إجراءات التبرع غير متاحة قبل اعتماد جاهزية المتبرع.
+                        الحالة الحالية:
+                        <strong>${esc(donorDoc?.donor_status || "غير محددة")}</strong>
+                    </div>`;
+                return;
+            }
+        }
+
+        if (!model || !model.name) {
+            renderReadOnlyActions(
+                "احفظ السجل أولًا؛ لا يمكن تنفيذ الإجراءات على سجل جديد."
+            );
             return;
         }
 
         if (model.dirty) {
-            menu.innerHTML = `
-                <div class="bb-iw-actions-menu-message">
-                    <strong>توجد تغييرات غير محفوظة.</strong>
-                    <div class="text-muted">
-                      احفظ السجل أولًا، ثم افتح قائمة الإجراءات مجددًا.
-                    </div>
-                </div>`;
+            renderReadOnlyActions(
+                "توجد تعديلات غير محفوظة. احفظ السجل قبل تنفيذ أي إجراء."
+            );
             return;
         }
 
-        menu.innerHTML = `
-            <div class="bb-iw-actions-menu-message">
-                جارٍ تحميل إجراءات سير العمل...
-            </div>`;
+        renderReadOnlyActions("جارٍ تحميل الإجراءات المتاحة لهذا السجل...");
 
         let savedDoc = null;
         let transitions = [];
@@ -1711,52 +1990,63 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
                 </div>`;
 
             function renderActions() {
-                const actionsHtml = transitions.length
-                    ? `
-                      <div class="bb-iw-dropdown-action-list">
-                        ${transitions.map((transition, index) => {
-                            const action = String(transition.action || "");
-                            const nextState = String(
-                                transition.next_state || ""
-                            );
+                const transitionIndexByAction = new Map();
 
-                            return `
-                              <div class="bb-iw-dropdown-action-row">
-                                <div class="bb-iw-dropdown-action-info">
-                                  <strong>
-                                    ${esc(translateAction(action))}
-                                  </strong>
-                                  <small>${esc(action)}</small>
-                                  ${
-                                      nextState
-                                          ? `<span>الحالة التالية: ${esc(nextState)}</span>`
-                                          : ""
-                                  }
-                                </div>
-                                <button
-                                  type="button"
-                                  class="btn btn-default btn-sm bb-iw-workflow-action"
-                                  data-action-index="${index}"
-                                  role="menuitem">
-                                  اختيار
-                                </button>
-                              </div>`;
-                        }).join("")}
-                      </div>`
-                    : `
-                      <div class="bb-iw-actions-menu-message">
-                        لا توجد إجراءات انتقال متاحة للحالة الحالية أو للمستخدم.
-                      </div>`;
+                transitions.forEach((transition, index) => {
+                    const action = String(transition.action || "");
+                    if (action && !transitionIndexByAction.has(action)) {
+                        transitionIndexByAction.set(action, index);
+                    }
+                });
 
-                menu.innerHTML = summaryHtml + actionsHtml;
+                const actionNames = [...new Set([
+                    ...knownActionNames,
+                    ...transitions
+                        .map(transition => String(transition.action || ""))
+                        .filter(Boolean)
+                ])];
+
+                const buttonsHtml = actionNames.map(action => {
+                    const enabled = transitionIndexByAction.has(action);
+                    const index = enabled
+                        ? transitionIndexByAction.get(action)
+                        : "";
+
+                    return `
+                        <button
+                          type="button"
+                          class="btn ${enabled ? "btn-primary" : "btn-default"} btn-sm bb-iw-workflow-action"
+                          data-action-index="${index}"
+                          ${enabled ? "" : 'disabled aria-disabled="true"'}
+                          title="${esc(enabled
+                              ? "إجراء متاح حسب حالة السجل والصلاحيات"
+                              : "إجراء غير متاح حاليًا أو غير مسموح للمستخدم")}">
+                          ${esc(translateAction(action))}
+                        </button>`;
+                }).join("");
+
+                const unavailableHtml = transitions.length
+                    ? ""
+                    : `<div class="bb-iw-actions-menu-message">
+                         لا توجد إجراءات انتقال متاحة للحالة الحالية أو للمستخدم.
+                       </div>`;
+
+                menu.hidden = false;
+                menu.innerHTML = summaryHtml + `
+                    <div class="bb-iw-action-toolbar-buttons">
+                      ${buttonsHtml}
+                    </div>
+                    ${unavailableHtml}
+                    <div id="iw-actions-confirmation"></div>`;
             }
 
             function renderConfirmation(transition) {
-                menu.innerHTML = summaryHtml + `
+                const host = menu.querySelector("#iw-actions-confirmation");
+                if (!host) return;
+
+                host.innerHTML = `
                     <div class="bb-iw-actions-menu-confirm">
-                      <strong>
-                        تأكيد تنفيذ الإجراء
-                      </strong>
+                      <strong>تأكيد تنفيذ الإجراء</strong>
                       <p>
                         هل تريد تنفيذ
                         «${esc(translateAction(transition.action))}»
@@ -1934,14 +2224,18 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
                         }
 
                         pendingTransition = null;
-                        menu.hidden = true;
-                        button.setAttribute("aria-expanded", "false");
+                        menu.hidden = false;
+                        if (button) {
+                            button.setAttribute("aria-expanded", "false");
+                        }
 
                         notify(
                             `تم تنفيذ «${arabic} | ${action}» بنجاح. ` +
                             `الحالة الحالية: ${saved[statusFields[i]] || "—"}`,
                             "success"
                         );
+
+                        await openCardActions(activeWindow);
                     } catch (error) {
                         console.error(
                             `Workflow action failed for ${doctypes[i]}:`,
@@ -1974,11 +2268,9 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
                 error
             );
 
-            menu.innerHTML = `
-                <div class="bb-iw-actions-menu-message bb-iw-actions-menu-error">
-                  <strong>تعذر تحميل إجراءات سير العمل.</strong>
-                  <div>${esc(readableError(error))}</div>
-                </div>`;
+            renderReadOnlyActions(
+                "تعذر تحميل إجراءات سير العمل: " + readableError(error)
+            );
         }
     }
 
@@ -1989,26 +2281,37 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         }
 
         activeWindow = parsed;
+        const activeGroup = Math.floor(activeWindow / 2);
+        const groupTab = activeGroup * 2;
 
         root.querySelectorAll("[data-tab]").forEach(button => {
             button.classList.toggle(
                 "is-active",
-                Number(button.dataset.tab) === activeWindow
+                Number(button.dataset.tab) === groupTab
             );
         });
 
         root.querySelectorAll("[data-screen]").forEach(screen => {
             screen.hidden =
-                Number(screen.dataset.screen) !== Math.floor(activeWindow / 2);
+                Number(screen.dataset.screen) !== activeGroup;
         });
 
         root.querySelectorAll(".bb-iw-card[data-window]").forEach(card => {
-            card.hidden = Number(card.dataset.window) !== activeWindow;
+            card.hidden =
+                Math.floor(Number(card.dataset.window) / 2) !== activeGroup;
         });
 
         const title = root.querySelector("#iw-active-window-title");
-        if (title) {
-            title.textContent = windowTitles[activeWindow];
+        if (title) title.textContent = windowTitles[activeWindow];
+
+        const saveButton = root.querySelector("#iw-save-active");
+        if (saveButton) {
+            saveButton.textContent =
+                `💾 حفظ | Save — ${windowTitles[activeWindow]}`;
+        }
+
+        if (ready && Array.isArray(models) && models.length === 4) {
+            void openCardActions(activeWindow);
         }
     }
 
@@ -2136,6 +2439,17 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         }
     });
 
+    root.addEventListener("focusin", event => {
+        const card = event.target.closest(".bb-iw-card[data-window]");
+        if (!card) return;
+
+        const cardIndex = Number(card.dataset.window);
+        if (Math.floor(cardIndex / 2) === Math.floor(activeWindow / 2)
+            && cardIndex !== activeWindow) {
+            activateWindow(cardIndex);
+        }
+    });
+
     activateWindow(0);
 
     root.querySelector("#iw-new").addEventListener("click", resetNew);
@@ -2189,6 +2503,7 @@ frappe.pages["blood-bank-initial-work"].on_page_load = async function(wrapper) {
         renderAllFields();
         ready = true;
         await loadInitialWorkReportSelection();
+          await openCardActions(activeWindow);
         notify("جاهز للاستخدام. الحقول الآن من عناصر Frappe الأصلية، ولكل بطاقة زر حفظ مستقل.", "success");
     } catch (error) {
         console.error("Blood Bank page initialization failed:", error);

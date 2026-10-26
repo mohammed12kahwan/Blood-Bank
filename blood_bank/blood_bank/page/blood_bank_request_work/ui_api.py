@@ -1125,3 +1125,47 @@ def create_blood_request_in_window(values):
             status_field: doc.get(status_field),
         },
     }
+
+# BB_WORKFLOW_ACTION_CATALOG_ACTUAL_V3
+@frappe.whitelist()
+def get_workflow_action_catalog(doctype):
+    """أسماء إجراءات Workflow المعرفة لنوع مستند مسموح به."""
+    allowed_doctypes = {
+        "Blood Screening",
+        "Blood Component",
+        "Blood Component Quality Check",
+        "Blood Storage",
+        "Blood Request",
+        "Blood Reservation",
+        "Blood Crossmatch",
+        "Blood Issue",
+        "Blood Handover",
+        "Blood Transfusion",
+        "Blood Unit Disposition",
+    }
+
+    if doctype not in allowed_doctypes:
+        frappe.throw("نوع المستند غير مسموح لكتالوج إجراءات بنك الدم.")
+
+    if not frappe.has_permission(doctype, "read"):
+        frappe.throw("ليست لديك صلاحية قراءة هذا النوع من السجلات.")
+
+    workflows = frappe.get_all(
+        "Workflow",
+        filters={"document_type": doctype, "is_active": 1},
+        fields=["name"],
+    )
+
+    names = []
+    seen = set()
+
+    for row in workflows:
+        workflow_doc = frappe.get_doc("Workflow", row.name)
+
+        for transition in workflow_doc.transitions:
+            action_name = str(transition.action or "").strip()
+            if action_name and action_name not in seen:
+                seen.add(action_name)
+                names.append(action_name)
+
+    return {"actions": names}

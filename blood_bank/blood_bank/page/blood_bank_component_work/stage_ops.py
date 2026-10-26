@@ -55,21 +55,27 @@ STAGES = {
     "Blood Storage": {
         "status_field": "storage_status",
         "fields": [
-            # BB_STORAGE_UNIT_VISIBLE_IN_STORAGE_V1
-            "blood_unit", "storage_location",
-            "storage_date", "stored_at", "stored_by", "temperature",
-            "temperature_unit", "storage_reference",
-              "remarks", "discard_reason",
-            "blood_processing",
-            "blood_screening",
-            "donor",
-            "donor_name",
-            "blood_group",
-            "bag_number",
-            "component_type",
-            "component_number",
-            "component_volume",
-            "volume_unit",
+            'expiry_date',
+            'blood_unit',
+            'storage_location',
+            'storage_date',
+            'stored_at',
+            'stored_by',
+            'temperature',
+            'temperature_unit',
+            'storage_reference',
+            'remarks',
+            'discard_reason',
+            'blood_processing',
+            'blood_screening',
+            'donor',
+            'donor_name',
+            'blood_group',
+            'bag_number',
+            'component_type',
+            'component_number',
+            'component_volume',
+            'volume_unit',
         ],
     },
 }
@@ -709,3 +715,47 @@ def run_read_only_diagnostic():
 
     print("\nStage operations loaded successfully.")
     print("No business records were created or changed.")
+
+# BB_WORKFLOW_ACTION_CATALOG_ACTUAL_V3
+@frappe.whitelist()
+def get_workflow_action_catalog(doctype):
+    """أسماء إجراءات Workflow المعرفة لنوع مستند مسموح به."""
+    allowed_doctypes = {
+        "Blood Screening",
+        "Blood Component",
+        "Blood Component Quality Check",
+        "Blood Storage",
+        "Blood Request",
+        "Blood Reservation",
+        "Blood Crossmatch",
+        "Blood Issue",
+        "Blood Handover",
+        "Blood Transfusion",
+        "Blood Unit Disposition",
+    }
+
+    if doctype not in allowed_doctypes:
+        frappe.throw("نوع المستند غير مسموح لكتالوج إجراءات بنك الدم.")
+
+    if not frappe.has_permission(doctype, "read"):
+        frappe.throw("ليست لديك صلاحية قراءة هذا النوع من السجلات.")
+
+    workflows = frappe.get_all(
+        "Workflow",
+        filters={"document_type": doctype, "is_active": 1},
+        fields=["name"],
+    )
+
+    names = []
+    seen = set()
+
+    for row in workflows:
+        workflow_doc = frappe.get_doc("Workflow", row.name)
+
+        for transition in workflow_doc.transitions:
+            action_name = str(transition.action or "").strip()
+            if action_name and action_name not in seen:
+                seen.add(action_name)
+                names.append(action_name)
+
+    return {"actions": names}

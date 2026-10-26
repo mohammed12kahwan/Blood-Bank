@@ -353,3 +353,17 @@ if _bb_form_css_router_asset not in _bb_form_css_router_js:
     _bb_form_css_router_js.append(_bb_form_css_router_asset)
 
 app_include_js = _bb_form_css_router_js
+
+
+# BB_COMPONENT_WORK_DESK_CSS_V1
+# Load the component work page styles in Desk.
+_bb_component_css_path = "/assets/blood_bank/css/blood_bank_component_work.css"
+_bb_current_app_css = globals().get("app_include_css", [])
+if isinstance(_bb_current_app_css, str):
+    _bb_current_app_css = [_bb_current_app_css]
+else:
+    _bb_current_app_css = list(_bb_current_app_css or [])
+if _bb_component_css_path not in _bb_current_app_css:
+    _bb_current_app_css.append(_bb_component_css_path)
+app_include_css = _bb_current_app_css
+del _bb_component_css_path, _bb_current_app_css

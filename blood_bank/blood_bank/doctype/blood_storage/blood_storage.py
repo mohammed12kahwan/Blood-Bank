@@ -27,6 +27,13 @@ class BloodStorage(Document):
                 "الإتاحة تتطلب ربط المكوّن وفحص الجودة ووحدة الدم."
             )
 
+        # BB_STORAGE_EXPIRY_SYNC_V6
+        if self.get('expiry_date') and self.get('blood_unit'):
+            frappe.db.set_value(
+                'Blood Unit', self.blood_unit, 'expiry_date',
+                self.get('expiry_date'), update_modified=False,
+            )
+
         unit = frappe.db.get_value(
             "Blood Unit",
             self.blood_unit,

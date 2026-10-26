@@ -25,8 +25,6 @@ frappe.pages["blood-bank-staff-operations"].on_page_load = function (wrapper) {
         { doctype: "Blood Reservation", route: "blood-reservation", label: "الحجز" },
         { doctype: "Blood Crossmatch", route: "blood-crossmatch", label: "المطابقة" },
         { doctype: "Blood Issue", route: "blood-issue", label: "الصرف" },
-        { doctype: "Blood Handover", route: "blood-handover", label: "التسليم" },
-        { doctype: "Blood Transfusion", route: "blood-transfusion", label: "نقل الدم" },
         { doctype: "Blood Unit Disposition", route: "blood-unit-disposition", label: "مصير الوحدة" }
     ];
 

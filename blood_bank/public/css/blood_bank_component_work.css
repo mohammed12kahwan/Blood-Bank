@@ -1,0 +1,2747 @@
+/*
+ * Blood Bank Component Work
+ * Unified visual language, RTL layout and visible autocomplete menus.
+ * Workflow logic remains in blood_bank_component_work.js.
+ */
+
+#bb-cw-root {
+    --bb-cw-red: #a61b29;
+    --bb-cw-red-dark: #821522;
+    --bb-cw-border: var(--border-color, #e2e7ec);
+    --bb-cw-soft: var(--subtle-fg, #f6f7f9);
+    direction: rtl;
+    color: var(--text-color, #263238);
+    padding: 0 0 28px;
+    font-family: inherit;
+}
+
+#bb-cw-root,
+#bb-cw-root .form-section,
+#bb-cw-root .form-group,
+#bb-cw-root .row,
+#bb-cw-root [class*="col-"],
+#bb-cw-root .frappe-control,
+#bb-cw-root .control-input,
+#bb-cw-root .control-input-wrapper,
+#bb-cw-root .link-field,
+#bb-cw-root .awesomplete {
+    overflow: visible !important;
+}
+
+#bb-cw-root .bb-cw-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    margin: 8px 0 16px;
+    padding: 20px 22px;
+    border: 1px solid var(--bb-cw-border);
+    border-right: 5px solid var(--bb-cw-red);
+    border-radius: 10px;
+    background: linear-gradient(110deg, #fff 0%, #fff7f7 100%);
+}
+
+#bb-cw-root .bb-cw-brand-mark {
+    display: flex;
+    flex: 0 0 54px;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 13px;
+    background: #fbe9eb;
+    font-size: 29px;
+}
+
+#bb-cw-root .bb-cw-brand-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#bb-cw-root .bb-cw-eyebrow,
+#bb-cw-root .bb-cw-stage-kicker,
+#bb-cw-root .bb-cw-english-label {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .07em;
+}
+
+#bb-cw-root .bb-cw-header h2 {
+    margin: 4px 0 5px;
+    color: var(--heading-color, #273444);
+    font-size: 22px;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+#bb-cw-root .bb-cw-header p {
+    margin: 0;
+    color: var(--text-muted, #74808b);
+    font-size: 13px;
+}
+
+#bb-cw-root .bb-cw-header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 95px;
+    padding: 10px 12px;
+    border-right: 1px solid var(--bb-cw-border);
+    color: var(--text-muted, #74808b);
+    font-size: 11px;
+}
+
+#bb-cw-root .bb-cw-meta-number {
+    color: var(--bb-cw-red);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+#bb-cw-root .bb-cw-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid var(--bb-cw-border);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+}
+
+#bb-cw-root .bb-cw-toolbar-main,
+#bb-cw-root .bb-cw-toolbar-navigation {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+#bb-cw-root .bb-cw-btn {
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#bb-cw-root .bb-cw-btn-save {
+    border-color: var(--bb-cw-red);
+    background: var(--bb-cw-red);
+    color: #fff;
+}
+
+#bb-cw-root .bb-cw-btn-save:hover,
+#bb-cw-root .bb-cw-btn-save:focus {
+    border-color: var(--bb-cw-red-dark);
+    background: var(--bb-cw-red-dark);
+    color: #fff;
+}
+
+#bb-cw-root .bb-cw-panel {
+    position: relative;
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    border: 1px solid var(--bb-cw-border);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+    box-shadow: 0 1px 2px rgba(28, 39, 49, .035);
+}
+
+#bb-cw-root .bb-cw-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 15px;
+    padding: 0 0 11px;
+    border-bottom: 1px solid var(--bb-cw-border);
+    color: var(--heading-color, #303b46);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+#bb-cw-root .bb-cw-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+#bb-cw-root .bb-cw-summary-item {
+    min-width: 0;
+}
+
+#bb-cw-root .bb-cw-summary-item label,
+#bb-cw-root .bb-cw-stage-status-box label {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--text-muted, #687684);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#bb-cw-root .bb-cw-summary-value {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    height: auto;
+    padding: 8px 10px;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--bb-cw-border);
+    background: var(--control-bg, #f8f9fa);
+    color: var(--text-color, #263238);
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: none;
+}
+
+#bb-cw-root .bb-cw-message {
+    margin: 14px 0 0;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+#bb-cw-root .bb-cw-workspace {
+    margin-top: 20px;
+}
+
+#bb-cw-root .bb-cw-workspace-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 13px;
+}
+
+#bb-cw-root .bb-cw-workspace-heading h3 {
+    margin: 0 0 4px;
+    color: var(--heading-color, #273444);
+    font-size: 17px;
+    font-weight: 750;
+}
+
+#bb-cw-root .bb-cw-workspace-heading p {
+    margin: 0;
+    color: var(--text-muted, #74808b);
+    font-size: 12px;
+}
+
+#bb-cw-root .bb-cw-workspace-code {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    white-space: nowrap;
+}
+
+#bb-cw-root .bb-cw-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-bottom: 2px solid var(--bb-cw-red);
+    direction: rtl;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+#bb-cw-root .bb-cw-tabs > li {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 145px;
+    margin: 0;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3px 7px;
+    min-height: 54px;
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--bb-cw-border);
+    border-bottom: 0;
+    border-radius: 7px 7px 0 0;
+    background: #f5f7f9;
+    color: var(--text-color, #3e4a56);
+    font-size: 12px;
+    font-weight: 650;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#bb-cw-root .bb-cw-tabs > li + li > a {
+    border-right: 0;
+}
+
+#bb-cw-root .bb-cw-tabs > li.active > a,
+#bb-cw-root .bb-cw-tabs > li.active > a:hover,
+#bb-cw-root .bb-cw-tabs > li.active > a:focus {
+    border-color: var(--bb-cw-red);
+    background: #fff;
+    color: var(--bb-cw-red);
+    box-shadow: inset 0 3px 0 var(--bb-cw-red);
+}
+
+#bb-cw-root .bb-cw-tabs > li.disabled > a {
+    color: var(--text-muted, #89939c);
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+#bb-cw-root .bb-cw-tab-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+}
+
+#bb-cw-root .bb-cw-tabs small {
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+#bb-cw-root .bb-cw-stage-panel {
+    margin-top: 0;
+    border-top: 0;
+    border-radius: 0 0 9px 9px;
+    padding: 0;
+}
+
+#bb-cw-root .bb-cw-stage-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(210px, .43fr);
+    align-items: center;
+    gap: 18px;
+    padding: 18px;
+    border-bottom: 1px solid var(--bb-cw-border);
+    background: #fcfcfd;
+}
+
+#bb-cw-root .bb-cw-stage-title {
+    margin-top: 4px;
+    color: var(--heading-color, #283644);
+    font-size: 18px;
+    font-weight: 750;
+}
+
+#bb-cw-root #bb-cw-stage-description {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+#bb-cw-root .bb-cw-fields-area {
+    padding: 18px;
+}
+
+#bb-cw-root .bb-cw-subsection-head {
+    margin: 0 0 15px;
+    color: var(--heading-color, #303b46);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+#bb-cw-root .form-group {
+    margin-bottom: 15px;
+}
+
+#bb-cw-root .form-group > label {
+    margin-bottom: 6px;
+    color: var(--text-color, #3e4a56);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#bb-cw-root .form-control {
+    min-height: 34px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+#bb-cw-root .bb-cw-actions-panel {
+    margin-top: 16px;
+}
+
+#bb-cw-root .bb-cw-actions-hint {
+    margin: -5px 0 13px;
+    font-size: 12px;
+}
+
+#bb-cw-root .bb-cw-workflow-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 24px;
+    font-size: 12px;
+}
+
+#bb-cw-root .bb-cw-workflow-actions .btn {
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+#bb-cw-root .awesomplete,
+#bb-cw-root .awesomplete > ul,
+#bb-cw-root .link-field .awesomplete > ul,
+#bb-cw-root .dropdown-menu,
+#bb-cw-root .control-input-wrapper .awesomplete > ul {
+    z-index: 10050 !important;
+}
+
+#bb-cw-root .awesomplete > ul,
+#bb-cw-root .dropdown-menu {
+    max-height: 260px;
+    overflow-y: auto !important;
+    box-shadow: 0 5px 18px rgba(25, 35, 45, .16);
+}
+
+@media (max-width: 900px) {
+    #bb-cw-root .bb-cw-toolbar {
+        align-items: stretch;
+    }
+
+    #bb-cw-root .bb-cw-toolbar-main,
+    #bb-cw-root .bb-cw-toolbar-navigation {
+        width: 100%;
+    }
+
+    #bb-cw-root .bb-cw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #bb-cw-root .bb-cw-stage-bar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    #bb-cw-root .bb-cw-header {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    #bb-cw-root .bb-cw-brand-mark {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
+        font-size: 23px;
+    }
+
+    #bb-cw-root .bb-cw-header h2 {
+        font-size: 18px;
+    }
+
+    #bb-cw-root .bb-cw-header-meta {
+        display: none;
+    }
+
+    #bb-cw-root .bb-cw-summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #bb-cw-root .bb-cw-panel {
+        padding: 12px;
+    }
+
+    #bb-cw-root .bb-cw-tabs > li {
+        min-width: 138px;
+    }
+
+    #bb-cw-root .bb-cw-workspace-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* Compact header and workflow actions beside Save, upper-left. */
+#bb-cw-root .bb-cw-header {
+    min-height: 0;
+    margin: 3px 0 10px;
+    padding: 9px 14px;
+    gap: 10px;
+    border-right-width: 4px;
+    border-radius: 7px;
+    background: var(--card-bg, #fff);
+}
+
+#bb-cw-root .bb-cw-brand-mark {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 21px;
+}
+
+#bb-cw-root .bb-cw-brand-copy h2,
+#bb-cw-root .bb-cw-header h2 {
+    margin: 0 0 2px;
+    font-size: 17px;
+    line-height: 1.3;
+}
+
+#bb-cw-root .bb-cw-header p {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+#bb-cw-root .bb-cw-toolbar {
+    direction: ltr;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-bottom: 13px;
+    padding: 8px 10px;
+    border-radius: 7px;
+}
+
+#bb-cw-root .bb-cw-toolbar-actions {
+    order: 0;
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 0;
+    direction: ltr;
+}
+
+#bb-cw-root .bb-cw-toolbar-actions #bb-cw-save {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+#bb-cw-root .bb-cw-toolbar-actions #bb-cw-workflow-actions {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 430px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    direction: rtl;
+    color: var(--text-color, #263238);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+#bb-cw-root .bb-cw-toolbar-actions #bb-cw-workflow-actions .btn {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    white-space: nowrap;
+}
+
+#bb-cw-root .bb-cw-toolbar-main {
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 6px;
+    direction: rtl;
+}
+
+#bb-cw-root .bb-cw-toolbar-navigation {
+    order: 2;
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 6px;
+    direction: rtl;
+}
+
+#bb-cw-root .bb-cw-toolbar .bb-cw-btn {
+    min-height: 31px;
+    padding: 5px 9px;
+    font-size: 11px;
+}
+
+#bb-cw-root .bb-cw-workspace {
+    margin-top: 12px;
+}
+
+#bb-cw-root .bb-cw-workspace-heading {
+    margin-bottom: 9px;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a {
+    min-height: 47px;
+    padding: 7px 9px;
+}
+
+#bb-cw-root .bb-cw-stage-bar {
+    padding: 13px 16px;
+}
+
+@media (max-width: 900px) {
+    #bb-cw-root .bb-cw-toolbar {
+        align-items: flex-start;
+    }
+
+    #bb-cw-root .bb-cw-toolbar-actions {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #bb-cw-root .bb-cw-toolbar-actions #bb-cw-workflow-actions {
+        max-width: calc(100% - 80px);
+    }
+
+    #bb-cw-root .bb-cw-toolbar-main,
+    #bb-cw-root .bb-cw-toolbar-navigation {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* BB-CW-COMPACT-LAYOUT-V1
+   Compact layout prototype for Blood Bank Component Work.
+   CSS only: workflow logic and fields remain unchanged.
+*/
+
+/* عنوان نظام بنك الدم */
+#bb-cw-root .bb-cw-header {
+    align-items: center;
+    gap: 8px !important;
+    margin: 2px 0 6px !important;
+    padding: 6px 10px !important;
+    border-radius: 6px;
+}
+
+#bb-cw-root .bb-cw-brand-mark {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    flex: 0 0 32px;
+    font-size: 18px;
+    border-radius: 7px;
+}
+
+#bb-cw-root .bb-cw-brand-copy h2,
+#bb-cw-root .bb-cw-header h2 {
+    margin: 0 0 1px !important;
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+}
+
+#bb-cw-root .bb-cw-header p {
+    margin: 0;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+}
+
+#bb-cw-root .bb-cw-header-meta {
+    min-width: 75px;
+    padding: 4px 6px;
+    font-size: 10px;
+}
+
+/* شريط التنقل */
+#bb-cw-root .bb-cw-toolbar-navigation {
+    gap: 5px !important;
+    margin: 5px 0 8px !important;
+}
+
+#bb-cw-root .bb-cw-toolbar-navigation .btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+/* بطاقة التبرع المحدد */
+#bb-cw-root .bb-cw-source-panel {
+    margin: 0 0 8px !important;
+    padding: 8px 10px !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-panel-head {
+    gap: 6px;
+    margin: 0 0 7px !important;
+    padding: 0 0 6px !important;
+    font-size: 12px !important;
+    line-height: 1.3;
+}
+
+#bb-cw-root .bb-cw-summary-grid {
+    gap: 7px !important;
+}
+
+#bb-cw-root .bb-cw-summary-item label,
+#bb-cw-root .bb-cw-stage-status-box label {
+    margin: 0 0 3px !important;
+    font-size: 11px !important;
+    line-height: 1.3;
+}
+
+#bb-cw-root .bb-cw-summary-value {
+    min-height: 27px !important;
+    height: auto;
+    padding: 4px 7px !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+
+/* تنبيه ارتباط التبرع بالمصدر */
+#bb-cw-root #bb-cw-source-message {
+    margin: 5px 0 0;
+    padding: 5px 8px;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* قسم المرحلة النشطة */
+#bb-cw-root .bb-cw-stage-panel {
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+}
+
+#bb-cw-root .bb-cw-stage-bar {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.43fr);
+    gap: 10px !important;
+    padding: 7px 10px !important;
+}
+
+#bb-cw-root .bb-cw-stage-kicker {
+    font-size: 9px !important;
+    line-height: 1.2;
+}
+
+#bb-cw-root .bb-cw-stage-title {
+    margin-top: 2px !important;
+    font-size: 15px !important;
+    line-height: 1.3;
+}
+
+#bb-cw-root #bb-cw-stage-description {
+    margin: 3px 0 0 !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+}
+
+#bb-cw-root .bb-cw-stage-status-box {
+    min-width: 0;
+}
+
+#bb-cw-root .bb-cw-fields-area {
+    padding: 8px 10px !important;
+}
+
+#bb-cw-root .bb-cw-subsection-head {
+    margin: 0 0 7px !important;
+    font-size: 12px !important;
+    line-height: 1.35;
+}
+
+#bb-cw-root .bb-cw-fields-area .form-group {
+    margin-bottom: 8px;
+}
+
+/* تخطيط متجاوب */
+@media (max-width: 767px) {
+    #bb-cw-root .bb-cw-header {
+        align-items: center;
+        padding: 6px 8px !important;
+    }
+
+    #bb-cw-root .bb-cw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #bb-cw-root .bb-cw-stage-bar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 7px !important;
+        padding: 8px !important;
+    }
+
+    #bb-cw-root .bb-cw-fields-area {
+        padding: 7px 8px !important;
+    }
+}
+
+/* BB-CW-READONLY-DONATION-COMPACT-V2
+   Compact read-only donation summary; no workflow changes.
+*/
+
+#bb-cw-root .bb-cw-source-panel {
+    margin: 0 0 6px !important;
+    padding: 5px 8px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-panel-head {
+    min-height: 0 !important;
+    margin: 0 0 5px !important;
+    padding: 0 0 4px !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    font-weight: 600 !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-english-label {
+    display: none !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 5px 8px !important;
+    align-items: start;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-summary-item {
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-summary-item label {
+    margin: 0 0 2px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    font-weight: 500 !important;
+}
+
+#bb-cw-root .bb-cw-source-panel .bb-cw-summary-value {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 23px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 3px 5px !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+    overflow-wrap: anywhere;
+}
+
+#bb-cw-root .bb-cw-source-panel #bb-cw-source-message {
+    margin: 4px 0 0 !important;
+    padding: 3px 6px !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+}
+
+@media (max-width: 1100px) {
+    #bb-cw-root .bb-cw-source-panel .bb-cw-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #bb-cw-root .bb-cw-source-panel {
+        padding: 5px 6px !important;
+    }
+
+    #bb-cw-root .bb-cw-source-panel .bb-cw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+    }
+}
+
+/* BB-FRAPPE-RESPONSIVE-UNIFIED-V1 */
+#bb-cw-root,
+#bb-cw-root * {
+    box-sizing: border-box;
+}
+#bb-cw-root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+#bb-cw-root .frappe-control,
+#bb-cw-root .form-group,
+#bb-cw-root .control-input-wrapper,
+#bb-cw-root .link-field {
+    min-width: 0;
+    max-width: 100%;
+}
+#bb-cw-root .frappe-control .control-label,
+#bb-cw-root .form-group > label {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+#bb-cw-root .bb-cw-summary-item label,
+#bb-cw-root .bb-cw-stage-status-box label {
+    display: block !important;
+    visibility: visible !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+#bb-cw-root .form-control,
+#bb-cw-root input,
+#bb-cw-root select,
+#bb-cw-root textarea {
+    max-width: 100%;
+}
+#bb-cw-root .bb-cw-toolbar-navigation,
+#bb-cw-root .bb-cw-toolbar-actions,
+#bb-cw-root .bb-cw-workflow-actions {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+#bb-cw-root .bb-cw-tabs {
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+#bb-cw-root .bb-cw-tabs > li {
+    min-width: 0;
+}
+@media (max-width: 900px) {
+    #bb-cw-root .bb-cw-stage-bar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+    #bb-cw-root .bb-cw-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+@media (max-width: 600px) {
+    #bb-cw-root .bb-cw-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #bb-cw-root .bb-cw-tabs > li {
+        flex: 1 1 45%;
+    }
+    #bb-cw-root .bb-cw-fields-area .row > [class*="col-"] {
+        width: 100%;
+        max-width: 100%;
+    }
+    #bb-cw-root .bb-cw-header,
+    #bb-cw-root .bb-cw-panel {
+        max-width: 100%;
+    }
+}
+
+
+
+/* BB_TABS_MATCH_INITIAL_WORK_V1 */
+/* Frappe-style adjacent tabs matching Blood Bank Initial Work. */
+#bb-cw-root .bb-cw-tabs {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border-color, #d1d8dd) !important;
+    border-radius: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    scrollbar-width: thin;
+}
+
+#bb-cw-root .bb-cw-tabs > li {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 10px 14px !important;
+    border: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--text-color, #36414c) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a:hover {
+    background: var(--subtle-fg, #f7f7f7) !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li.active > a,
+#bb-cw-root .bb-cw-tabs > li.active > a:hover,
+#bb-cw-root .bb-cw-tabs > li.active > a:focus {
+    border: 0 !important;
+    border-bottom: 2px solid var(--primary, #2490ef) !important;
+    border-radius: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #36414c) !important;
+    font-weight: 600 !important;
+}
+
+#bb-cw-root .bb-cw-tabs .bb-cw-tab-number {
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+#bb-cw-root .bb-cw-tabs .bb-cw-tab-label {
+    display: inline-block !important;
+    color: inherit !important;
+    white-space: nowrap !important;
+}
+
+#bb-cw-root .bb-cw-tabs small {
+    display: none !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li.disabled > a {
+    color: var(--text-muted, #89939c) !important;
+    cursor: not-allowed !important;
+    opacity: .7 !important;
+}
+
+@media (max-width: 600px) {
+    #bb-cw-root .bb-cw-tabs > li > a {
+        min-height: 39px !important;
+        padding: 9px 10px !important;
+        font-size: 12px !important;
+    }
+}
+
+
+/* BB_TABS_NATIVE_STYLE_V3 */
+#bb-cw-root .bb-cw-tabs-native {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border-color, #d1d8dd) !important;
+    border-radius: 0 !important;
+    background: var(--card-bg, #fff) !important;
+    scrollbar-width: thin;
+}
+
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 10px 16px !important;
+    border: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--text-color, #36414c) !important;
+    font: inherit !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+}
+
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab:hover:not(:disabled) {
+    background: var(--subtle-fg, #f7f7f7) !important;
+}
+
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab.is-active,
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab.is-active:hover {
+    border: 0 !important;
+    border-bottom: 2px solid var(--primary, #2490ef) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: var(--card-bg, #fff) !important;
+    color: var(--text-color, #36414c) !important;
+    font-weight: 600 !important;
+}
+
+#bb-cw-root .bb-cw-tabs-native .bb-cw-tab-number {
+    flex: 0 0 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+#bb-cw-root .bb-cw-tabs-native .bb-cw-tab-label {
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    white-space: nowrap !important;
+}
+
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab:disabled,
+#bb-cw-root .bb-cw-tabs-native > .bb-cw-tab.is-disabled {
+    background: transparent !important;
+    color: var(--text-muted, #89939c) !important;
+    cursor: not-allowed !important;
+    opacity: .6 !important;
+}
+
+@media (max-width: 600px) {
+    #bb-cw-root .bb-cw-tabs-native > .bb-cw-tab {
+        min-height: 39px !important;
+        padding: 9px 10px !important;
+        font-size: 12px !important;
+    }
+}
+
+
+/* BB_TAB_COLORS_ICONS_V1: component */
+
+
+#bb-cw-root .bb-cw-tabs [data-stage="0"] {
+    --bb-tab-accent: #0F766E;
+    color: #0F766E !important;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="0"]::before {
+    content: "🧩";
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-inline-end: 7px;
+    font-size: 14px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="0"].is-active,
+#bb-cw-root .bb-cw-tabs [data-stage="0"].is-active:hover {
+    color: #0F766E !important;
+    border-bottom-color: #0F766E !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs li.active [data-stage="0"],
+#bb-cw-root .bb-cw-tabs li.active [data-stage="0"]:hover {
+    color: #0F766E !important;
+    border-bottom-color: #0F766E !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs [data-stage="1"] {
+    --bb-tab-accent: #2563EB;
+    color: #2563EB !important;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="1"]::before {
+    content: "🧪";
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-inline-end: 7px;
+    font-size: 14px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="1"].is-active,
+#bb-cw-root .bb-cw-tabs [data-stage="1"].is-active:hover {
+    color: #2563EB !important;
+    border-bottom-color: #2563EB !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs li.active [data-stage="1"],
+#bb-cw-root .bb-cw-tabs li.active [data-stage="1"]:hover {
+    color: #2563EB !important;
+    border-bottom-color: #2563EB !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs [data-stage="2"] {
+    --bb-tab-accent: #7C3AED;
+    color: #7C3AED !important;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="2"]::before {
+    content: "✅";
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-inline-end: 7px;
+    font-size: 14px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="2"].is-active,
+#bb-cw-root .bb-cw-tabs [data-stage="2"].is-active:hover {
+    color: #7C3AED !important;
+    border-bottom-color: #7C3AED !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs li.active [data-stage="2"],
+#bb-cw-root .bb-cw-tabs li.active [data-stage="2"]:hover {
+    color: #7C3AED !important;
+    border-bottom-color: #7C3AED !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs [data-stage="3"] {
+    --bb-tab-accent: #0891B2;
+    color: #0891B2 !important;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="3"]::before {
+    content: "❄️";
+    display: inline-block;
+    flex: 0 0 auto;
+    margin-inline-end: 7px;
+    font-size: 14px;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+#bb-cw-root .bb-cw-tabs [data-stage="3"].is-active,
+#bb-cw-root .bb-cw-tabs [data-stage="3"].is-active:hover {
+    color: #0891B2 !important;
+    border-bottom-color: #0891B2 !important;
+}
+
+
+#bb-cw-root .bb-cw-tabs li.active [data-stage="3"],
+#bb-cw-root .bb-cw-tabs li.active [data-stage="3"]:hover {
+    color: #0891B2 !important;
+    border-bottom-color: #0891B2 !important;
+}
+
+
+
+/* BB_SHARED_WORKFLOW_ACTIONS_V1 */
+.bb-workflow-actions-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    overflow: visible !important;
+}
+.bb-cw-toolbar, .bb-cw-toolbar-actions, #bb-cw-workflow-actions,
+.bb-rw-toolbar, .bb-rw-toolbar-actions, #bb-rw-workflow-actions {
+    overflow: visible !important;
+}
+.bb-workflow-actions-toggle {
+    min-width: 145px;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.bb-workflow-actions-menu {
+    position: absolute;
+    inset-inline-start: 0;
+    top: calc(100% + 6px);
+    z-index: 1060;
+    width: min(390px, calc(100vw - 32px));
+    min-width: min(300px, calc(100vw - 32px));
+    max-width: calc(100vw - 24px);
+    max-height: min(68vh, 560px);
+    overflow: auto;
+    padding: 10px;
+    direction: rtl;
+    text-align: right;
+    color: var(--text-color, #202124);
+    background: var(--card-bg, var(--fg-color, #fff));
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 9px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .17);
+}
+.bb-workflow-actions-menu[hidden] {
+    display: none !important;
+}
+.bb-workflow-action-summary {
+    display: grid;
+    gap: 7px;
+    padding: 8px 9px 10px;
+    margin-bottom: 9px;
+    border-bottom: 1px solid var(--border-color, #d1d8dd);
+}
+.bb-workflow-action-summary > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-list {
+    display: grid;
+    gap: 8px;
+}
+.bb-workflow-action-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px;
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 7px;
+}
+.bb-workflow-action-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-info small,
+.bb-workflow-action-info span {
+    color: var(--text-muted, #6c7680);
+    font-size: 11px;
+}
+.bb-workflow-action-row .btn {
+    white-space: nowrap;
+}
+.bb-workflow-action-message {
+    padding: 11px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+#bb-rw-root .bb-rw-workflow-dropdown .bb-workflow-actions-menu {
+    left: auto !important;
+    right: auto !important;
+    inset-inline-start: 0;
+    top: calc(100% + 6px);
+    width: min(390px, calc(100vw - 32px));
+    min-width: min(300px, calc(100vw - 32px));
+    max-width: calc(100vw - 24px);
+    max-height: min(68vh, 560px);
+    padding: 10px;
+    margin: 0 !important;
+    list-style: none;
+    direction: rtl;
+    text-align: right;
+    color: var(--text-color, #202124);
+    background: var(--card-bg, var(--fg-color, #fff));
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 9px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .17);
+}
+#bb-rw-root .bb-workflow-actions-menu > li > a {
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: right;
+    color: var(--text-color, #202124);
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 7px;
+}
+#bb-rw-root .bb-workflow-actions-menu > li:last-child > a {
+    margin-bottom: 0;
+}
+#bb-rw-root .bb-workflow-actions-menu > li > a:hover {
+    background: var(--subtle-fg, #f5f7f8);
+}
+@media (max-width: 480px) {
+    .bb-workflow-actions-menu {
+        width: min(340px, calc(100vw - 24px));
+        min-width: 0;
+    }
+    .bb-workflow-action-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .bb-workflow-action-row .btn {
+        width: 100%;
+    }
+}
+
+
+
+
+/* BB_INLINE_ACTION_CONFIRM_V1 */
+.bb-workflow-action-confirm {
+    margin-top: 8px;
+    padding: 11px;
+    border: 1px solid var(--border-color, #d1d8dd);
+    border-radius: 8px;
+    line-height: 1.8;
+    background: var(--card-bg, var(--fg-color, #fff));
+    overflow-wrap: anywhere;
+}
+.bb-workflow-action-confirm p {
+    margin: 8px 0 12px;
+}
+.bb-workflow-action-confirm small {
+    display: block;
+    margin: 4px 0 8px;
+    color: var(--text-muted, #6c7680);
+}
+.bb-workflow-action-confirm-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+.bb-workflow-action-confirm-buttons .btn {
+    white-space: nowrap;
+}
+#bb-rw-root .bb-workflow-actions-menu > li {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+
+/* BB_INLINE_ACTION_CONFIRM_FIX_V2 */
+.bb-workflow-actions-menu .bb-workflow-action-confirm {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+}
+
+/* BB_WORKFLOW_ACTION_BUTTONS_V1_START */
+/* Component Work: same visible action-button language as Initial Work. */
+
+/* The dropdown toggle is unnecessary: show the action bar directly. */
+#bb-cw-root #bb-cw-actions-toggle {
+    display: none !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu.bb-workflow-actions-menu,
+#bb-cw-root #bb-cw-actions-menu.bb-workflow-actions-menu[hidden] {
+    position: static !important;
+    inset: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    visibility: visible !important;
+}
+
+/* One shared, wrapping row of action buttons. */
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-list {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove the extra row/card presentation; keep the action itself. */
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row {
+    display: contents !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-info {
+    display: none !important;
+}
+
+/* Button sizing follows Initial Work's compact action toolbar. */
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row .btn {
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 0;
+    min-height: 30px;
+    margin: 0 !important;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Available actions retain the framework's primary-button style. */
+#bb-cw-root #bb-cw-actions-menu
+    .bb-workflow-action-row .btn.btn-primary {
+    cursor: pointer;
+}
+
+/* Unavailable actions stay visible but disabled. */
+#bb-cw-root #bb-cw-actions-menu
+    .bb-workflow-action-row .btn:disabled {
+    opacity: .44 !important;
+    cursor: not-allowed !important;
+    filter: grayscale(.35);
+    box-shadow: none !important;
+}
+
+/* Keep status text readable when no action is available. */
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-message {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--subtle-fg, #f6f7f9);
+    color: var(--text-muted, #6c7680);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* Preserve the existing confirmation panel and its buttons. */
+#bb-cw-root .bb-workflow-action-confirm {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 10px;
+    border: 1px solid var(--border-color, #d5dbe3);
+    border-radius: 7px;
+    background: var(--card-bg, #fff);
+    overflow-wrap: anywhere;
+}
+
+#bb-cw-root .bb-workflow-action-confirm-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+    #bb-cw-root #bb-cw-actions-menu .bb-workflow-actions-list {
+        gap: 6px !important;
+    }
+
+    #bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row .btn {
+        min-height: 30px;
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+/* BB_WORKFLOW_ACTION_BUTTONS_V1_END */
+
+
+/* BB_COMPONENT_FOUR_WINDOW_LAYOUT_V1_START */
+#bb-cw-root .bb-cw-stage-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin: 12px 0;
+}
+#bb-cw-root .bb-cw-stage-group {
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid var(--bb-cw-border, #e2e7ec);
+    border-radius: 7px;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #303744);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: normal;
+}
+#bb-cw-root .bb-cw-stage-group.is-active {
+    border-color: #a61b29;
+    background: #a61b29;
+    color: #fff;
+}
+#bb-cw-root .bb-cw-stage-screen[hidden] {
+    display: none !important;
+}
+#bb-cw-root .bb-cw-stage-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+}
+#bb-cw-root .bb-cw-stage-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid var(--bb-cw-border, #e2e7ec);
+    border-radius: 9px;
+    background: var(--card-bg, #fff);
+    box-shadow: 0 2px 7px rgba(23, 32, 51, .04);
+}
+#bb-cw-root .bb-cw-stage-card.is-active {
+    border-color: #a61b29;
+    box-shadow: 0 0 0 1px rgba(166, 27, 41, .13);
+}
+#bb-cw-root .bb-cw-stage-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--bb-cw-border, #e2e7ec);
+}
+#bb-cw-root .bb-cw-stage-card-activate {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    color: var(--heading-color, #303744);
+    text-align: right;
+}
+#bb-cw-root .bb-cw-stage-card-activate:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+#bb-cw-root .bb-cw-stage-card-activate strong,
+#bb-cw-root .bb-cw-stage-card-activate small {
+    display: block;
+}
+#bb-cw-root .bb-cw-stage-card-activate strong {
+    font-size: 13px;
+    line-height: 1.5;
+}
+#bb-cw-root .bb-cw-stage-card-activate small {
+    margin-top: 2px;
+    color: var(--text-muted, #74808b);
+    font-size: 10px;
+    line-height: 1.4;
+}
+#bb-cw-root .bb-cw-stage-icon {
+    flex: 0 0 auto;
+    font-size: 21px;
+}
+#bb-cw-root .bb-cw-card-status {
+    min-width: 92px;
+    max-width: 42%;
+}
+#bb-cw-root .bb-cw-card-status label,
+#bb-cw-root .bb-cw-record-picker label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}
+#bb-cw-root .bb-cw-card-status .form-control {
+    height: auto;
+    min-height: 29px;
+    padding: 5px 7px;
+    overflow-wrap: anywhere;
+    font-size: 10px;
+}
+#bb-cw-root .bb-cw-stage-card-body {
+    min-width: 0;
+    padding-top: 9px;
+}
+#bb-cw-root .bb-cw-record-picker {
+    margin-bottom: 8px;
+}
+#bb-cw-root .bb-cw-record-picker .form-control {
+    height: 32px;
+    padding: 5px 8px;
+    font-size: 11px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 9px;
+    margin: 0 0 5px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] > [class*="col-"] {
+    float: none;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 7px 9px;
+    min-width: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] > [class*="col-"] {
+    float: none;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .form-group {
+    min-width: 0;
+    margin: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] label {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .form-control,
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] .form-control {
+    min-width: 0;
+    min-height: 30px;
+    height: auto;
+    padding: 5px 7px;
+    font-size: 11px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .help-box,
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .description {
+    font-size: 10px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .col-md-12 {
+    grid-column: 1 / -1;
+}
+@media (max-width: 850px) {
+    #bb-cw-root .bb-cw-stage-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (max-width: 520px) {
+    #bb-cw-root .bb-cw-stage-groups {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    #bb-cw-root .bb-cw-stage-card [data-stage-fields],
+    #bb-cw-root .bb-cw-stage-card [data-stage-source-controls] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* BB_COMPONENT_FOUR_WINDOW_LAYOUT_V1_END */
+
+
+/* BB_COMPONENT_ALWAYS_VISIBLE_ACTIONS_V2_START */
+#bb-cw-root #bb-cw-workflow-actions {
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+}
+#bb-cw-root .bb-workflow-actions-wrap {
+    display: block;
+    min-width: 0;
+    width: 100%;
+}
+#bb-cw-root #bb-cw-actions-toggle {
+    display: none !important;
+}
+#bb-cw-root #bb-cw-actions-menu,
+#bb-cw-root #bb-cw-actions-menu[hidden] {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row {
+    display: contents !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-info {
+    display: none !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 30px;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: normal;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action:not(:disabled):hover {
+    border-color: #b95b66;
+    color: #8c1d2a;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action:disabled {
+    opacity: .44;
+    cursor: not-allowed;
+    filter: grayscale(.35);
+    box-shadow: none;
+}
+#bb-cw-root .bb-cw-stage-card.is-blocked {
+    border-style: dashed;
+}
+#bb-cw-root .bb-cw-stage-card.is-blocked .bb-cw-card-status .form-control {
+    background: var(--subtle-fg, #f6f7f9);
+}
+/* BB_COMPONENT_ALWAYS_VISIBLE_ACTIONS_V2_END */
+
+
+/* BB_COMPONENT_ACTION_STYLE_MATCH_V4_START */
+/* نفس قياسات وتباعد أزرار سير العمل في blood_bank_initial_work. */
+
+#bb-cw-root #bb-cw-actions-toggle {
+    display: none !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu,
+#bb-cw-root #bb-cw-actions-menu[hidden] {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-list {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row {
+    display: contents !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-info {
+    display: none !important;
+}
+
+/* اسم الإجراء موجود أصلًا على الزر؛ نوحّد الحجم والشكل فقط. */
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 30px;
+    margin: 0;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: normal;
+}
+
+#bb-cw-root #bb-cw-actions-menu
+.bb-cw-workflow-action-button:not(:disabled):hover {
+    border-color: #c9a0a7;
+}
+
+#bb-cw-root #bb-cw-actions-menu
+.bb-cw-workflow-action-button:disabled {
+    opacity: .44;
+    cursor: not-allowed;
+    filter: grayscale(.35);
+    box-shadow: none;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-message {
+    width: 100%;
+    margin: 0;
+    padding: 7px 9px;
+    border: 1px solid var(--border-color, #e2e6ec);
+    border-radius: 5px;
+    background: var(--subtle-fg, #f6f7f9);
+    color: var(--text-muted, #637083);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    padding: 7px;
+    border: 1px solid #e2e6ec;
+    border-radius: 6px;
+    background: #f8f9fb;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-summary > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-summary span {
+    color: #768193;
+    font-size: 10px;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-confirm {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #ead9dd;
+    border-radius: 6px;
+    background: #fffafb;
+    line-height: 1.7;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-confirm p {
+    margin: 7px 0;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-confirm-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-confirm-buttons button {
+    min-height: 30px;
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+@media (max-width: 520px) {
+    #bb-cw-root #bb-cw-actions-menu .bb-workflow-action-summary {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* BB_COMPONENT_ACTION_STYLE_MATCH_V4_END */
+
+/* BB_COMPONENT_REUSE_INITIAL_STYLE_V5_START */
+#bb-cw-root {
+
+ --bb-accent:#922638; --bb-border:#dfe4ea; --bb-muted:#697586;
+ direction:rtl; max-width:1700px; margin:0 auto; padding:6px 4px 18px;
+ color:var(--text-color,#263244); font-size:13px;
+
+}
+#bb-cw-root *, #bb-cw-root *::before, #bb-cw-root *::after {
+ box-sizing:border-box;
+}
+#bb-cw-root [hidden], #bb-cw-root .bb-iw-screen[hidden],
+#bb-cw-root .bb-iw-card[hidden], #bb-cw-root .bb-iw-field[hidden],
+#bb-cw-root .bb-iw-transfer-summary[hidden],
+#bb-cw-root .bb-iw-options[hidden],
+#bb-cw-root #bb-cw-actions-menu[hidden] {
+ display:none !important;
+}
+#bb-cw-root .bb-iw-toolbar .btn {
+ min-height:30px; padding:5px 9px; font-size:11px;
+}
+#bb-cw-root .bb-iw-tabs {
+ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:11px 0;
+}
+#bb-cw-root .bb-iw-tab {
+ display:flex; align-items:center; justify-content:center;
+ min-width:0; min-height:39px; padding:8px 12px; border:1px solid var(--bb-border);
+ border-radius:7px; background:var(--card-bg,#fff); color:#454d59; font-size:13px;
+ font-weight:700; line-height:1.5; text-align:center; white-space:normal; cursor:pointer;
+}
+#bb-cw-root .bb-iw-tab:hover {
+ border-color:#c9a0a7;
+}
+#bb-cw-root .bb-iw-tab.is-active, #bb-cw-root .bb-iw-tab.is-active:hover {
+
+ color:#fff; background:var(--bb-accent); border-color:var(--bb-accent);
+}
+#bb-cw-root .bb-iw-screen:not([hidden]) .bb-iw-grid,
+#bb-cw-root .bb-iw-grid {
+ display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px; align-items:start;
+}
+#bb-cw-root .bb-iw-card {
+ display:flex; flex-direction:column; min-width:0; padding:9px;
+ background:var(--card-bg,#fff); border:1px solid var(--bb-border); border-radius:9px;
+ box-shadow:0 2px 7px #17203308;
+}
+#bb-cw-root .bb-iw-card-head {
+ display:flex; align-items:center; justify-content:space-between;
+ gap:7px; min-width:0; padding-bottom:7px; border-bottom:1px solid #eceef1;
+}
+#bb-cw-root .bb-iw-card-head>div {
+ display:flex; align-items:center; gap:8px; min-width:0; font-size:19px;
+}
+#bb-cw-root .bb-iw-card-head h3 {
+ margin:0 0 2px; color:#303744; font-size:14px; font-weight:700; line-height:1.35;
+}
+#bb-cw-root .bb-iw-card-head small {
+ display:block; color:#818997; font-size:10px; line-height:1.3;
+}
+#bb-cw-root .bb-iw-id {
+ flex:0 1 auto; max-width:48%; padding:4px 6px; overflow-wrap:anywhere;
+ border-radius:5px; background:#f2f3f5; color:#525c69; font-size:10px; text-align:center;
+}
+#bb-cw-root .bb-iw-fields {
+ display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:7px 9px; align-content:start; min-width:0; padding:9px 0 3px;
+}
+#bb-cw-root .bb-iw-field {
+ min-width:0; margin:0;
+}
+#bb-cw-root .bb-iw-field.wide {
+ grid-column:1/-1;
+}
+#bb-cw-root .bb-iw-field label, #bb-cw-root .bb-iw-name-picker label,
+#bb-cw-root .bb-iw-field .control-label, #bb-cw-root .bb-iw-name-picker .control-label {
+
+ display:block; margin:0 0 3px; color:#424b58; font-size:11px; font-weight:600; line-height:1.4;
+}
+#bb-cw-root .bb-iw-field .frappe-control, #bb-cw-root .bb-iw-name-picker .frappe-control,
+#bb-cw-root .bb-iw-field .form-group, #bb-cw-root .bb-iw-name-picker .form-group {
+
+ min-width:0; margin:0;
+}
+#bb-cw-root .bb-iw-field .control-input-wrapper, #bb-cw-root .bb-iw-field .input-area {
+
+ min-width:0; padding:0;
+}
+#bb-cw-root .bb-iw-field .form-control, #bb-cw-root .bb-iw-name-picker .form-control,
+#bb-cw-root .bb-iw-field input, #bb-cw-root .bb-iw-field select,
+#bb-cw-root .bb-iw-field textarea {
+ width:100%; min-width:0; min-height:30px; height:auto;
+ padding:4px 7px; border:1px solid #d9dde4; border-radius:5px;
+ background:var(--control-bg,#fff); color:var(--text-color,#263244);
+ font-size:12px; line-height:1.4; box-sizing:border-box;
+}
+#bb-cw-root .bb-iw-field textarea {
+ min-height:46px; resize:vertical;
+}
+#bb-cw-root .bb-iw-field input:focus, #bb-cw-root .bb-iw-field select:focus,
+#bb-cw-root .bb-iw-field textarea:focus, #bb-cw-root .bb-iw-name-picker input:focus {
+
+ outline:2px solid #92263820; border-color:#a34b59;
+}
+#bb-cw-root .bb-iw-field input:disabled, #bb-cw-root .bb-iw-field select:disabled,
+#bb-cw-root .bb-iw-field textarea:disabled {
+ background:#f4f5f7; color:#737b86;
+}
+#bb-cw-root .bb-iw-field .help-box, #bb-cw-root .bb-iw-field .help-message {
+
+ margin-top:3px; color:var(--bb-muted); font-size:10px; line-height:1.4;
+}
+#bb-cw-root .bb-iw-field .link-btn, #bb-cw-root .bb-iw-field .btn-open,
+#bb-cw-root .bb-iw-field .btn-reset {
+ max-height:30px;
+}
+#bb-cw-root .bb-iw-field .checkbox {
+
+    margin: 3px 0;
+
+}
+#bb-cw-root .bb-iw-field .checkbox label,
+#bb-cw-root .bb-iw-check {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    margin: 0;
+    padding: 5px 8px;
+    border: 1px solid #c5cdd7;
+    border-radius: 5px;
+    background: #fff;
+    color: #263244;
+    cursor: pointer;
+    line-height: 1.5;
+
+}
+#bb-cw-root .bb-iw-field input[type="checkbox"],
+#bb-cw-root .bb-iw-check input[type="checkbox"] {
+
+    appearance: auto !important;
+    -webkit-appearance: checkbox !important;
+    display: inline-block !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-height: none !important;
+    margin: 0 0 0 5px !important;
+    padding: 0 !important;
+    accent-color: var(--bb-accent, #922638);
+    vertical-align: middle;
+    cursor: pointer;
+    flex: 0 0 18px;
+
+}
+#bb-cw-root .bb-iw-field input[type="checkbox"]:focus-visible {
+
+    outline: 3px solid #92263855 !important;
+    outline-offset: 2px;
+
+}
+#bb-cw-root .bb-iw-blood-group-verified .checkbox label {
+
+    min-height: 38px;
+    padding: 7px 9px;
+    border-color: #aebbc9;
+    background: #f7f9fc;
+    font-size: 12px;
+    font-weight: 700;
+
+}
+#bb-cw-root .bb-iw-blood-group-verified input[type="checkbox"] {
+
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    flex-basis: 20px;
+
+}
+#bb-cw-root .bb-iw-check {
+ display:flex; align-items:center; gap:7px; min-height:28px;
+}
+#bb-cw-root .bb-iw-name-picker {
+ position:relative; min-width:0; padding:8px 0 0;
+}
+#bb-cw-root .bb-iw-name-picker input {
+ min-height:31px;
+}
+#bb-cw-root .bb-iw-options {
+ position:absolute; top:100%; right:0; left:0; z-index:50;
+ max-height:200px; margin-top:3px; overflow-y:auto; border:1px solid #d9dde4;
+ border-radius:5px; background:#fff; box-shadow:0 5px 15px #0002;
+}
+#bb-cw-root .bb-iw-option {
+ display:flex; justify-content:space-between; gap:8px; width:100%;
+ padding:8px; border:0; border-bottom:1px solid #eee; background:#fff; color:#263244;
+ font-size:12px; text-align:right; cursor:pointer;
+}
+#bb-cw-root .bb-iw-option:hover {
+ background:#f8f0f2;
+}
+#bb-cw-root .bb-iw-no-results {
+ padding:10px; color:#737b86; font-size:11px;
+}
+#bb-cw-root .bb-iw-transfer-summary {
+ min-width:0; margin:8px 0 3px; padding:8px;
+ border:1px solid #dce4ec; border-radius:7px; background:#f7f9fc;
+}
+#bb-cw-root .bb-iw-transfer-summary-title {
+ margin-bottom:6px; color:#4b586a; font-size:11px; font-weight:700;
+}
+#bb-cw-root .bb-iw-transfer-summary-grid {
+ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px;
+}
+#bb-cw-root .bb-iw-transfer-summary-item {
+ min-width:0; padding:5px 6px;
+ border:1px solid #e8edf2; border-radius:5px; background:#fff;
+}
+#bb-cw-root .bb-iw-transfer-summary-item span {
+ display:block; margin-bottom:3px;
+ color:#687789; font-size:10px; line-height:1.4;
+}
+#bb-cw-root .bb-iw-transfer-summary-item strong {
+ display:block; overflow-wrap:anywhere;
+ color:#27364a; font-size:12px; font-weight:700; line-height:1.5;
+}
+#bb-cw-root .bb-iw-shared-bar {
+ position:relative; z-index:10; display:grid;
+ grid-template-columns:minmax(120px,auto) minmax(0,1fr); align-items:start; gap:10px;
+ margin:8px 0 11px; padding:9px; border:1px solid var(--bb-border);
+ border-radius:8px; background:var(--card-bg,#fff);
+}
+#bb-cw-root #bb-cw-active-window-title {
+ padding-top:5px; color:#354154; font-size:12px; font-weight:700;
+}
+#bb-cw-root .bb-iw-shared-buttons {
+ display:flex; flex-direction:column; align-items:stretch; gap:7px; min-width:0;
+}
+#bb-cw-root #bb-cw-actions-toggle {
+ display:none;
+}
+#bb-cw-root #bb-cw-actions-menu.bb-iw-actions-toolbar {
+ display:flex; flex-direction:column;
+ gap:7px; width:100%; max-height:none; min-width:0; margin:0; padding:0; overflow:visible;
+ border:0; background:transparent; box-shadow:none;
+}
+#bb-cw-root #bb-cw-actions-menu.bb-iw-actions-toolbar[hidden] {
+ display:none !important;
+}
+#bb-cw-root .bb-iw-action-toolbar-buttons {
+ display:flex; flex-wrap:wrap; align-items:center; gap:6px; width:100%;
+}
+#bb-cw-root .bb-iw-workflow-action {
+ min-width:0; min-height:30px; padding:5px 9px;
+ border-radius:5px; font-size:11px; line-height:1.4; white-space:normal;
+}
+#bb-cw-root .bb-iw-workflow-action:disabled {
+ opacity:.44; cursor:not-allowed; filter:grayscale(.35); box-shadow:none;
+}
+#bb-cw-root .bb-iw-actions-menu-message {
+ padding:7px 9px; border-radius:5px;
+ background:#f6f7f9; color:#637083; font-size:11px; line-height:1.7;
+}
+#bb-cw-root .bb-iw-actions-menu-summary {
+ display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px; padding:7px; border:1px solid #e2e6ec; border-radius:6px; background:#f8f9fb;
+}
+#bb-cw-root .bb-iw-actions-menu-summary>div {
+ min-width:0;
+}
+#bb-cw-root .bb-iw-actions-menu-summary span {
+ display:block; margin-bottom:3px; color:#768193; font-size:10px;
+}
+#bb-cw-root .bb-iw-actions-menu-summary strong {
+ display:block; overflow-wrap:anywhere; font-size:11px;
+}
+#bb-cw-root .bb-iw-actions-menu-confirm {
+ padding:9px; border:1px solid #ead9dd; border-radius:6px; background:#fffafb; line-height:1.7;
+}
+#bb-cw-root .bb-iw-actions-menu-confirm p {
+ margin:7px 0;
+}
+#bb-cw-root .bb-iw-actions-menu-confirm-buttons {
+ display:flex; flex-wrap:wrap; gap:7px;
+}
+#bb-cw-root #bb-cw-save {
+ align-self:flex-start; min-height:33px; padding:6px 12px;
+ border-radius:6px; background:var(--bb-accent); border-color:var(--bb-accent); font-size:12px; font-weight:700;
+}
+#bb-cw-root #bb-cw-save:hover {
+ background:#741d2b; border-color:#741d2b;
+}
+#bb-cw-root #bb-cw-save:disabled {
+ opacity:.65; cursor:wait;
+}
+#bb-cw-root .bb-iw-card footer {
+ margin-top:auto; padding-top:7px; border-top:1px solid #eceef1;
+}
+#bb-cw-root .bb-iw-card footer .btn {
+ min-height:30px; font-size:11px;
+}
+@media(max-width:1000px) {
+#bb-cw-root .bb-iw-shared-bar {
+ grid-template-columns:minmax(0,1fr); gap:6px;
+}
+#bb-cw-root .bb-iw-shared-buttons {
+ width:100%;
+}
+#bb-cw-root .bb-iw-transfer-summary-grid {
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+}
+@media(max-width:760px) {
+#bb-cw-root .bb-iw-screen:not([hidden]) .bb-iw-grid, #bb-cw-root .bb-iw-grid {
+
+  grid-template-columns:minmax(0,1fr);
+}
+#bb-cw-root .bb-iw-card {
+ padding:8px;
+}
+#bb-cw-root .bb-iw-transfer-summary-grid, #bb-cw-root .bb-iw-actions-menu-summary {
+
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+}
+@media(max-width:520px) {
+#bb-cw-root .bb-iw-header h2 {
+ font-size:16px;
+}
+#bb-cw-root .bb-iw-tab {
+ padding:7px 5px; font-size:11px;
+}
+#bb-cw-root .bb-iw-fields {
+ grid-template-columns:minmax(0,1fr); gap:7px;
+}
+#bb-cw-root .bb-iw-field.wide {
+ grid-column:auto;
+}
+#bb-cw-root .bb-iw-transfer-summary-grid, #bb-cw-root .bb-iw-actions-menu-summary {
+
+  grid-template-columns:minmax(0,1fr);
+}
+#bb-cw-root .bb-iw-card-head h3 {
+ font-size:13px;
+}
+}
+
+/* Compatibility overrides for the component page's active action bar */
+#bb-cw-root #bb-cw-actions-menu.bb-iw-actions-toolbar[hidden] {
+    display: flex !important;
+}
+#bb-cw-root .bb-cw-stage-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 7px;
+    min-width: 0;
+    padding-bottom: 7px;
+    border-bottom: 1px solid #eceef1;
+}
+#bb-cw-root .bb-cw-stage-card-activate {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    color: #303744;
+    text-align: right;
+}
+#bb-cw-root .bb-cw-stage-card-activate strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+#bb-cw-root .bb-cw-stage-card-activate small {
+    display: block;
+    color: #818997;
+    font-size: 10px;
+    line-height: 1.4;
+}
+#bb-cw-root .bb-cw-stage-card-body {
+    min-width: 0;
+    padding-top: 9px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields],
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 7px 9px;
+    min-width: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] > [class*="col-"],
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] > [class*="col-"] {
+    float: none;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .form-group,
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] .form-group {
+    min-width: 0;
+    margin: 0;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .form-control,
+#bb-cw-root .bb-cw-stage-card [data-stage-source-controls] .form-control {
+    min-width: 0;
+    min-height: 30px;
+    height: auto;
+    padding: 5px 7px;
+    font-size: 11px;
+}
+#bb-cw-root .bb-cw-stage-card [data-stage-fields] .col-md-12 {
+    grid-column: 1 / -1;
+}
+@media (max-width: 850px) {
+    #bb-cw-root .bb-cw-stage-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* BB_COMPONENT_REUSE_INITIAL_STYLE_V5_END */
+
+
+/* BB_COMPONENT_ACTION_COLOR_CSS_V6 */
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button.btn-primary {
+    background:#a61b29 !important; border-color:#821522 !important; color:#fff !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button.btn-success {
+    background:#198754 !important; border-color:#157347 !important; color:#fff !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button.btn-info {
+    background:#0d6efd !important; border-color:#0a58ca !important; color:#fff !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button.btn-warning {
+    background:#f0ad4e !important; border-color:#d9952e !important; color:#292929 !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button.btn-danger {
+    background:#dc3545 !important; border-color:#bb2d3b !important; color:#fff !important;
+}
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button:disabled {
+    opacity:.43 !important; cursor:not-allowed !important;
+    filter:grayscale(.55); box-shadow:none !important;
+}
+/* BB_COMPONENT_ACTION_COLOR_CSS_V6_END */
+
+/* BB_COMPONENT_ACTIONS_SINGLE_ROW_V7_START */
+/* صف واحد دائمًا؛ عند ضيق الشاشة يتم التمرير الأفقي بدل الالتفاف. */
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-list,
+#bb-cw-root #bb-cw-actions-menu .bb-iw-action-toolbar-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    padding: 2px 0 6px !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-row,
+#bb-cw-root #bb-cw-actions-menu .bb-iw-action-row {
+    display: contents !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-cw-workflow-action-button,
+#bb-cw-root #bb-cw-actions-menu .bb-iw-workflow-action {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 30px !important;
+    margin: 0 !important;
+    padding: 5px 9px !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    line-height: 1.4 !important;
+    font-size: 11px !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-summary,
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-confirm,
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-message {
+    flex: 0 0 auto;
+    max-width: 100%;
+}
+/* BB_COMPONENT_ACTIONS_SINGLE_ROW_V7_END */
+
+
+/* BB_COMPONENT_FLICKER_GUARD_V4 */
+/* إيقاف انتقالات الحركة التي قد تسبب وميضًا داخل صفحة المكونات فقط. */
+#bb-cw-root,
+#bb-cw-root *,
+#bb-cw-root *::before,
+#bb-cw-root *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* منع تحريك البطاقات عند المرور أو النقر داخل هذه الصفحة. */
+#bb-cw-root .card:hover,
+#bb-cw-root .widget:hover,
+#bb-cw-root .list-row:hover,
+#bb-cw-root .bb-cw-panel:hover,
+#bb-cw-root .bb-cw-stage-card:hover {
+    transform: none !important;
+}
+
+
+/* BB_COMPONENT_COMPACT_LAYOUT_V1
+ * تخطيط منخفض الارتفاع لصفحة أعمال مكونات بنك الدم فقط.
+ * لا يغيّر هذا القسم سير العمل أو منطق الحفظ والصلاحيات.
+ */
+
+/* تقليل المساحة الرأسية المستخدمة في أعلى الصفحة. */
+#bb-cw-root .bb-cw-header {
+    gap: 8px !important;
+    margin: 3px 0 6px !important;
+    padding: 7px 11px !important;
+}
+
+#bb-cw-root .bb-cw-brand-mark {
+    flex: 0 0 34px !important;
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 19px !important;
+}
+
+#bb-cw-root .bb-cw-header h2,
+#bb-cw-root .bb-cw-brand-copy h2 {
+    margin: 0 0 2px !important;
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+}
+
+#bb-cw-root .bb-cw-header p {
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+}
+
+/* شريط الإجراءات في صف منخفض الارتفاع. */
+#bb-cw-root .bb-cw-toolbar {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 4px 8px !important;
+    margin: 3px 0 6px !important;
+    padding: 4px 6px !important;
+    min-height: 0 !important;
+}
+
+/* مساحة الإجراءات تأخذ صفًا واحدًا مضغوطًا أعلى أزرار التنقل. */
+#bb-cw-root .bb-cw-toolbar-actions {
+    order: 0 !important;
+    display: flex !important;
+    flex: 1 1 100% !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* زر الإجراءات والقائمة في سطر واحد بأقل ارتفاع ممكن. */
+#bb-cw-root #bb-cw-workflow-actions {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    line-height: 1.1 !important;
+}
+
+#bb-cw-root .bb-workflow-actions-wrap,
+#bb-cw-root .bb-iw-shared-actions-wrap {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#bb-cw-root #bb-cw-actions-toggle {
+    flex: 0 0 auto !important;
+    min-height: 27px !important;
+    margin: 0 !important;
+    padding: 3px 7px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+#bb-cw-root #bb-cw-actions-menu {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+#bb-cw-root #bb-cw-workflow-actions .bb-workflow-action-list,
+#bb-cw-root #bb-cw-actions-menu .bb-workflow-action-list,
+#bb-cw-root #bb-cw-actions-menu .bb-iw-action-toolbar-buttons {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    width: max-content !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+#bb-cw-root #bb-cw-workflow-actions .btn,
+#bb-cw-root #bb-cw-actions-menu .btn {
+    flex: 0 0 auto !important;
+    min-height: 27px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 3px 7px !important;
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+/* أزرار إنشاء السجل والتحديث والسابق والتالي في منتصف الصفحة. */
+#bb-cw-root .bb-cw-toolbar-main,
+#bb-cw-root .bb-cw-toolbar-navigation {
+    order: 1 !important;
+    display: flex !important;
+    flex: 0 1 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#bb-cw-root .bb-cw-toolbar #bb-cw-new,
+#bb-cw-root .bb-cw-toolbar #bb-cw-refresh,
+#bb-cw-root .bb-cw-toolbar #bb-cw-prev,
+#bb-cw-root .bb-cw-toolbar #bb-cw-next,
+#bb-cw-root .bb-cw-toolbar .bb-cw-btn {
+    flex: 0 0 auto !important;
+    min-height: 29px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 4px 9px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+}
+
+/* تسميات المراحل: ارتفاع أقل مع إبقاء النص واضحًا. */
+#bb-cw-root .bb-cw-tabs {
+    gap: 5px !important;
+    margin: 5px 0 7px !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 31px !important;
+    height: auto !important;
+    padding: 4px 7px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+}
+
+#bb-cw-root .bb-cw-tabs > li > a small,
+#bb-cw-root .bb-cw-tabs > li > a .text-muted {
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+}
+
+/* تقليل المسافات داخل أقسام المراحل والبطاقات. */
+#bb-cw-root .bb-cw-workspace {
+    margin-top: 5px !important;
+}
+
+#bb-cw-root .bb-cw-panel {
+    margin-bottom: 7px !important;
+    padding: 8px 10px !important;
+}
+
+#bb-cw-root .bb-cw-panel-head {
+    gap: 5px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 5px !important;
+    font-size: 12px !important;
+}
+
+#bb-cw-root .bb-cw-stage-bar {
+    padding: 7px 10px !important;
+}
+
+#bb-cw-root .bb-cw-workspace-heading {
+    margin-bottom: 5px !important;
+}
+
+/* الهاتف والشاشات الضيقة: السماح بالتفاف مجموعات التنقل فقط،
+   مع إبقاء أزرار الإجراءات داخل صف قابل للتمرير. */
+@media (max-width: 700px) {
+    #bb-cw-root .bb-cw-toolbar-main,
+    #bb-cw-root .bb-cw-toolbar-navigation {
+        flex-wrap: wrap !important;
+    }
+
+    #bb-cw-root .bb-cw-tabs > li > a {
+        padding: 4px 5px !important;
+        font-size: 10px !important;
+    }
+}

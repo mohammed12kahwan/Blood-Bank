@@ -192,6 +192,16 @@
    "reqd": 1
   },
   {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "تاريخ انتهاء الصلاحية | Expiry Date",
+   "hidden": 0,
+   "reqd": 1,
+   "read_only": 0,
+   "description": "تاريخ انتهاء صلاحية وحدة الدم، ويُستخدم للتحقق قبل إتاحة المكوّن.",
+   "insert_after": "storage_date"
+  },
+  {
    "fieldname": "stored_at",
    "fieldtype": "Datetime",
    "label": "Stored At / وقت التخزين"

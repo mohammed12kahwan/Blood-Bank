@@ -19,8 +19,6 @@
         ["مطابقة الدم", "bb-crossmatch"],
 
         ["صرف الدم", "bb-issue"],
-        ["تسليم الدم", "bb-handover"],
-        ["نقل الدم", "bb-transfusion"],
 
         ["التصرف في وحدة الدم", "bb-disposition"],
         ["Unit Disposition", "bb-disposition"]

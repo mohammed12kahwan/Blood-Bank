@@ -19,37 +19,39 @@
 
   <div id="iw-message" class="bb-iw-message" hidden></div>
 
-  <nav class="bb-iw-tabs">
-      <button type="button" class="bb-iw-tab is-active" data-tab="0">١. المتبرع | Donor</button>
-      <button type="button" class="bb-iw-tab" data-tab="1">٢. التبرع | Donation</button>
-      <button type="button" class="bb-iw-tab" data-tab="2">٣. المعالجة | Processing</button>
-      <button type="button" class="bb-iw-tab" data-tab="3">٤. وحدة الدم | Blood Unit</button>
+  <nav class="bb-iw-tabs" aria-label="مجموعات عمل بنك الدم">
+      <button type="button" class="bb-iw-tab is-active" data-tab="0">
+        ١. المتبرع والتبرع | Donor &amp; Donation
+      </button>
+      <button type="button" class="bb-iw-tab" data-tab="2">
+        ٢. المعالجة ووحدة الدم | Processing &amp; Unit
+      </button>
     </nav>
 
     <div class="bb-iw-shared-bar">
       <span id="iw-active-window-title">المتبرع | Donor</span>
       <div class="bb-iw-shared-buttons">
-        <div class="bb-iw-actions-wrap">
-          <button
-            type="button"
-            class="btn btn-default"
-            id="iw-actions-active"
-            aria-haspopup="menu"
-            aria-expanded="false"
-            aria-controls="iw-actions-menu">
-            ⚙ الإجراءات | Actions <span aria-hidden="true">▾</span>
-          </button>
-          <div
-            id="iw-actions-menu"
-            class="bb-iw-actions-menu"
-            role="menu"
-            aria-label="إجراءات سير العمل"
-            hidden>
-            <div class="text-muted">
-              اختر سجلًا لعرض إجراءات سير العمل المتاحة.
-            </div>
+        <button
+          type="button"
+          class="btn btn-default"
+          id="iw-actions-active"
+          hidden
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="iw-actions-menu">
+          الإجراءات | Actions
+        </button>
+
+        <div
+          id="iw-actions-menu"
+          class="bb-iw-actions-menu bb-iw-actions-toolbar"
+          role="region"
+          aria-label="إجراءات سير العمل">
+          <div class="text-muted bb-iw-actions-menu-message">
+            ستظهر إجراءات السجل هنا حسب حالته وصلاحية المستخدم.
           </div>
         </div>
+
         <button type="button" class="btn btn-primary" id="iw-save-active">
           💾 حفظ | Save
         </button>

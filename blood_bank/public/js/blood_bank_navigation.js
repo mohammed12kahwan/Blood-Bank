@@ -12,8 +12,6 @@
         { name: "Blood Reservation", label: "الحجز", icon: "🔒", route: "blood-reservation" },
         { name: "Blood Crossmatch", label: "المطابقة", icon: "🔄", route: "blood-crossmatch" },
         { name: "Blood Issue", label: "صرف الدم", icon: "📦", route: "blood-issue" },
-        { name: "Blood Handover", label: "تسليم الدم", icon: "🤝", route: "blood-handover" },
-        { name: "Blood Transfusion", label: "نقل الدم", icon: "💉", route: "blood-transfusion" },
         { name: "Blood Unit Disposition", label: "مصير الوحدة", icon: "🗑️", route: "blood-unit-disposition" }
     ];
 
